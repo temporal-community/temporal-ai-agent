@@ -9,7 +9,7 @@ async def main():
     # Create client connected to server at the given address
     client = await Client.connect("localhost:7233")
 
-    workflow_id = "entity-ollama-workflow"
+    workflow_id = "ollama-agent"
 
     handle = client.get_workflow_handle_for(EntityOllamaWorkflow.run, workflow_id)
 

@@ -9,7 +9,7 @@ async def main(prompt):
     # Create client connected to server at the given address
     client = await Client.connect("localhost:7233")
 
-    workflow_id = "entity-ollama-workflow"
+    workflow_id = "ollama-agent"
 
     # Sends a signal to the workflow (and starts it if needed)
     await client.start_workflow(
