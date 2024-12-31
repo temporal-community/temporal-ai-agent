@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "temporal-ollama-agent"
+version = "0.1.0"
+description = "Temporal Ollama Agent"
+license = "MIT"
+authors = ["Steve Androulakis <steve.androulakis@temporal.io>"]
+readme = "README.md"
+
+# By default, Poetry will find packages automatically, 
+# but explicitly including them is fine:
+packages = [
+  { include = "**/*.py", from = "." }
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/temporalio/samples-python/issues"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+temporalio = "^1.8.0"
+
+# Standard library modules (e.g. asyncio, collections) don't need to be added
+# since they're built-in for Python 3.8+.
+ollama = "^0.4.5"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3"
+black = "^23.7"
+isort = "^5.12"
+
+[build-system]
+requires = ["poetry-core>=1.4.0"]
+build-backend = "poetry.core.masonry.api"

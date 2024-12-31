@@ -1,0 +1,32 @@
+# OS-specific files
+.DS_Store
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+*.so
+*.egg-info/
+*.egg
+
+# Virtual environment directory
+venv/
+.venv/
+
+# Build artifacts
+build/
+dist/
+
+# Test / coverage files
+.coverage
+.coverage.*
+*.cover
+coverage.xml
+.pytest_cache/
+
+# VSCode settings
+.vscode/
+
+# PyCharm / IntelliJ settings
+.idea/
