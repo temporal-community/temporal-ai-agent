@@ -14,7 +14,7 @@ async def main(prompt):
     # Sends a signal to the workflow (and starts it if needed)
     await client.start_workflow(
         EntityOllamaWorkflow.run,
-        OllamaParams(None, None),
+        OllamaParams(None, None),  # or pass in custom summary/prompt_queue if desired
         id=workflow_id,
         task_queue="ollama-task-queue",
         start_signal="user_prompt",

@@ -1,19 +1,26 @@
+from dataclasses import dataclass
 from temporalio import activity
 from ollama import chat, ChatResponse
 
+@dataclass
+class OllamaPromptInput:
+    prompt: str
+    context_instructions: str
+
 class OllamaActivities:
     @activity.defn
-    def prompt_ollama(self, prompt: str) -> str:
+    def prompt_ollama(self, input: OllamaPromptInput) -> str:
         model_name = 'mistral'
         messages = [
             {
+                'role': 'system',
+                'content': input.context_instructions,
+            },
+            {
                 'role': 'user',
-                'content': prompt
+                'content': input.prompt,
             }
         ]
 
-        # Call ollama's chat function
         response: ChatResponse = chat(model=model_name, messages=messages)
-        
-        # Return the model's text response
         return response.message.content
