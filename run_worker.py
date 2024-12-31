@@ -20,7 +20,7 @@ async def main():
             client,
             task_queue="ollama-task-queue",
             workflows=[EntityOllamaWorkflow],
-            activities=[activities.prompt_ollama],
+            activities=[activities.prompt_ollama, activities.parse_tool_data],
             activity_executor=activity_executor,
         )
         await worker.run()
