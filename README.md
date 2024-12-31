@@ -2,7 +2,7 @@
 
 Work in progress (very early!).
 
-This demo shows a multi-turn conversation with an AI agent running inside a Temporal Entity Workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to search for flights). The AI will respond with clarifications and ask for any missing information (e.g., origin city, destination, travel dates). It uses a local LLM via Ollama.
+This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to search for flights, see `send_message.py`). The AI will respond with clarifications and ask for any missing information (e.g., origin city, destination, travel dates). It uses a local LLM via Ollama.
 
 ## Setup
 * Install [Ollama](https://ollama.com) and the Mistral model (`ollama run qwen2.5:14b`). (note this model is more than 10GB to download).
