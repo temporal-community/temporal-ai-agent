@@ -158,10 +158,6 @@ class EntityOllamaWorkflow:
     # Return (context_instructions, prompt) for summarizing the conversation
     def prompt_summary_with_history(self) -> tuple[str, str]:
         history_string = self.format_history()
-        context_instructions = (
-            f"Here is the conversation history between a user and a chatbot: {history_string}"
-        )
-        actual_prompt = (
-            "Please produce a two sentence summary of this conversation."
-        )
+        context_instructions = f"Here is the conversation history between a user and a chatbot: {history_string}"
+        actual_prompt = "Please produce a two sentence summary of this conversation."
         return (context_instructions, actual_prompt)
