@@ -35,5 +35,7 @@ Run query get_tool_data to see the data the tool has collected so far.
 - This is currently a good single tool workflow. It could be a child as part of a planning workflow (multiple tools).
 - I should integrate another tool. Perhaps something that consumes web sites hunting for destinations to go to in the first place.
 - I should make this workflow execute a Search for flights as right now it will finish without doing anything.
+    - Almost there. I have a dynamic activity for the tool's execution. I just need to make it actually do something.
 - I need to add a human in the loop confirmation step before it executes tools.
 - I need to build a chat interface so it's not cli-controlled. Also want to show some 'behind the scenes' of the agents being used as they run.
+- Should I add tools that determine a destination, and also maybe generate a Stripe invoice for the flight?
