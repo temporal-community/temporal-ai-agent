@@ -11,6 +11,8 @@ This demo shows a multi-turn conversation with an AI agent running inside a Temp
 
 ## Running the example
 
+From the /scripts directory:
+
 1. Run the worker: `poetry run python run_worker.py`
 2. In another terminal run the client with a prompt.
 

@@ -3,22 +3,16 @@ import sys
 
 from temporalio.client import Client
 
-# Import your dataclasses/types
-from workflows import (
-    OllamaParams,
-    EntityOllamaWorkflow,
-    ToolsData,
-    ToolDefinition,
-    ToolArgument,
-    CombinedInput,
-)
+from models.data_types import CombinedInput, ToolsData, ToolWorkflowParams
+from models.tool_definitions import ToolDefinition, ToolArgument
+from workflows.tool_workflow import ToolWorkflow
 
 
 async def main(prompt):
     # Construct your tool definitions in code
     search_flights_tool = ToolDefinition(
         name="SearchFlights",
-        description="Search for flights from an origin to a destination within a date range",
+        description="Search for return flights from an origin to a destination within a date range",
         arguments=[
             ToolArgument(
                 name="origin",
@@ -31,12 +25,12 @@ async def main(prompt):
                 description="Airport or city code for arrival (infer airport code from city)",
             ),
             ToolArgument(
-                name="dateFrom",
+                name="dateDepart",
                 type="ISO8601",
                 description="Start of date range in human readable format",
             ),
             ToolArgument(
-                name="dateTo",
+                name="dateReturn",
                 type="ISO8601",
                 description="End of date range in human readable format",
             ),
@@ -47,7 +41,7 @@ async def main(prompt):
     tools_data = ToolsData(tools=[search_flights_tool])
 
     combined_input = CombinedInput(
-        ollama_params=OllamaParams(None, None), tools_data=tools_data
+        tool_params=ToolWorkflowParams(None, None), tools_data=tools_data
     )
 
     # Create client connected to Temporal server
@@ -57,7 +51,7 @@ async def main(prompt):
 
     # Start or signal the workflow, passing OllamaParams and tools_data
     await client.start_workflow(
-        EntityOllamaWorkflow.run,
+        ToolWorkflow.run,
         combined_input,  # or pass custom summary/prompt_queue
         id=workflow_id,
         task_queue="ollama-task-queue",

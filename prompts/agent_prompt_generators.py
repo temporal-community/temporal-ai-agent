@@ -1,4 +1,4 @@
-from workflows import ToolsData
+from models.tool_definitions import ToolsData
 
 
 def generate_genai_prompt_from_tools_data(
@@ -51,7 +51,7 @@ def generate_genai_prompt_from_tools_data(
         '- If you have enough information and are confirming, use "next": "confirm". This is the final step once you have filled all args.'
     )
     prompt_lines.append(
-        '- Example of a good answer: {"response": "It seems we have all the information needed to search for flights. You will be flying from <city> to <city> from <date> to <date>. Is this correct?", "args":{"origin": "Seattle", "destination": "San Francisco", "dateFrom": "2025-01-04", "dateTo": "2025-01-08"}, "next": "confirm", "tool": "<toolName>" }'
+        '- Example of a good answer: {"response": "It seems we have all the information needed to search for flights. You will be flying from <city> to <city> from <date> to <date>. Is this correct?", "args":{"origin": "Seattle", "destination": "San Francisco", "dateDepart": "2025-01-04", "dateReturn": "2025-01-08"}, "next": "confirm", "tool": "<toolName>" }'
     )
     prompt_lines.append("- Return valid JSON without special characters.")
     prompt_lines.append("")

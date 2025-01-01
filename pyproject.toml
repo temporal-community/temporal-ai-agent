@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "temporal-ollama-agent"
+name = "temporal-AI-agent"
 version = "0.1.0"
-description = "Temporal Ollama Agent"
+description = "Temporal AI Agent"
 license = "MIT"
 authors = ["Steve Androulakis <steve.androulakis@temporal.io>"]
 readme = "README.md"

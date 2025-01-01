@@ -4,23 +4,24 @@ import logging
 
 from temporalio.client import Client
 from temporalio.worker import Worker
-from workflows import EntityOllamaWorkflow
 
-from activities import OllamaActivities
+from activities.tool_activities import ToolActivities
+from workflows.tool_workflow import ToolWorkflow
+from workflows.parent_workflow import ParentWorkflow
 
 
 async def main():
     # Create client connected to server at the given address
     client = await Client.connect("localhost:7233")
-    activities = OllamaActivities()
+    activities = ToolActivities()
 
     # Run the worker
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as activity_executor:
         worker = Worker(
             client,
             task_queue="ollama-task-queue",
-            workflows=[EntityOllamaWorkflow],
-            activities=[activities.prompt_ollama, activities.parse_tool_data],
+            workflows=[ToolWorkflow, ParentWorkflow],
+            activities=[activities.prompt_llm, activities.parse_tool_data],
             activity_executor=activity_executor,
         )
         await worker.run()

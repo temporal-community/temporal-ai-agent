@@ -1,8 +1,7 @@
 import asyncio
-import sys
 
 from temporalio.client import Client
-from workflows import EntityOllamaWorkflow
+from workflows.tool_workflow import ToolWorkflow
 
 
 async def main():
@@ -11,10 +10,10 @@ async def main():
 
     workflow_id = "ollama-agent"
 
-    handle = client.get_workflow_handle_for(EntityOllamaWorkflow.run, workflow_id)
+    handle = client.get_workflow_handle_for(ToolWorkflow.run, workflow_id)
 
     # Sends a signal to the workflow
-    await handle.signal(EntityOllamaWorkflow.end_chat)
+    await handle.signal(ToolWorkflow.end_chat)
 
 
 if __name__ == "__main__":

@@ -1,67 +1,36 @@
-import yaml
 from collections import deque
-from dataclasses import dataclass
 from datetime import timedelta
 from typing import Deque, List, Optional, Tuple
 
 from temporalio import workflow
-
-with workflow.unsafe.imports_passed_through():
-    # Import the updated OllamaActivities and the new dataclass
-    from activities import OllamaActivities, OllamaPromptInput
-
-
-@dataclass
-class ToolArgument:
-    name: str
-    type: str
-    description: str
-
-
-@dataclass
-class ToolDefinition:
-    name: str
-    description: str
-    arguments: List[ToolArgument]
-
-
-@dataclass
-class ToolsData:
-    tools: List[ToolDefinition]
-
-
-@dataclass
-class OllamaParams:
-    conversation_summary: Optional[str] = None
-    prompt_queue: Optional[Deque[str]] = None
-
-
-@dataclass
-class CombinedInput:
-    ollama_params: OllamaParams
-    tools_data: ToolsData
-
-
-from agent_prompt_generators import (
+from prompts.agent_prompt_generators import (
     generate_genai_prompt_from_tools_data,
     generate_json_validation_prompt_from_tools_data,
 )
 
+with workflow.unsafe.imports_passed_through():
+    from activities.tool_activities import ToolActivities, ToolPromptInput
+    from prompts.agent_prompt_generators import (
+        generate_genai_prompt_from_tools_data,
+        generate_json_validation_prompt_from_tools_data,
+    )
+    from models.data_types import CombinedInput, ToolWorkflowParams
+
 
 @workflow.defn
-class EntityOllamaWorkflow:
+class ToolWorkflow:
     def __init__(self) -> None:
         self.conversation_history: List[Tuple[str, str]] = []
         self.prompt_queue: Deque[str] = deque()
         self.conversation_summary: Optional[str] = None
-        self.continue_as_new_per_turns: int = 250
         self.chat_ended: bool = False
         self.tool_data = None
+        self.max_turns_before_continue: int = 250
 
     @workflow.run
     async def run(self, combined_input: CombinedInput) -> str:
 
-        params = combined_input.ollama_params
+        params = combined_input.tool_params
         tools_data = combined_input.tools_data
 
         if params and params.conversation_summary:
@@ -92,14 +61,14 @@ class EntityOllamaWorkflow:
                 workflow.logger.info("Prompt: " + prompt)
 
                 # Pass a single input object
-                prompt_input = OllamaPromptInput(
+                prompt_input = ToolPromptInput(
                     prompt=prompt,
                     context_instructions=context_instructions,
                 )
 
                 # Call activity with one argument
                 responsePrechecked = await workflow.execute_activity_method(
-                    OllamaActivities.prompt_ollama,
+                    ToolActivities.prompt_llm,
                     prompt_input,
                     schedule_to_close_timeout=timedelta(seconds=20),
                 )
@@ -113,14 +82,14 @@ class EntityOllamaWorkflow:
                 workflow.logger.info("Prompt: " + prompt)
 
                 # Pass a single input object
-                prompt_input = OllamaPromptInput(
+                prompt_input = ToolPromptInput(
                     prompt=responsePrechecked,
                     context_instructions=json_validation_instructions,
                 )
 
                 # Call activity with one argument
                 response = await workflow.execute_activity_method(
-                    OllamaActivities.prompt_ollama,
+                    ToolActivities.prompt_llm,
                     prompt_input,
                     schedule_to_close_timeout=timedelta(seconds=20),
                 )
@@ -130,7 +99,7 @@ class EntityOllamaWorkflow:
 
                 # Call activity with one argument
                 tool_data = await workflow.execute_activity_method(
-                    OllamaActivities.parse_tool_data,
+                    ToolActivities.parse_tool_data,
                     response,
                     schedule_to_close_timeout=timedelta(seconds=1),
                 )
@@ -141,29 +110,29 @@ class EntityOllamaWorkflow:
                     return self.tool_data
 
                 # Continue as new after X turns
-                if len(self.conversation_history) >= self.continue_as_new_per_turns:
+                if len(self.conversation_history) >= self.max_turns_before_continue:
                     # Summarize conversation
                     summary_context, summary_prompt = self.prompt_summary_with_history()
-                    summary_input = OllamaPromptInput(
+                    summary_input = ToolPromptInput(
                         prompt=summary_prompt,
                         context_instructions=summary_context,
                     )
 
                     self.conversation_summary = await workflow.start_activity_method(
-                        OllamaActivities.prompt_ollama,
+                        ToolActivities.prompt_llm,
                         summary_input,
                         schedule_to_close_timeout=timedelta(seconds=20),
                     )
 
                     workflow.logger.info(
                         "Continuing as new after %i turns."
-                        % self.continue_as_new_per_turns,
+                        % self.max_turns_before_continue,
                     )
 
                     workflow.continue_as_new(
                         args=[
                             CombinedInput(
-                                ollama_params=OllamaParams(
+                                tool_params=ToolWorkflowParams(
                                     conversation_summary=self.conversation_summary,
                                     prompt_queue=self.prompt_queue,
                                 ),
@@ -179,13 +148,13 @@ class EntityOllamaWorkflow:
                 if len(self.conversation_history) > 1:
                     # Summarize conversation
                     summary_context, summary_prompt = self.prompt_summary_with_history()
-                    summary_input = OllamaPromptInput(
+                    summary_input = ToolPromptInput(
                         prompt=summary_prompt,
                         context_instructions=summary_context,
                     )
 
                     self.conversation_summary = await workflow.start_activity_method(
-                        OllamaActivities.prompt_ollama,
+                        ToolActivities.prompt_llm,
                         summary_input,
                         schedule_to_close_timeout=timedelta(seconds=20),
                     )

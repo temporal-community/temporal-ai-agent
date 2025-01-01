@@ -1,7 +1,7 @@
 import asyncio
 
 from temporalio.client import Client
-from workflows import EntityOllamaWorkflow
+from workflows import ToolWorkflow
 
 
 async def main():
@@ -12,7 +12,7 @@ async def main():
     handle = client.get_workflow_handle(workflow_id)
 
     # Queries the workflow for the conversation history
-    history = await handle.query(EntityOllamaWorkflow.get_conversation_history)
+    history = await handle.query(ToolWorkflow.get_conversation_history)
 
     print("Conversation History")
     print(
@@ -20,7 +20,7 @@ async def main():
     )
 
     # Queries the workflow for the conversation summary
-    summary = await handle.query(EntityOllamaWorkflow.get_summary_from_history)
+    summary = await handle.query(ToolWorkflow.get_summary_from_history)
 
     if summary is not None:
         print("Conversation Summary:")
