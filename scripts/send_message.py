@@ -12,7 +12,7 @@ async def main(prompt):
     # Construct your tool definitions in code
     search_flights_tool = ToolDefinition(
         name="SearchFlights",
-        description="Search for return flights from an origin to a destination within a date range",
+        description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn)",
         arguments=[
             ToolArgument(
                 name="origin",
@@ -27,12 +27,12 @@ async def main(prompt):
             ToolArgument(
                 name="dateDepart",
                 type="ISO8601",
-                description="Start of date range in human readable format",
+                description="Start of date range in human readable format, when you want to depart",
             ),
             ToolArgument(
                 name="dateReturn",
                 type="ISO8601",
-                description="End of date range in human readable format",
+                description="End of date range in human readable format, when you want to return",
             ),
         ],
     )
