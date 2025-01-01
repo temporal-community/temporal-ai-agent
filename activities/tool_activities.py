@@ -102,26 +102,16 @@ def get_current_date_human_readable():
 
 @activity.defn(dynamic=True)
 def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
-    """Dynamic activity that is invoked via an unknown activity type."""
-    tool_name = activity.info().activity_type  # e.g. "SearchFlights"
+    """Invoked for an unknown activity type, delegates to the correct tool."""
+    from tools import get_handler  # import the registry function
 
-    # The first payload is the dictionary of arguments
+    tool_name = activity.info().activity_type  # e.g. "SearchFlights"
     tool_args = activity.payload_converter().from_payload(args[0].payload, dict)
 
-    # Extract fields from the arguments
-    date_depart = tool_args.get("dateDepart")
-    date_return = tool_args.get("dateReturn")
-    origin = tool_args.get("origin")
-    destination = tool_args.get("destination")
+    activity.logger.info(f"Dynamic activity triggered for tool: {tool_name}")
+    handler_func = get_handler(tool_name)
 
-    # Print (or log) them
-    activity.logger.info(f"Tool: {tool_name}")
-    activity.logger.info(f"Depart: {date_depart}, Return: {date_return}")
-    activity.logger.info(f"Origin: {origin}, Destination: {destination}")
+    # Delegate to the tool's function
+    result = handler_func(tool_args)
 
-    # For now, just return them
-    return {
-        "tool": tool_name,
-        "args": tool_args,
-        "status": "OK - dynamic activity stub",
-    }
+    return result
