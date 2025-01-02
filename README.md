@@ -45,3 +45,4 @@ Run query get_tool_data to see the data the tool has collected so far.
 - I need to build a chat interface so it's not cli-controlled. Also want to show some 'behind the scenes' of the agents being used as they run.
 - What happens if I don't want to confirm a step, but instead want to correct it? TODO figure out
 - What happens if I am at confirmation step and want to end the chat (do I need some sort of signal router?)
+- Currently hardcoded to the Temporal dev server at localhost:7233. Need to support options incl Temporal Cloud.
