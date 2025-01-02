@@ -124,7 +124,8 @@ def generate_genai_prompt(
         )
 
     prompt_lines.append(
-        "REMINDER: If any required argument is missing, set 'next': 'question' and ask the user for it."
+        "REMINDER: If any required argument is missing, set 'next': 'question' and ask the user for it. "
+        "REMINDER: Use 'next': 'confirm' only if NO arguments are missing. "
     )
     prompt_lines.append(
         """
