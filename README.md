@@ -1,6 +1,6 @@
 # AI Agent execution using Temporal
 
-Work in progress (very early!).
+Work in progress.
 
 This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to use mock functions to search for events, book flights around those events then generate an invoice for those flights, see `send_message.py`). The AI will respond with clarifications and ask for any missing information to that goal. It uses a local LLM via Ollama.
 

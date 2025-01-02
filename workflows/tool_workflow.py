@@ -179,7 +179,7 @@ class ToolWorkflow:
                     "Chat ended. Conversation summary:\n"
                     + f"{self.conversation_summary}"
                 )
-                return f"{self.conversation_history}"
+                return f"{self.conversation_summary}"
 
     @workflow.signal
     async def user_prompt(self, prompt: str) -> None:
