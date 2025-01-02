@@ -16,8 +16,8 @@ def search_flights(args: dict) -> dict:
     return {
         "tool": "SearchFlights",
         "searchResults": [
-            "Mock flight 1",
-            "Mock flight 2",
+            "QF 123: $1200",
+            "VA 456: $1000",
         ],
         "status": "search-complete",
         "args": args,
