@@ -24,6 +24,8 @@ From the /scripts directory:
     Example: `poetry run python send_message.py 'I want to fly from San Francisco'`
 
     NOTE: The workflow will pause on the 'confirm' step until the user sends a 'confirm' signal. Use the 'get_tool_data' query to see the current state of the workflow.
+
+    You can send a 'confirm' signal using `poetry run python send_confirm.py`
 5. Get the conversation history summary by querying the workflow.
     
     Example: `poetry run python get_history.py`
@@ -37,3 +39,4 @@ Run query get_tool_data to see the data the tool has collected so far.
 - The LLM prompts move through 3 mock tools (FindEvents, SearchFlights, CreateInvoice) but I should make them contact real APIs.
 - Might need to abstract the json example in the prompt generator to be part of a ToolDefinition (prevent overfitting to the example).
 - I need to build a chat interface so it's not cli-controlled. Also want to show some 'behind the scenes' of the agents being used as they run.
+- What happens if I don't want to confirm a step, but instead want to correct it? TODO figure out
