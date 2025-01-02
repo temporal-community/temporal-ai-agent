@@ -65,7 +65,7 @@ class ToolWorkflow:
                     "Chat ended. Conversation summary:\n"
                     + f"{self.conversation_summary}"
                 )
-                return f"{self.conversation_history}"
+                return f"{self.conversation_summary}"
 
             # 2) If we received a confirm signal:
             if self.confirm and waiting_for_confirm and current_tool:
