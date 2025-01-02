@@ -80,9 +80,9 @@ class ToolWorkflow:
             tool_data = await workflow.execute_activity_method(
                 ToolActivities.prompt_llm,
                 prompt_input,
-                schedule_to_close_timeout=timedelta(seconds=20),
+                schedule_to_close_timeout=timedelta(seconds=60),
                 retry_policy=RetryPolicy(
-                    maximum_attempts=5, initial_interval=timedelta(seconds=15)
+                    maximum_attempts=5, initial_interval=timedelta(seconds=12)
                 ),
             )
 
@@ -121,7 +121,7 @@ class ToolWorkflow:
                 self.prompt_queue.append(
                     f"The '{current_tool}' tool completed successfully with {dynamic_result}. "
                     "INSTRUCTIONS: Use this tool result, and the context_instructions (conversation history) to intelligently pre-fill the next tool's arguments. "
-                    "What should we do next? "
+                    "NOTE: If all listed tools have run, then we should generate a done response. Otherwise: What should we do next? "
                 )
                 # The loop continues, and on the next iteration, the workflow sees that new "prompt"
                 # as if the user typed it, calls the LLM, etc.
