@@ -6,54 +6,68 @@ def generate_genai_prompt_from_tools_data(
 ) -> str:
     """
     Generates a prompt describing the tools and the instructions for the AI
-    assistant, using the conversation history provided.
+    assistant, using the conversation history provided, allowing for multiple
+    tools and a 'done' state.
     """
     prompt_lines = []
 
     prompt_lines.append(
-        "You are an AI assistant that must determine all required arguments"
+        "You are an AI assistant that must determine all required arguments "
+        "for the tools to achieve the user's goal. "
     )
-    prompt_lines.append("for the tools to achieve the user's goal.\n")
-    prompt_lines.append("Conversation history so far:")
+    prompt_lines.append("")
+    prompt_lines.append(
+        "Conversation history so far. \nANALYZE THIS HISTORY TO DETERMINE WHICH ARGUMENTS TO PRE-FILL AS SPECIFIED FOR THE TOOL BELOW: "
+    )
     prompt_lines.append(conversation_history)
     prompt_lines.append("")
 
     # List all tools and their arguments
+    prompt_lines.append("Available tools and their required arguments:")
     for tool in tools_data.tools:
-        prompt_lines.append(f"Tool to run: {tool.name}")
-        prompt_lines.append(f"Description: {tool.description}")
-        prompt_lines.append("Arguments needed:")
+        prompt_lines.append(f"- Tool name: {tool.name}")
+        prompt_lines.append(f"  Description: {tool.description}")
+        prompt_lines.append("  Arguments needed:")
         for arg in tool.arguments:
-            prompt_lines.append(f" - {arg.name} ({arg.type}): {arg.description}")
+            prompt_lines.append(f"    - {arg.name} ({arg.type}): {arg.description}")
         prompt_lines.append("")
 
     prompt_lines.append("Instructions:")
     prompt_lines.append(
-        "1. You need to ask the user (or confirm with them) for each argument required by the tools above."
+        "1. You may call multiple tools in sequence if needed, each requiring certain arguments. "
+        "Ask the user for missing details when necessary. "
     )
     prompt_lines.append(
-        "2. If you do not yet have a specific argument value, ask the user for it."
+        "2. If you do not yet have a specific argument value, ask the user for it by setting 'next': 'question'."
     )
     prompt_lines.append(
-        "3. Once you have all arguments, read them back to confirm with the user before yielding to the tool to take action.\n"
+        "3. Once you have enough information for a particular tool, respond with 'next': 'confirm' and include the tool name in 'tool'."
     )
     prompt_lines.append(
-        'Your response must be valid JSON in the format: {"response": "<ai response>", "next": "<question|confirm>", '
-        + '"tool": "<tool_name>", "arg1": "value1", "arg2": "value2"}" where args are the arguments for the tool (or null if unknown so far)."'
+        "4. If you have completed all necessary tools (no more actions needed), use 'next': 'done' in your JSON response ."
     )
     prompt_lines.append(
-        '- Your goal is to convert the AI responses into filled args in the JSON and once all args are filled, confirm with the user.".'
+        "5. Your response must be valid JSON in this format:\n"
+        "   {\n"
+        '       "response": "<plain text to user>",\n'
+        '       "next": "<question|confirm|done>",\n'
+        '       "tool": "<tool_name or none>",\n'
+        '       "args": {\n'
+        '           "<arg1>": "<value1>",\n'
+        '           "<arg2>": "<value2>", ...\n'
+        "       }\n"
+        "   }\n"
+        "   where 'args' are the arguments for the tool (or empty if not needed)."
     )
     prompt_lines.append(
-        '- If you still need information from the user, use "next": "question".'
+        "6. If you still need information from the user, use 'next': 'question'. "
+        "If you have enough info for a specific tool, use 'next': 'confirm'. "
+        "Do NOT use 'next': 'confirm' until you have all necessary arguments (i.e. they're NOT 'null') ."
+        "If you are finished with all tools, use 'next': 'done'."
     )
     prompt_lines.append(
-        '- If you have enough information and are confirming, use "next": "confirm". This is the final step once you have filled all args.'
+        "7. Keep responses in plain text. Return valid JSON without extra commentary."
     )
-    prompt_lines.append(
-        '- Example of a good answer: {"response": "It seems we have all the information needed to search for flights. You will be flying from <city> to <city> from <date> to <date>. Is this correct?", "args":{"origin": "Seattle", "destination": "San Francisco", "dateDepart": "2025-01-04", "dateReturn": "2025-01-08"}, "next": "confirm", "tool": "<toolName>" }'
-    )
-    prompt_lines.append("- Return valid JSON without special characters.")
     prompt_lines.append("")
     prompt_lines.append("Begin by prompting or confirming the necessary details.")
 
@@ -66,9 +80,10 @@ def generate_json_validation_prompt_from_tools_data(
     """
     Generates a prompt instructing the AI to:
       1. Check that the given raw JSON is syntactically valid.
-      2. Ensure the 'tool' matches one of the defined tools in tools_data.
-      3. Confirm or correct that all required arguments are present and make sense.
+      2. Ensure the 'tool' matches one of the defined tools or is 'none' if no tool is needed.
+      3. Confirm or correct that all required arguments are present or set to null if missing.
       4. Return a corrected JSON if possible.
+      5. Accept 'next' as one of 'question', 'confirm', or 'done'.
     """
     prompt_lines = []
 
@@ -78,8 +93,9 @@ def generate_json_validation_prompt_from_tools_data(
     prompt_lines.append("It may be malformed or incomplete.")
     prompt_lines.append("You also have a list of tools and their required arguments.")
     prompt_lines.append(
-        "You must ensure the JSON is valid and matches these definitions.\n"
+        "You must ensure the JSON is valid and matches these definitions."
     )
+    prompt_lines.append("")
 
     prompt_lines.append("== Tools Definitions ==")
     for tool in tools_data.tools:
@@ -97,34 +113,42 @@ def generate_json_validation_prompt_from_tools_data(
     prompt_lines.append("Validation checks:")
     prompt_lines.append("1. Is the JSON syntactically valid? If not, fix it.")
     prompt_lines.append(
-        "2. Does the 'tool' field match one of the tools in Tools Definitions? If not, correct or note the mismatch."
+        "2. Does the 'tool' field match one of the tools above (or 'none')?"
     )
     prompt_lines.append(
-        "3. Do the arguments under 'args' correspond exactly to the required arguments for that tool? Are they present and valid? If not, set them to null or correct them."
+        "3. Do the 'args' correspond exactly to the required arguments for that tool? "
+        "If arguments are missing, set them to null or correct them if possible."
     )
     prompt_lines.append(
-        "4. Confirm the 'response' and 'next' fields are present, if applicable, per the desired JSON structure."
+        "4. Check the 'response' field is present. The user-facing text can be corrected but not removed."
     )
     prompt_lines.append(
-        "5. If something is missing or incorrect, fix it in the final JSON output or explain what is missing."
+        "5. 'next' should be one of 'question', 'confirm', or 'done' (if no more actions)."
+        "Do NOT use 'next': 'confirm' until you have all args. If there are any args that are null then next='question'). "
     )
     prompt_lines.append(
-        "6. You can and should take values from the response, parse them and insert them into JSON args where possible. Carefully parse the history and the latest response to fill in the args."
+        "Use the conversation history to parse known data for filling 'args' if possible. "
     )
     prompt_lines.append("")
     prompt_lines.append(
-        "Return your response in valid JSON. DO NOT RETURN ANYTHING EXCEPT VALID JSON IN THE CORRECT FORMAT. No editorializing or comments on the JSON."
+        "Return only valid JSON in the format:\n"
+        "{\n"
+        '  "response": "...",\n'
+        '  "next": "question|confirm|done",\n'
+        '  "tool": "<existing-tool-name-or-none>",\n'
+        '  "args": { ... }\n'
+        "}"
     )
-    prompt_lines.append("The final output must:")
     prompt_lines.append(
-        '- Provide the corrected JSON if you can fix it, using the format {"response": "...", "next": "...", "tool": "...", "args": {...}}.'
+        "No additional commentary or explanation. Just the corrected JSON. "
     )
-    prompt_lines.append(
-        '- If you cannot correct it then provide a skeleton JSON structure with the original "response" value inside.\n'
-    )
+    prompt_lines.append("")
     prompt_lines.append("Conversation history so far:")
     prompt_lines.append(conversation_history)
-
-    prompt_lines.append("Begin validating now.")
+    prompt_lines.append(
+        "\nIMPORTANT: ANALYZE THIS HISTORY TO DETERMINE WHICH ARGUMENTS TO PRE-FILL IN THE JSON RESPONSE. "
+    )
+    prompt_lines.append("")
+    prompt_lines.append("Begin validating now. ")
 
     return "\n".join(prompt_lines)

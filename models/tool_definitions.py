@@ -1,5 +1,5 @@
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from typing import List, Dict, Any
 
 
 @dataclass
@@ -19,3 +19,14 @@ class ToolDefinition:
 @dataclass
 class ToolsData:
     tools: List[ToolDefinition]
+
+
+@dataclass
+class ToolInvocation:
+    tool: str
+    args: Dict[str, Any]
+
+
+@dataclass
+class MultiToolSequence:
+    tool_invocations: List[ToolInvocation] = field(default_factory=list)

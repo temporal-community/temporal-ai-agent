@@ -1,13 +1,14 @@
+from .find_events import find_events
 from .search_flights import search_flights
+from .create_invoice import create_invoice
 
 
 def get_handler(tool_name: str):
-    """
-    Return a function reference for the given tool.
-    You can add more tools here, e.g. "BookHotel", etc.
-    """
+    if tool_name == "FindEvents":
+        return find_events
     if tool_name == "SearchFlights":
         return search_flights
+    if tool_name == "CreateInvoice":
+        return create_invoice
 
-    # Or raise if not recognized
-    raise ValueError(f"No handler found for tool '{tool_name}'")
+    raise ValueError(f"Unknown tool: {tool_name}")

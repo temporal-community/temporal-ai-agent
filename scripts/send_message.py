@@ -1,6 +1,7 @@
+# send_message.py
 import asyncio
 import sys
-
+from typing import List
 from temporalio.client import Client
 
 from models.data_types import CombinedInput, ToolsData, ToolWorkflowParams
@@ -8,8 +9,26 @@ from models.tool_definitions import ToolDefinition, ToolArgument
 from workflows.tool_workflow import ToolWorkflow
 
 
-async def main(prompt):
-    # Construct your tool definitions in code
+async def main(prompt: str):
+    # 1) Define the FindEvents tool
+    find_events_tool = ToolDefinition(
+        name="FindEvents",
+        description="Find upcoming events given a location or region (e.g., 'Oceania') and a date or month",
+        arguments=[
+            ToolArgument(
+                name="continent",
+                type="string",
+                description="Which continent or region to search for events",
+            ),
+            ToolArgument(
+                name="month",
+                type="string",
+                description="The month or approximate date range to find events",
+            ),
+        ],
+    )
+
+    # 2) Define the SearchFlights tool
     search_flights_tool = ToolDefinition(
         name="SearchFlights",
         description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn)",
@@ -37,25 +56,51 @@ async def main(prompt):
         ],
     )
 
-    # Wrap it in ToolsData
-    tools_data = ToolsData(tools=[search_flights_tool])
-
-    combined_input = CombinedInput(
-        tool_params=ToolWorkflowParams(None, None), tools_data=tools_data
+    # 3) Define the CreateInvoice tool
+    create_invoice_tool = ToolDefinition(
+        name="CreateInvoice",
+        description="Generate an invoice with flight information or other items to purchase",
+        arguments=[
+            ToolArgument(
+                name="amount",
+                type="float",
+                description="The total cost to be invoiced",
+            ),
+            ToolArgument(
+                name="flightDetails",
+                type="string",
+                description="A summary of the flights, e.g., flight numbers, price breakdown",
+            ),
+        ],
     )
 
-    # Create client connected to Temporal server
+    # Collect all tools in a ToolsData structure
+    all_tools: List[ToolDefinition] = [
+        find_events_tool,
+        search_flights_tool,
+        create_invoice_tool,
+    ]
+    tools_data = ToolsData(tools=all_tools)
+
+    # Create the combined input (includes ToolsData + optional conversation summary or prompt queue)
+    combined_input = CombinedInput(
+        tool_params=ToolWorkflowParams(None, None),
+        tools_data=tools_data,
+    )
+
+    # 4) Connect to Temporal and start or signal the workflow
     client = await Client.connect("localhost:7233")
 
     workflow_id = "ollama-agent"
 
-    # Start or signal the workflow, passing OllamaParams and tools_data
+    # Note that we start the ToolWorkflow.run with 'combined_input'
+    # Then we immediately signal with the initial prompt
     await client.start_workflow(
         ToolWorkflow.run,
-        combined_input,  # or pass custom summary/prompt_queue
+        combined_input,
         id=workflow_id,
         task_queue="ollama-task-queue",
-        start_signal="user_prompt",
+        start_signal="user_prompt",  # This will send your first prompt to the workflow
         start_signal_args=[prompt],
     )
 
@@ -63,6 +108,9 @@ async def main(prompt):
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Usage: python send_message.py '<prompt>'")
-        print("Example: python send_message.py 'What animals are marsupials?'")
+        print(
+            "Example: python send_message.py 'I want an event in Oceania this March'"
+            " or 'Search flights from Seattle to San Francisco'"
+        )
     else:
         asyncio.run(main(sys.argv[1]))
