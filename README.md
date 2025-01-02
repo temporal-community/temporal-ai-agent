@@ -35,8 +35,13 @@ The chat session will end if it has collected enough information to complete the
 
 Run query get_tool_data to see the data the tool has collected so far.
 
+## API
+- `poetry run uvicorn api.main:app --reload` to start the API server.
+- Access the API at `/docs` to see the available endpoints.
+
 ## TODO
 - The LLM prompts move through 3 mock tools (FindEvents, SearchFlights, CreateInvoice) but I should make them contact real APIs.
 - Might need to abstract the json example in the prompt generator to be part of a ToolDefinition (prevent overfitting to the example).
 - I need to build a chat interface so it's not cli-controlled. Also want to show some 'behind the scenes' of the agents being used as they run.
 - What happens if I don't want to confirm a step, but instead want to correct it? TODO figure out
+- What happens if I am at confirmation step and want to end the chat (do I need some sort of signal router?)

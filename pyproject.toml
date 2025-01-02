@@ -16,13 +16,15 @@ packages = [
 "Bug Tracker" = "https://github.com/temporalio/samples-python/issues"
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">=3.9,<4.0"
 temporalio = "^1.8.0"
 
 # Standard library modules (e.g. asyncio, collections) don't need to be added
 # since they're built-in for Python 3.8+.
 ollama = "^0.4.5"
 pyyaml = "^6.0.2"
+fastapi = "^0.115.6"
+uvicorn = "^0.34.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3"
