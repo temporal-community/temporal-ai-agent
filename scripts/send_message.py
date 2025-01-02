@@ -91,7 +91,7 @@ async def main(prompt: str):
     # 4) Connect to Temporal and start or signal the workflow
     client = await Client.connect("localhost:7233")
 
-    workflow_id = "ollama-agent"
+    workflow_id = "agent-workflow"
 
     # Note that we start the ToolWorkflow.run with 'combined_input'
     # Then we immediately signal with the initial prompt
@@ -99,7 +99,7 @@ async def main(prompt: str):
         ToolWorkflow.run,
         combined_input,
         id=workflow_id,
-        task_queue="ollama-task-queue",
+        task_queue="agent-task-queue",
         start_signal="user_prompt",  # This will send your first prompt to the workflow
         start_signal_args=[prompt],
     )

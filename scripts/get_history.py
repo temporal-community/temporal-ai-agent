@@ -7,7 +7,7 @@ from workflows import ToolWorkflow
 async def main():
     # Create client connected to server at the given address
     client = await Client.connect("localhost:7233")
-    workflow_id = "ollama-agent"
+    workflow_id = "agent-workflow"
 
     handle = client.get_workflow_handle(workflow_id)
 

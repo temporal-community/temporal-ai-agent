@@ -18,7 +18,7 @@ async def main():
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as activity_executor:
         worker = Worker(
             client,
-            task_queue="ollama-task-queue",
+            task_queue="agent-task-queue",
             workflows=[ToolWorkflow],
             activities=[
                 activities.prompt_llm,

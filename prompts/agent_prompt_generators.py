@@ -69,7 +69,9 @@ def generate_genai_prompt_from_tools_data(
         "7. Keep responses in plain text. Return valid JSON without extra commentary."
     )
     prompt_lines.append("")
-    prompt_lines.append("Begin by prompting or confirming the necessary details.")
+    prompt_lines.append(
+        "Begin by prompting or confirming the necessary details. If any are missing (null) ensure you ask for them."
+    )
 
     return "\n".join(prompt_lines)
 
@@ -125,6 +127,12 @@ def generate_json_validation_prompt_from_tools_data(
     prompt_lines.append(
         "5. 'next' should be one of 'question', 'confirm', or 'done' (if no more actions)."
         "Do NOT use 'next': 'confirm' until you have all args. If there are any args that are null then next='question'). "
+    )
+    prompt_lines.append(
+        "6. If any of args is 'null' then ensure next = 'question' and that your response asks for this information from the user. "
+    )
+    prompt_lines.append(
+        "7. If all tools mentioned above have 'completed successfully' (check the history) then next should be 'done'. "
     )
     prompt_lines.append(
         "Use the conversation history to parse known data for filling 'args' if possible. "
