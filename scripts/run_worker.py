@@ -22,8 +22,6 @@ async def main():
             workflows=[ToolWorkflow],
             activities=[
                 activities.prompt_llm,
-                activities.parse_tool_data,
-                activities.validate_and_parse_json,
                 dynamic_tool_activity,
             ],
             activity_executor=activity_executor,

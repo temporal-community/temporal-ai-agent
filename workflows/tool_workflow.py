@@ -8,7 +8,7 @@ from temporalio import workflow
 with workflow.unsafe.imports_passed_through():
     from activities.tool_activities import ToolActivities, ToolPromptInput
     from prompts.agent_prompt_generators import (
-        generate_genai_prompt_from_tools_data,
+        generate_genai_prompt,
     )
     from models.data_types import CombinedInput, ToolWorkflowParams
 
@@ -27,6 +27,7 @@ class ToolWorkflow:
     async def run(self, combined_input: CombinedInput) -> str:
         params = combined_input.tool_params
         tools_data = combined_input.tools_data
+        tool_data = None
 
         if params and params.conversation_summary:
             self.conversation_history.append(
@@ -68,25 +69,20 @@ class ToolWorkflow:
             self.conversation_history.append(("user", prompt))
 
             # 3) Call the LLM with the entire conversation + Tools
-            context_instructions = generate_genai_prompt_from_tools_data(
-                tools_data, self.format_history()
+            context_instructions = generate_genai_prompt(
+                tools_data, self.format_history(), tool_data
             )
             prompt_input = ToolPromptInput(
                 prompt=prompt,
                 context_instructions=context_instructions,
             )
-            responsePrechecked = await workflow.execute_activity_method(
+            tool_data = await workflow.execute_activity_method(
                 ToolActivities.prompt_llm,
                 prompt_input,
                 schedule_to_close_timeout=timedelta(seconds=20),
-            )
-
-            # 4) Validate + parse in one shot
-            tool_data = await workflow.execute_activity_method(
-                ToolActivities.validate_and_parse_json,
-                args=[responsePrechecked, tools_data, self.format_history()],
-                schedule_to_close_timeout=timedelta(seconds=40),
-                retry_policy=RetryPolicy(initial_interval=timedelta(seconds=10)),
+                retry_policy=RetryPolicy(
+                    maximum_attempts=5, initial_interval=timedelta(seconds=15)
+                ),
             )
 
             # 5) Store it and show the conversation
