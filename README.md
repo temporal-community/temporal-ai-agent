@@ -21,7 +21,9 @@ From the /scripts directory:
 3. View the worker's output for the response.
 4. Give followup prompts by signaling the workflow.
 
-    Example: `poetry run python send_message.py 'sure, book flights'`
+    Example: `poetry run python send_message.py 'I want to fly from San Francisco'`
+
+    NOTE: The workflow will pause on the 'confirm' step until the user sends a 'confirm' signal. Use the 'get_tool_data' query to see the current state of the workflow.
 5. Get the conversation history summary by querying the workflow.
     
     Example: `poetry run python get_history.py`
@@ -33,5 +35,5 @@ Run query get_tool_data to see the data the tool has collected so far.
 
 ## TODO
 - The LLM prompts move through 3 mock tools (FindEvents, SearchFlights, CreateInvoice) but I should make them contact real APIs.
-- I need to add a human in the loop confirmation step before it executes any tools.
+- Might need to abstract the json example in the prompt generator to be part of a ToolDefinition (prevent overfitting to the example).
 - I need to build a chat interface so it's not cli-controlled. Also want to show some 'behind the scenes' of the agents being used as they run.
