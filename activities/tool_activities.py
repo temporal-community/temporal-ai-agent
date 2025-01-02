@@ -35,7 +35,9 @@ class ToolActivities:
         try:
             data = json.loads(response.message.content)
         except json.JSONDecodeError as e:
-            raise ApplicationError(f"Invalid JSON: {e}")
+            print(f"Invalid JSON: {e}")
+            print(response.message.content)
+            raise json.JSONDecodeError
 
         return data
 
