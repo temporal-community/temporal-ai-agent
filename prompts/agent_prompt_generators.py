@@ -127,7 +127,7 @@ def generate_genai_prompt(
     )
     prompt_lines.append(
         """
-        Example JSON:
+        Example JSON for question:
             {
                 "args": {
                 "dateDepart": "2025-03-26",
