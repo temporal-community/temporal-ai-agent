@@ -7,7 +7,6 @@ from temporalio.worker import Worker
 
 from activities.tool_activities import ToolActivities, dynamic_tool_activity
 from workflows.tool_workflow import ToolWorkflow
-from workflows.parent_workflow import ParentWorkflow
 
 
 async def main():
@@ -20,7 +19,7 @@ async def main():
         worker = Worker(
             client,
             task_queue="ollama-task-queue",
-            workflows=[ToolWorkflow, ParentWorkflow],
+            workflows=[ToolWorkflow],
             activities=[
                 activities.prompt_llm,
                 activities.parse_tool_data,
