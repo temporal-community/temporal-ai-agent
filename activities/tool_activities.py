@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from temporalio import activity
-from temporalio.exceptions import ApplicationError
 from ollama import chat, ChatResponse
 import json
 from typing import Sequence
