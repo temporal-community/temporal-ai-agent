@@ -23,7 +23,7 @@ From the /scripts directory:
 
     Example: `poetry run python send_message.py 'I want to fly from San Francisco'`
 
-    NOTE: The workflow will pause on the 'confirm' step until the user sends a 'confirm' signal. Use the 'get_tool_data' query to see the current state of the workflow.
+    NOTE: The workflow will pause on the 'confirm' step until the user sends a 'confirm' signal. Use `poetry run python get_tool_data.py` query to see the current state of the workflow.
 
     You can send a 'confirm' signal using `poetry run python send_confirm.py`
 5. Get the conversation history summary by querying the workflow.

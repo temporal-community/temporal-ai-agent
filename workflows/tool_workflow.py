@@ -210,7 +210,7 @@ class ToolWorkflow:
         return self.conversation_summary
 
     @workflow.query
-    def get_tool_data(self) -> Optional[str]:
+    def get_tool_data(self) -> Optional[dict]:
         return self.tool_data
 
     # Helper: generate text of the entire conversation so far
