@@ -31,6 +31,8 @@ class ToolActivities:
 
         response: ChatResponse = chat(model=model_name, messages=messages)
 
+        print(f"Chat response: {response.message.content}")
+
         try:
             data = json.loads(response.message.content)
         except json.JSONDecodeError as e:

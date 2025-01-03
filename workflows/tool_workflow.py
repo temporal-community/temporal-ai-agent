@@ -81,8 +81,10 @@ class ToolWorkflow:
                 # Enqueue a follow-up prompt for the LLM
                 self.prompt_queue.append(
                     f"### The '{current_tool}' tool completed successfully with {dynamic_result}. "
-                    "INSTRUCTIONS: Use this tool result, and the conversation history to figure out next steps. "
-                    "IMPORTANT: If all listed tools have run, you are up to the final step. Mark 'next':'done' and respond with 'All tools run' or similar."
+                    "INSTRUCTIONS: Use this tool result, and the conversation history to figure out next steps, if any. "
+                    "IMPORTANT REMINDER: Always return only JSON in the format: {'response': '', 'next': '', 'tool': '', 'args': {}} "
+                    " Do NOT include any metadata or editorializing in the response. "
+                    "IMPORTANT: If moving on to another tool then ensure you ask next='question' for any missing arguments."
                 )
                 # Loop around again
                 continue
@@ -91,15 +93,15 @@ class ToolWorkflow:
             if self.prompt_queue:
                 prompt = self.prompt_queue.popleft()
                 if prompt.startswith("###"):
-                    # this is a custom prompt where the tool result is sent to the LLM
-                    self.add_message("tool_result_to_llm", prompt)
+                    pass
                 else:
                     self.add_message("user", prompt)
 
                 # Pass entire conversation + Tools to LLM
                 context_instructions = generate_genai_prompt(
-                    tools_data, self.format_history(), self.tool_data
+                    tools_data, self.conversation_history, self.tool_data
                 )
+
                 prompt_input = ToolPromptInput(
                     prompt=prompt,
                     context_instructions=context_instructions,

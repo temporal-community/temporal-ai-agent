@@ -4,4 +4,5 @@ def create_invoice(args: dict) -> dict:
     return {
         "invoiceStatus": "generated",
         "invoiceURL": "https://pay.example.com/invoice/12345",
+        "reference": "INV-12345",
     }
