@@ -42,6 +42,11 @@ Run query get_tool_data to see the data the tool has collected so far.
 ## UI
 TODO: Document /frontend react app running instructions.
 
+## Customizing the agent
+- `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
+- The tools themselves are defined in their own files in `/tools`
+- Note the mapping in `tools/__init__.py` to each tool
+
 ## TODO
 - The LLM prompts move through 3 mock tools (FindEvents, SearchFlights, CreateInvoice) but I should make them contact real APIs.
 - I should prove this out with other tool definitions (take advantage of my nice DSL).
