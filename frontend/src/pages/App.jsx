@@ -18,8 +18,11 @@ export default function App() {
                     const data = await res.json();
                     // data is now an object like { messages: [ ... ] }
 
-                    if (data.messages && data.messages.some(msg => msg.actor === "response" || msg.actor === "tool_result")) {
+                    if (data.messages && data.messages.length > 0 && (data.messages[data.messages.length - 1].actor === "agent")) {
                         setLoading(false);
+                    }
+                    else {
+                        setLoading(true);
                     }
                     setConversation(data.messages || []);
                 }

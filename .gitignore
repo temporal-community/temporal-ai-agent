@@ -30,3 +30,5 @@ coverage.xml
 
 # PyCharm / IntelliJ settings
 .idea/
+
+.env

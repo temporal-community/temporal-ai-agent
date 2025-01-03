@@ -63,8 +63,8 @@ class ToolWorkflow:
 
                 confirmed_tool_data = self.tool_data.copy()
 
-                confirmed_tool_data["next"] = "confirmed"
-                self.add_message("userToolConfirm", confirmed_tool_data)
+                confirmed_tool_data["next"] = "user_confirmed_tool_run"
+                self.add_message("user_confirmed_tool_run", confirmed_tool_data)
 
                 # Run the tool
                 workflow.logger.info(f"Confirmed. Proceeding with tool: {current_tool}")
@@ -81,10 +81,8 @@ class ToolWorkflow:
                 # Enqueue a follow-up prompt for the LLM
                 self.prompt_queue.append(
                     f"### The '{current_tool}' tool completed successfully with {dynamic_result}. "
-                    "INSTRUCTIONS: Use this tool result, and the conversation history to figure out next steps, if any. "
-                    "IMPORTANT REMINDER: Always return only JSON in the format: {'response': '', 'next': '', 'tool': '', 'args': {}} "
-                    " Do NOT include any metadata or editorializing in the response. "
-                    "IMPORTANT: If moving on to another tool then ensure you ask next='question' for any missing arguments."
+                    "INSTRUCTIONS: Use this tool result, the list of tools in sequence and the conversation history to figure out next steps, if any. "
+                    "DON'T ask any clarifying questions that are outside of the tools and args specified. "
                 )
                 # Loop around again
                 continue
@@ -102,11 +100,13 @@ class ToolWorkflow:
                     tools_data, self.conversation_history, self.tool_data
                 )
 
+                # tools_list = ", ".join([t.name for t in tools_data.tools])
+
                 prompt_input = ToolPromptInput(
                     prompt=prompt,
                     context_instructions=context_instructions,
                 )
-                tool_data = await workflow.execute_activity_method(
+                tool_data = await workflow.execute_activity(
                     ToolActivities.prompt_llm,
                     prompt_input,
                     schedule_to_close_timeout=timedelta(seconds=60),
@@ -115,13 +115,37 @@ class ToolWorkflow:
                     ),
                 )
                 self.tool_data = tool_data
-                self.add_message("response", tool_data)
 
                 # Check the next step from LLM
                 next_step = self.tool_data.get("next")
                 current_tool = self.tool_data.get("tool")
 
                 if next_step == "confirm" and current_tool:
+                    # tmp arg check
+                    args = self.tool_data.get("args")
+
+                    # check each argument for null values
+                    missing_args = []
+                    for key, value in args.items():
+                        if value is None:
+                            next_step = "question"
+                            missing_args.append(key)
+
+                    if missing_args:
+                        # self.add_message("response_confirm_missing_args", tool_data)
+
+                        # Enqueue a follow-up prompt for the LLM
+                        self.prompt_queue.append(
+                            f"### INSTRUCTIONS set next='question', combine this response response='{tool_data.get('response')}' and following missing arguments for tool {current_tool}: {missing_args}. "
+                            "Only provide a valid JSON response without any comments or metadata."
+                        )
+
+                        workflow.logger.info(
+                            f"Missing arguments for tool: {current_tool}: {' '.join(missing_args)}"
+                        )
+                        # Loop around again
+                        continue
+
                     waiting_for_confirm = True
                     self.confirm = False  # Clear any stale confirm
                     workflow.logger.info("Waiting for user confirm signal...")
@@ -130,7 +154,10 @@ class ToolWorkflow:
 
                 elif next_step == "done":
                     workflow.logger.info("All steps completed. Exiting workflow.")
+                    self.add_message("agent", tool_data)
                     return str(self.conversation_history)
+
+                self.add_message("agent", tool_data)
 
                 # Possibly continue-as-new after many turns
                 # todo ensure this doesn't lose critical context

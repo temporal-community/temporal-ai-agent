@@ -1,5 +1,5 @@
-from dataclasses import dataclass, field
-from typing import List, Dict, Any
+from dataclasses import dataclass
+from typing import List
 
 
 @dataclass
@@ -19,3 +19,7 @@ class ToolDefinition:
 @dataclass
 class ToolsData:
     tools: List[ToolDefinition]
+    description: str = "Description of the tools purpose and overall goal"
+    example_conversation_history: str = (
+        "Example conversation history to help the AI agent understand the context of the conversation"
+    )

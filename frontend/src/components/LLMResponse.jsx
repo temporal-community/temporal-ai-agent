@@ -14,6 +14,10 @@ export default function LLMResponse({ data, onConfirm }) {
 
   const requiresConfirm = data.next === "confirm";
 
+  if (typeof data.response === "object") {
+    data.response = data.response.response;
+  }
+
   let displayText = (data.response || "").trim();
   if (!displayText && requiresConfirm) {
     displayText = `Agent is ready to run "${data.tool}". Please confirm.`;

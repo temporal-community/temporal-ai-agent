@@ -7,6 +7,9 @@ from temporalio.worker import Worker
 
 from activities.tool_activities import ToolActivities, dynamic_tool_activity
 from workflows.tool_workflow import ToolWorkflow
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 async def main():

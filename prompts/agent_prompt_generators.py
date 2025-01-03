@@ -7,30 +7,49 @@ def generate_genai_prompt(
     tools_data: ToolsData, conversation_history: str, raw_json: Optional[str] = None
 ) -> str:
     """
-    Generates a concise prompt for producing or validating JSON instructions.
+    Generates a concise prompt for producing or validating JSON instructions
+    with the provided tools and conversation history.
     """
     prompt_lines = []
 
     # Intro / Role
     prompt_lines.append(
-        "You are an AI assistant that must produce or validate JSON instructions "
-        "to properly call a set of tools. Respond with valid JSON only."
+        "You are an AI agent that helps fill required arguments for the tools described below. "
+        "You must respond with valid JSON ONLY, using the schema provided in the instructions."
     )
 
-    # Conversation History
+    # Main Conversation History
     prompt_lines.append("=== Conversation History ===")
     prompt_lines.append(
-        "Use this history to understand needed tools, arguments, and the user's goals:"
+        "This is the ongoing history to determine which tool and arguments to gather:"
     )
     prompt_lines.append("BEGIN CONVERSATION HISTORY")
     prompt_lines.append(json.dumps(conversation_history, indent=2))
     prompt_lines.append("END CONVERSATION HISTORY")
     prompt_lines.append("")
 
+    # Example Conversation History (from tools_data)
+    if tools_data.example_conversation_history:
+        prompt_lines.append("=== Example Conversation With These Tools ===")
+        prompt_lines.append(
+            "Use this example to understand how tools are invoked and arguments are gathered."
+        )
+        prompt_lines.append("BEGIN EXAMPLE")
+        prompt_lines.append(tools_data.example_conversation_history)
+        prompt_lines.append("END EXAMPLE")
+        prompt_lines.append("")
+
     # Tools Definitions
     prompt_lines.append("=== Tools Definitions ===")
     prompt_lines.append(f"There are {len(tools_data.tools)} available tools:")
     prompt_lines.append(", ".join([t.name for t in tools_data.tools]))
+    prompt_lines.append(f"Goal: {tools_data.description}")
+    prompt_lines.append(
+        "Gather the necessary information for each tool in the sequence described above."
+    )
+    prompt_lines.append(
+        "Only ask for arguments listed below. Do not add extra arguments."
+    )
     prompt_lines.append("")
     for tool in tools_data.tools:
         prompt_lines.append(f"Tool name: {tool.name}")
@@ -39,8 +58,11 @@ def generate_genai_prompt(
         for arg in tool.arguments:
             prompt_lines.append(f"    - {arg.name} ({arg.type}): {arg.description}")
         prompt_lines.append("")
+    prompt_lines.append(
+        "When all required args for a tool are known, you can propose next='confirm' to run it."
+    )
 
-    # Instructions for JSON Generation
+    # JSON Format Instructions
     prompt_lines.append("=== Instructions for JSON Generation ===")
     prompt_lines.append(
         "Your JSON format must be:\n"
@@ -56,14 +78,14 @@ def generate_genai_prompt(
         "}"
     )
     prompt_lines.append(
-        "1. You may call multiple tools sequentially. Each requires specific arguments.\n"
-        '2. If ANY required argument is missing, use "next": "question" and prompt the user.\n'
-        '3. If all required arguments are known, use "next": "confirm" and set "tool" to the tool name.\n'
-        '4. If no further actions are needed, use "next": "done" and "tool": "null".\n'
-        '5. Keep "response" short and user-friendly. Do not include any metadata or editorializing.\n'
+        "1) If any required argument is missing, set next='question' and ask the user.\n"
+        "2) If all required arguments are known, set next='confirm' and specify the tool.\n"
+        "   The user will confirm before the tool is run.\n"
+        "3) If no more tools are needed, set next='done' and tool=null.\n"
+        "4) response should be short and user-friendly."
     )
 
-    # Validation Task (Only if raw_json is provided)
+    # Validation Task (If raw_json is provided)
     if raw_json is not None:
         prompt_lines.append("")
         prompt_lines.append("=== Validation Task ===")
@@ -71,60 +93,17 @@ def generate_genai_prompt(
         prompt_lines.append(json.dumps(raw_json, indent=2))
         prompt_lines.append("")
         prompt_lines.append(
-            "Check syntax, ensure 'tool' is correct or 'null', verify 'args' are valid, "
-            'and set "next" appropriately based on missing or complete args.'
+            "Check syntax, 'tool' validity, 'args' completeness, "
+            "and set 'next' appropriately. Return ONLY corrected JSON."
         )
-        prompt_lines.append("Return only the corrected JSON, no extra text.")
-
-    # Common Reminders and Examples
-    prompt_lines.append("")
-    prompt_lines.append("=== Usage Examples ===")
-    prompt_lines.append(
-        "Example for missing args (needs user input):\n"
-        "{\n"
-        '  "response": "I need your departure city.",\n'
-        '  "next": "question",\n'
-        '  "tool": "SearchFlights",\n'
-        '  "args": {\n'
-        '    "origin": null,\n'
-        '    "destination": "Melbourne",\n'
-        '    "dateDepart": "2025-03-26",\n'
-        '    "dateReturn": "2025-04-20"\n'
-        "  }\n"
-        "}"
-    )
-    prompt_lines.append(
-        "Example for confirmed args:\n"
-        "{\n"
-        '  "response": "All arguments are set.",\n'
-        '  "next": "confirm",\n'
-        '  "tool": "SearchFlights",\n'
-        '  "args": {\n'
-        '    "origin": "Seattle",\n'
-        '    "destination": "Melbourne",\n'
-        '    "dateDepart": "2025-03-26",\n'
-        '    "dateReturn": "2025-04-20"\n'
-        "  }\n"
-        "}"
-    )
-    prompt_lines.append(
-        "Example when fully done:\n"
-        "{\n"
-        '  "response": "All tools completed successfully. Final result: <insert result here>",\n'
-        '  "next": "done",\n'
-        '  "tool": "",\n'
-        '  "args": {}\n'
-        "}"
-    )
 
     # Prompt Start
+    prompt_lines.append("")
     if raw_json is not None:
-        prompt_lines.append("")
         prompt_lines.append("Begin by validating the provided JSON if necessary.")
     else:
-        prompt_lines.append("")
         prompt_lines.append(
-            "Begin by producing a valid JSON response for the next step."
+            "Begin by producing a valid JSON response for the next tool or question."
         )
 
     return "\n".join(prompt_lines)

@@ -2,12 +2,12 @@ from models.tool_definitions import ToolDefinition, ToolArgument
 
 find_events_tool = ToolDefinition(
     name="FindEvents",
-    description="Find upcoming events given a location or region (e.g., 'Oceania') and a date or month",
+    description="Find upcoming events to travel to given a location or region (e.g., 'Oceania') and a date or month",
     arguments=[
         ToolArgument(
-            name="continent",
+            name="region",
             type="string",
-            description="Which continent or region to search for events",
+            description="Which  region to search for events",
         ),
         ToolArgument(
             name="month",
@@ -20,7 +20,7 @@ find_events_tool = ToolDefinition(
 # 2) Define the SearchFlights tool
 search_flights_tool = ToolDefinition(
     name="SearchFlights",
-    description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn)",
+    description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn).",
     arguments=[
         ToolArgument(
             name="origin",
@@ -48,7 +48,7 @@ search_flights_tool = ToolDefinition(
 # 3) Define the CreateInvoice tool
 create_invoice_tool = ToolDefinition(
     name="CreateInvoice",
-    description="Generate an invoice with flight information.",
+    description="Generate an invoice for the items described for the amount provided",
     arguments=[
         ToolArgument(
             name="amount",
@@ -58,9 +58,7 @@ create_invoice_tool = ToolDefinition(
         ToolArgument(
             name="flightDetails",
             type="string",
-            description="A summary of the flights, e.g., flight number and airport codes",
+            description="A description of the item details to be invoiced",
         ),
     ],
 )
-
-all_tools = [find_events_tool, search_flights_tool, create_invoice_tool]

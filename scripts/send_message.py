@@ -3,13 +3,16 @@ import sys
 from temporalio.client import Client
 
 from models.data_types import CombinedInput, ToolsData, ToolWorkflowParams
-from tools.tool_registry import all_tools
+from tools.tool_registry import event_travel_tools
 from workflows.tool_workflow import ToolWorkflow
 
 
 async def main(prompt: str):
-    # 1) Build the ToolsData from imported all_tools
-    tools_data = ToolsData(tools=all_tools)
+    # Build the ToolsData
+    tools_data = ToolsData(
+        tools=event_travel_tools,
+        description="Helps the user find an event to travel to, search flights, and create an invoice for those flights.",
+    )
 
     # 2) Create combined input
     combined_input = CombinedInput(

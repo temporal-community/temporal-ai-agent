@@ -1,9 +1,12 @@
 from dataclasses import dataclass
 from temporalio import activity
 from ollama import chat, ChatResponse
+from openai import OpenAI
 import json
 from typing import Sequence
 from temporalio.common import RawValue
+import os
+from datetime import datetime
 
 
 @dataclass
@@ -15,6 +18,46 @@ class ToolPromptInput:
 class ToolActivities:
     @activity.defn
     def prompt_llm(self, input: ToolPromptInput) -> dict:
+        client = OpenAI(
+            api_key=os.environ.get(
+                "OPENAI_API_KEY"
+            ),  # This is the default and can be omitted
+        )
+
+        messages = [
+            {
+                "role": "system",
+                "content": input.context_instructions
+                + ". The current date is "
+                + datetime.now().strftime("%B %d, %Y"),
+            },
+            {
+                "role": "user",
+                "content": input.prompt,
+            },
+        ]
+
+        chat_completion = client.chat.completions.create(
+            model="gpt-4o", messages=messages  # was gpt-4-0613
+        )
+
+        response_content = chat_completion.choices[0].message.content
+        print(f"ChatGPT response: {response_content}")
+
+        # Trim formatting markers if present
+        if response_content.startswith("```json") and response_content.endswith("```"):
+            response_content = response_content[7:-3].strip()
+
+        try:
+            data = json.loads(response_content)
+        except json.JSONDecodeError as e:
+            print(f"Invalid JSON: {e}")
+            raise json.JSONDecodeError
+
+        return data
+
+    @activity.defn
+    def prompt_llm_ollama(self, input: ToolPromptInput) -> dict:
         model_name = "qwen2.5:14b"
         messages = [
             {
