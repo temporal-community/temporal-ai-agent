@@ -1,0 +1,53 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs
+*.log
+logs/*.log
+
+# OS-specific files
+.DS_Store
+
+# Build output
+dist/
+build/
+
+# Dependency directories
+jspm_packages/
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+
+# Vite
+.vite/
+
+# Parcel
+.cache/
+
+# Environment files
+.env
+.env.*.local
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.orig
+
+# Lock files
+*.lock
+
+# Others
+public/**/*.cache

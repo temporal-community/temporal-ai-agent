@@ -2,9 +2,20 @@ from fastapi import FastAPI
 from temporalio.client import Client
 from workflows.tool_workflow import ToolWorkflow
 from models.data_types import CombinedInput, ToolsData, ToolWorkflowParams
+from temporalio.exceptions import TemporalError
+from fastapi.middleware.cors import CORSMiddleware
 from tools.tool_registry import all_tools
 
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -16,9 +27,37 @@ def root():
 async def get_tool_data():
     """Calls the workflow's 'get_tool_data' query."""
     client = await Client.connect("localhost:7233")
-    handle = client.get_workflow_handle("agent-workflow")
-    tool_data = await handle.query(ToolWorkflow.get_tool_data)
-    return tool_data
+    try:
+        # Get workflow handle
+        handle = client.get_workflow_handle("agent-workflow")
+
+        # Check if the workflow is completed
+        workflow_status = await handle.describe()
+        if workflow_status.status == 2:
+            # Workflow is completed; return an empty response
+            return {}
+
+        # Query the workflow
+        tool_data = await handle.query("get_tool_data")
+        return tool_data
+    except TemporalError as e:
+        # Workflow not found; return an empty response
+        print(e)
+        return {}
+
+
+@app.get("/get-conversation-history")
+async def get_conversation_history():
+    """Calls the workflow's 'get_conversation_history' query."""
+    client = await Client.connect("localhost:7233")
+    try:
+        handle = client.get_workflow_handle("agent-workflow")
+        conversation_history = await handle.query("get_conversation_history")
+
+        return conversation_history
+    except TemporalError as e:
+        print(e)
+        return []
 
 
 @app.post("/send-prompt")
@@ -57,3 +96,19 @@ async def send_confirm():
     handle = client.get_workflow_handle(workflow_id)
     await handle.signal("confirm")
     return {"message": "Confirm signal sent."}
+
+
+@app.post("/end-chat")
+async def end_chat():
+    """Sends a 'end_chat' signal to the workflow."""
+    client = await Client.connect("localhost:7233")
+    workflow_id = "agent-workflow"
+
+    try:
+        handle = client.get_workflow_handle(workflow_id)
+        await handle.signal("end_chat")
+        return {"message": "End chat signal sent."}
+    except TemporalError as e:
+        print(e)
+        # Workflow not found; return an empty response
+        return {}

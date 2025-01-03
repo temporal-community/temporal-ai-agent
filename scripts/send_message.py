@@ -3,7 +3,7 @@ import sys
 from temporalio.client import Client
 
 from models.data_types import CombinedInput, ToolsData, ToolWorkflowParams
-from tools.tool_registry import all_tools  # <–– Import your pre-defined tools
+from tools.tool_registry import all_tools
 from workflows.tool_workflow import ToolWorkflow
 
 
