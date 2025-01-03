@@ -4,8 +4,6 @@ import LoadingIndicator from "./LoadingIndicator";
 export default function ConfirmInline({ data, confirmed, onConfirm }) {
   const { args, tool } = data || {};
 
-  console.log("ConfirmInline rendered with confirmed:", confirmed);
-
   if (confirmed) {
     // Once confirmed, show "Running..." state in the same container
     return (

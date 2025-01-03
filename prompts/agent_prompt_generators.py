@@ -73,8 +73,10 @@ def generate_genai_prompt(
     prompt_lines.append(
         "6. Use 'next': 'question' if you lack any required arguments based on the history and prompt. "
         "Use 'next': 'confirm' only if NO arguments are missing. "
-        "Use 'next': 'done' and tool: 'null' if you have successfully completed all tools."
-        "Don't offer any additional tools beyond the tools listed."
+        "Use 'next': 'done' and tool: 'null' if you have successfully completed all tools "
+        "Don't offer any additional tools beyond the tools listed. "
+        "DON'T editorialize or add extra information to a 'done' response. "
+        "Example done response: {'response': 'All tools completed.', 'next': 'done', 'tool': 'null', 'args': {}} "
     )
     prompt_lines.append(
         "7. Keep 'response' user-friendly with no extra commentary. Stick to valid JSON syntax. "

@@ -19,6 +19,7 @@ export default function ChatWindow({ conversation, loading, onConfirm }) {
   }
 
   const filtered = conversation.filter((msg) => {
+    console.log(conversation[conversation.length - 1].actor)
     const { actor, response } = msg;
   
     if (actor === "user") {
@@ -57,6 +58,11 @@ export default function ChatWindow({ conversation, loading, onConfirm }) {
         </div>
       )}
       {conversation.length > 0 && conversation[conversation.length - 1].actor === "user" && (
+        <div className="flex justify-center">
+          <LoadingIndicator />
+        </div>
+      )}
+      {conversation.length > 0 && conversation[conversation.length - 1].actor === "tool_result_to_llm" && (
         <div className="flex justify-center">
           <LoadingIndicator />
         </div>

@@ -1,6 +1,6 @@
 from collections import deque
 from datetime import timedelta
-from typing import Dict, Any, Union, List, Optional, Tuple, Deque
+from typing import Dict, Any, Union, List, Optional, Deque
 from temporalio.common import RetryPolicy
 
 from temporalio import workflow
@@ -25,6 +25,7 @@ class ToolWorkflow:
         self.tool_data = None
         self.max_turns_before_continue: int = 250
         self.confirm = False
+        self.tool_results: List[Dict[str, Any]] = []
 
     @workflow.run
     async def run(self, combined_input: CombinedInput) -> str:
@@ -50,22 +51,9 @@ class ToolWorkflow:
 
             # 1) If chat_ended was signaled, handle end and return
             if self.chat_ended:
-                # possibly do a summary if multiple turns
-                if len(self.conversation_history["messages"]) > 1:
-                    summary_context, summary_prompt = self.prompt_summary_with_history()
-                    summary_input = ToolPromptInput(
-                        prompt=summary_prompt, context_instructions=summary_context
-                    )
-                    self.conversation_summary = await workflow.start_activity_method(
-                        ToolActivities.prompt_llm,
-                        summary_input,
-                        schedule_to_close_timeout=timedelta(seconds=20),
-                    )
-                workflow.logger.info(
-                    "Chat ended. Conversation summary:\n"
-                    + f"{self.conversation_summary}"
-                )
-                return f"{self.conversation_summary}"
+
+                workflow.logger.info("Chat ended.")
+                return f"{self.conversation_history}"
 
             # 2) If we received a confirm signal:
             if self.confirm and waiting_for_confirm and current_tool:
@@ -86,13 +74,15 @@ class ToolWorkflow:
                     schedule_to_close_timeout=timedelta(seconds=20),
                 )
                 dynamic_result["tool"] = current_tool
-                self.add_message(f"tool_result", dynamic_result)
+                self.add_message(
+                    "tool_result", {"tool": current_tool, "result": dynamic_result}
+                )
 
                 # Enqueue a follow-up prompt for the LLM
                 self.prompt_queue.append(
                     f"### The '{current_tool}' tool completed successfully with {dynamic_result}. "
                     "INSTRUCTIONS: Use this tool result, and the conversation history to figure out next steps. "
-                    "IMPORTANT: If all listed tools have run, you are up to the final step. Mark 'next':'done' and respond with your final confirmation."
+                    "IMPORTANT: If all listed tools have run, you are up to the final step. Mark 'next':'done' and respond with 'All tools run' or similar."
                 )
                 # Loop around again
                 continue

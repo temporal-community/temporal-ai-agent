@@ -60,7 +60,7 @@ export default function App() {
         try {
             await fetch("http://127.0.0.1:8000/end-chat", { method: "POST" });
             // sleep for a bit to allow the server to process the end-chat request
-            await new Promise((resolve) => setTimeout(resolve, 4000)); // todo make less dodgy
+            await new Promise((resolve) => setTimeout(resolve, 1000)); // todo make less dodgy
             await fetch(
                 `http://127.0.0.1:8000/send-prompt?prompt=${encodeURIComponent("I'd like to travel to an event.")}`,
                 { method: "POST" }
@@ -68,6 +68,12 @@ export default function App() {
             setConversation([]); // clear local state
         } catch (err) {
             console.error("Error ending chat:", err);
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === "Enter") {
+            handleSendMessage();
         }
     };
 
@@ -91,6 +97,7 @@ export default function App() {
                             placeholder="Type your message..."
                             value={userInput}
                             onChange={(e) => setUserInput(e.target.value)}
+                            onKeyPress={handleKeyPress}
                         />
                         <button
                             onClick={handleSendMessage}
