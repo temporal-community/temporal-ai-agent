@@ -11,9 +11,6 @@ export default function ConfirmInline({ data, confirmed, onConfirm }) {
           <div>
             <strong>Tool:</strong> {tool ?? "Unknown"}
           </div>
-          <div>
-            <strong>Tool:</strong> {tool ?? "Unknown"}
-          </div>
           {args && (
             <div className="mt-1">
               <strong>Args:</strong>

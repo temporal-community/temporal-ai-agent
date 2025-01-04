@@ -27,6 +27,7 @@ fastapi = "^0.115.6"
 uvicorn = "^0.34.0"
 python-dotenv = "^1.0.1"
 openai = "^1.59.2"
+stripe = "^11.4.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3"
