@@ -2,17 +2,16 @@ import React, { useState } from "react";
 import MessageBubble from "./MessageBubble";
 import ConfirmInline from "./ConfirmInline";
 
-export default function LLMResponse({ data, onConfirm }) {
+export default function LLMResponse({ data, onConfirm, isLastMessage }) {
   const [isConfirmed, setIsConfirmed] = useState(false);
 
   const handleConfirm = async () => {
-    if (onConfirm) {
-      await onConfirm();
-    }
-    setIsConfirmed(true); // Update state after confirmation
+    if (onConfirm) await onConfirm();
+    setIsConfirmed(true);
   };
 
-  const requiresConfirm = data.next === "confirm";
+  // Only requires confirm if data.next === "confirm" AND it's the last message
+  const requiresConfirm = data.next === "confirm" && isLastMessage;
 
   if (typeof data.response === "object") {
     data.response = data.response.response;

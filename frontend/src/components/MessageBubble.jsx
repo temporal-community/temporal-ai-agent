@@ -16,11 +16,14 @@ export default function MessageBubble({ message, fallback = "", isUser = false }
 
   return (
     <div
-      className={`max-w-xs md:max-w-sm px-4 py-2 mb-1 rounded-lg ${
-        isUser ? "ml-auto" : "mr-auto"
-      } ${bubbleStyle}`}
-      style={{ whiteSpace: "pre-wrap" }}
-    >
+  className={`inline-block px-4 py-2 mb-1 rounded-lg ${
+    isUser ? "ml-auto bg-blue-100" : "mr-auto bg-gray-200"
+  } break-words`}
+  style={{
+    whiteSpace: "pre-wrap",
+    maxWidth: "75%",  // or '80%'
+  }}
+>
       {displayText}
     </div>
   );

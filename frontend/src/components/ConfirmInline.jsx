@@ -15,7 +15,7 @@ export default function ConfirmInline({ data, confirmed, onConfirm }) {
           {args && (
             <div className="mt-1">
               <strong>Args:</strong>
-              <pre className="bg-gray-100 dark:bg-gray-700 p-1 rounded text-xs whitespace-pre-wrap">
+              <pre className="bg-gray-100 dark:bg-gray-700 p-1 rounded text-sm whitespace-pre-wrap">
                 {JSON.stringify(args, null, 2)}
               </pre>
             </div>
@@ -31,14 +31,14 @@ export default function ConfirmInline({ data, confirmed, onConfirm }) {
   // Not confirmed yet → show confirmation UI
   return (
     <div className="mt-2 p-2 border border-gray-400 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800">
-      <div className="text-sm text-gray-600 dark:text-gray-300">
+      <div className="text-gray-600 dark:text-gray-300">
         <div>
           <strong>Tool:</strong> {tool ?? "Unknown"}
         </div>
         {args && (
           <div className="mt-1">
             <strong>Args:</strong>
-            <pre className="bg-gray-100 dark:bg-gray-700 p-1 rounded text-xs whitespace-pre-wrap">
+            <pre className="bg-gray-100 dark:bg-gray-700 p-1 rounded text-sm whitespace-pre-wrap">
               {JSON.stringify(args, null, 2)}
             </pre>
           </div>

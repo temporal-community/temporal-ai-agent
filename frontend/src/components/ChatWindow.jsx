@@ -19,46 +19,50 @@ export default function ChatWindow({ conversation, loading, onConfirm }) {
   }
 
   const filtered = conversation.filter((msg) => {
-
     const { actor, response } = msg;
-  
+
     if (actor === "user") {
       return true;
     }
     if (actor === "agent") {
       const parsed = typeof response === "string" ? safeParse(response) : response;
-      // Keep if next is "question", "confirm", or "user_confirmed_tool_run".
-      // Only skip if next is "done" (or something else).
-      // return !["done"].includes(parsed.next);
-      return true;
+      return true; // Adjust this logic based on your "next" field.
     }
     return false;
   });
 
   return (
-    <div className="flex-grow overflow-y-auto space-y-4">
-      {filtered.map((msg, idx) => {
-
-        const { actor, response } = msg;
-
-        if (actor === "user") {
-          return (
-            <MessageBubble key={idx} message={{ response }} isUser />
-          );
-        } else if (actor === "agent") {
-          const data =
-            typeof response === "string" ? safeParse(response) : response;
-          return <LLMResponse key={idx} data={data} onConfirm={onConfirm} />;
-        }
-        return null;
-      })}
-
-      {/* If loading = true, show the spinner at the bottom */}
-      {loading && (
-        <div className="flex justify-center">
-          <LoadingIndicator />
-        </div>
-      )}
+    <div className="flex-grow flex flex-col">
+      {/* Main message container */}
+      <div className="flex-grow flex flex-col justify-end overflow-y-auto space-y-3">
+        {filtered.map((msg, idx) => {
+          const { actor, response } = msg;
+  
+          if (actor === "user") {
+            return <MessageBubble key={idx} message={{ response }} isUser />;
+          } else if (actor === "agent") {
+            const data =
+              typeof response === "string" ? safeParse(response) : response;
+            const isLastMessage = idx === filtered.length - 1;
+            return (
+              <LLMResponse
+                key={idx}
+                data={data}
+                onConfirm={onConfirm}
+                isLastMessage={isLastMessage}
+              />
+            );
+          }
+          return null; // Fallback for unsupported actors.
+        })}
+        {/* Loading indicator */}
+        {loading && (
+          <div className="pt-2 flex justify-center">
+            <LoadingIndicator />
+          </div>
+        )}
+      </div>
     </div>
   );
+  
 }

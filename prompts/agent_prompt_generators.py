@@ -81,7 +81,7 @@ def generate_genai_prompt(
         "1) If any required argument is missing, set next='question' and ask the user.\n"
         "2) If all required arguments are known, set next='confirm' and specify the tool.\n"
         "   The user will confirm before the tool is run.\n"
-        "3) If no more tools are needed, set next='done' and tool=null.\n"
+        "3) If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=null.\n"
         "4) response should be short and user-friendly."
     )
 

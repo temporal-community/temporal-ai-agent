@@ -2,8 +2,10 @@ import React from "react";
 
 export default function NavBar({ title }) {
   return (
-    <div className="bg-gray-200 dark:bg-gray-700 p-4 shadow-sm">
-      <h1 className="text-xl font-bold">{title}</h1>
-    </div>
+    <header className="fixed top-0 left-0 w-full p-4 bg-white/70 dark:bg-gray-800/70 
+                       backdrop-blur-md shadow-md z-10 flex justify-center">
+      <h1 className="text-xl font-bold font-poppins">{title}</h1>
+      {/* ...any additional nav items... */}
+    </header>
   );
 }

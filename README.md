@@ -48,10 +48,8 @@ TODO: Document /frontend react app running instructions.
 - Note the mapping in `tools/__init__.py` to each tool
 
 ## TODO
-- The LLM prompts move through 3 mock tools (FindEvents, SearchFlights, CreateInvoice) but I should make them contact real APIs.
-- I should prove this out with other tool definitions (take advantage of my nice DSL).
-- Might need to abstract the json example in the prompt generator to be part of a ToolDefinition (prevent overfitting to the example).
+- Code GenerateInvoice against the Stripe API
+- I should prove this out with other tool definitions outside of the event/flight search case (take advantage of my nice DSL).
 - Currently hardcoded to the Temporal dev server at localhost:7233. Need to support options incl Temporal Cloud.
 - UI: Make prettier
 - UI: Tool Confirmed state could be better represented
-- UI: 'Start new chat' button needs to handle better
