@@ -55,6 +55,7 @@ Run query get_tool_data to see the data the tool has collected so far.
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
 - The tools themselves are defined in their own files in `/tools`
 - Note the mapping in `tools/__init__.py` to each tool
+- See main.py where some tool-specific logic is defined (todo, move this to the tool definition)
 
 ## TODO
 - Code GenerateInvoice against the Stripe API
