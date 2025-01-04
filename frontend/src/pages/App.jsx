@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import NavBar from "../components/NavBar";
 import ChatWindow from "../components/ChatWindow";
 
 const POLL_INTERVAL = 500; // 0.5 seconds
 
 export default function App() {
+    const containerRef = useRef(null);
     const [conversation, setConversation] = useState([]);
     const [userInput, setUserInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -80,6 +81,13 @@ export default function App() {
         }
     };
 
+    useEffect(() => {
+        if (containerRef.current) {
+          containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
+      }, [conversation, loading, done]);
+    
+
     return (
         <div className="flex flex-col h-screen">
           <NavBar title="Temporal AI Agent" />
@@ -89,7 +97,7 @@ export default function App() {
             <div className="w-full max-w-lg bg-white dark:bg-gray-900 p-8 px-3 rounded shadow-md 
                             flex flex-col overflow-hidden">
               {/* Scrollable chat area */}
-              <div className="flex-grow overflow-y-auto pb-20 pt-10">
+              <div ref={containerRef} className="flex-grow overflow-y-auto pb-20 pt-10">
                         <ChatWindow
                             conversation={conversation}
                             loading={loading}

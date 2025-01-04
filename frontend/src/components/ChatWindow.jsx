@@ -13,6 +13,7 @@ function safeParse(str) {
 }
 
 export default function ChatWindow({ conversation, loading, onConfirm }) {
+
   if (!Array.isArray(conversation)) {
     console.error("ChatWindow expected conversation to be an array, got:", conversation);
     return null;
