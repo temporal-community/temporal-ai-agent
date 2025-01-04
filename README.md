@@ -47,7 +47,9 @@ Run query get_tool_data to see the data the tool has collected so far.
 - Access the API at `/docs` to see the available endpoints.
 
 ## UI
-TODO: Document /frontend react app running instructions.
+- `cd frontend`
+- `npm install` to install the dependencies.
+- `npm run dev` to start the dev server.
 
 ## Customizing the agent
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
