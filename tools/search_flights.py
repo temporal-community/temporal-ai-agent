@@ -40,7 +40,7 @@ def search_airport(query: str) -> list:
         return []
 
 
-def search_flights_realapi(args: dict) -> dict:
+def search_flights(args: dict) -> dict:  # _realapi
     """
     1) Looks up airport/city codes via search_airport.
     2) Finds the first matching skyId/entityId for both origin & destination.
@@ -169,7 +169,7 @@ def search_flights_realapi(args: dict) -> dict:
     }
 
 
-def search_flights(args: dict) -> dict:
+def search_flights_example(args: dict) -> dict:
     """
     Returns example flight search results in the requested JSON format.
     """
