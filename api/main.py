@@ -78,7 +78,7 @@ async def send_prompt(prompt: str):
         example_conversation_history="\n ".join(
             [
                 "user: I'd like to travel to an event",
-                "agent: Sure! Let's start by finding an event you'd like to attend. Could you tell me which region and month you're interested in?",
+                "agent: Sure! Let's start by finding an event you'd like to attend. Could you tell me which city and month you're interested in?",
                 "user: In Sao Paulo, Brazil, in February",
                 "agent: Great! Let's find an events in Sao Paulo, Brazil in February.",
                 "user_confirmed_tool_run: <user clicks confirm on FindEvents tool>",

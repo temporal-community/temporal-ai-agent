@@ -2,12 +2,12 @@ from models.tool_definitions import ToolDefinition, ToolArgument
 
 find_events_tool = ToolDefinition(
     name="FindEvents",
-    description="Find upcoming events to travel to given a location or region (e.g., 'Oceania') and a date or month",
+    description="Find upcoming events to travel to given a location or city (e.g., 'Oceania') and a date or month",
     arguments=[
         ToolArgument(
-            name="region",
+            name="city",
             type="string",
-            description="Which  region to search for events",
+            description="Which  city to search for events",
         ),
         ToolArgument(
             name="month",
@@ -25,12 +25,12 @@ search_flights_tool = ToolDefinition(
         ToolArgument(
             name="origin",
             type="string",
-            description="Airport or city (infer airport code from city)",
+            description="Airport or city (infer airport code from city and store)",
         ),
         ToolArgument(
             name="destination",
             type="string",
-            description="Airport or city code for arrival (infer airport code from city)",
+            description="Airport or city code for arrival (infer airport code from city and store)",
         ),
         ToolArgument(
             name="dateDepart",

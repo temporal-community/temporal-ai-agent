@@ -61,11 +61,8 @@ export default function App() {
 
     const handleStartNewChat = async () => {
         try {
-            await fetch("http://127.0.0.1:8000/end-chat", { method: "POST" });
-            // sleep for a bit to allow the server to process the end-chat request
-            await new Promise((resolve) => setTimeout(resolve, 1000)); // todo make less dodgy
             await fetch(
-                `http://127.0.0.1:8000/send-prompt?prompt=${encodeURIComponent("I'd like to travel to an event.")}`,
+                `http://127.0.0.1:8000/send-prompt?prompt=${encodeURIComponent("I'd like to travel for an event.")}`,
                 { method: "POST" }
             );
             setConversation([]); // clear local state
