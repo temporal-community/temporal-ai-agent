@@ -17,7 +17,7 @@ class ToolDefinition:
 
 
 @dataclass
-class ToolsData:
+class AgentGoal:
     tools: List[ToolDefinition]
     description: str = "Description of the tools purpose and overall goal"
     example_conversation_history: str = (

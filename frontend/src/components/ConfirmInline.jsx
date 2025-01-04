@@ -1,5 +1,4 @@
 import React from "react";
-import LoadingIndicator from "./LoadingIndicator";
 
 export default function ConfirmInline({ data, confirmed, onConfirm }) {
   const { args, tool } = data || {};

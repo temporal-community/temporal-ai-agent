@@ -1,10 +1,10 @@
-from models.tool_definitions import ToolsData
+from models.tool_definitions import AgentGoal
 from typing import Optional
 import json
 
 
 def generate_genai_prompt(
-    tools_data: ToolsData, conversation_history: str, raw_json: Optional[str] = None
+    agent_goal: AgentGoal, conversation_history: str, raw_json: Optional[str] = None
 ) -> str:
     """
     Generates a concise prompt for producing or validating JSON instructions
@@ -28,22 +28,22 @@ def generate_genai_prompt(
     prompt_lines.append("END CONVERSATION HISTORY")
     prompt_lines.append("")
 
-    # Example Conversation History (from tools_data)
-    if tools_data.example_conversation_history:
+    # Example Conversation History (from agent_goal)
+    if agent_goal.example_conversation_history:
         prompt_lines.append("=== Example Conversation With These Tools ===")
         prompt_lines.append(
             "Use this example to understand how tools are invoked and arguments are gathered."
         )
         prompt_lines.append("BEGIN EXAMPLE")
-        prompt_lines.append(tools_data.example_conversation_history)
+        prompt_lines.append(agent_goal.example_conversation_history)
         prompt_lines.append("END EXAMPLE")
         prompt_lines.append("")
 
     # Tools Definitions
     prompt_lines.append("=== Tools Definitions ===")
-    prompt_lines.append(f"There are {len(tools_data.tools)} available tools:")
-    prompt_lines.append(", ".join([t.name for t in tools_data.tools]))
-    prompt_lines.append(f"Goal: {tools_data.description}")
+    prompt_lines.append(f"There are {len(agent_goal.tools)} available tools:")
+    prompt_lines.append(", ".join([t.name for t in agent_goal.tools]))
+    prompt_lines.append(f"Goal: {agent_goal.description}")
     prompt_lines.append(
         "Gather the necessary information for each tool in the sequence described above."
     )
@@ -51,7 +51,7 @@ def generate_genai_prompt(
         "Only ask for arguments listed below. Do not add extra arguments."
     )
     prompt_lines.append("")
-    for tool in tools_data.tools:
+    for tool in agent_goal.tools:
         prompt_lines.append(f"Tool name: {tool.name}")
         prompt_lines.append(f"  Description: {tool.description}")
         prompt_lines.append("  Required args:")

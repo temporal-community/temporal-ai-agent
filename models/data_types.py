@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Deque
-from models.tool_definitions import ToolsData
+from models.tool_definitions import AgentGoal
 
 
 @dataclass
@@ -12,4 +12,4 @@ class ToolWorkflowParams:
 @dataclass
 class CombinedInput:
     tool_params: ToolWorkflowParams
-    tools_data: ToolsData
+    agent_goal: AgentGoal

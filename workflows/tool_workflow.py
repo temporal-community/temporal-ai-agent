@@ -30,7 +30,7 @@ class ToolWorkflow:
     @workflow.run
     async def run(self, combined_input: CombinedInput) -> str:
         params = combined_input.tool_params
-        tools_data = combined_input.tools_data
+        agent_goal = combined_input.agent_goal
         tool_data = None
 
         if params and params.conversation_summary:
@@ -97,10 +97,10 @@ class ToolWorkflow:
 
                 # Pass entire conversation + Tools to LLM
                 context_instructions = generate_genai_prompt(
-                    tools_data, self.conversation_history, self.tool_data
+                    agent_goal, self.conversation_history, self.tool_data
                 )
 
-                # tools_list = ", ".join([t.name for t in tools_data.tools])
+                # tools_list = ", ".join([t.name for t in agent_goal.tools])
 
                 prompt_input = ToolPromptInput(
                     prompt=prompt,
@@ -121,7 +121,7 @@ class ToolWorkflow:
                 current_tool = self.tool_data.get("tool")
 
                 if next_step == "confirm" and current_tool:
-                    # tmp arg check
+                    # todo make this less awkward
                     args = self.tool_data.get("args")
 
                     # check each argument for null values
@@ -132,8 +132,6 @@ class ToolWorkflow:
                             missing_args.append(key)
 
                     if missing_args:
-                        # self.add_message("response_confirm_missing_args", tool_data)
-
                         # Enqueue a follow-up prompt for the LLM
                         self.prompt_queue.append(
                             f"### INSTRUCTIONS set next='question', combine this response response='{tool_data.get('response')}' and following missing arguments for tool {current_tool}: {missing_args}. "
@@ -184,7 +182,7 @@ class ToolWorkflow:
                                     conversation_summary=self.conversation_summary,
                                     prompt_queue=self.prompt_queue,
                                 ),
-                                tools_data=tools_data,
+                                agent_goal=agent_goal,
                             )
                         ]
                     )

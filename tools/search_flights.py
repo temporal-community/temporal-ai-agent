@@ -40,7 +40,7 @@ def search_airport(query: str) -> list:
         return []
 
 
-def search_flights(args: dict) -> dict:
+def search_flights_realapi(args: dict) -> dict:
     """
     1) Looks up airport/city codes via search_airport.
     2) Finds the first matching skyId/entityId for both origin & destination.
@@ -169,26 +169,31 @@ def search_flights(args: dict) -> dict:
     }
 
 
-def search_flights_example(args: dict) -> dict:
+def search_flights(args: dict) -> dict:
     """
-    Example function for searching flights.
-    Currently just prints/returns the passed args,
-    but you can add real flight search logic later.
+    Returns example flight search results in the requested JSON format.
     """
-    # date_depart = args.get("dateDepart")
-    # date_return = args.get("dateReturn")
     origin = args.get("origin")
     destination = args.get("destination")
 
-    flight_search_results = {
-        "origin": f"{origin}",
-        "destination": f"{destination}",
+    return {
         "currency": "USD",
+        "destination": f"{destination}",
+        "origin": f"{origin}",
         "results": [
-            {"flight_number": "CX101", "return_flight_number": "CX102", "price": 850.0},
-            {"flight_number": "QF30", "return_flight_number": "QF29", "price": 920.0},
-            {"flight_number": "MH129", "return_flight_number": "MH128", "price": 780.0},
+            {
+                "operating_carrier": "American Airlines",
+                "outbound_flight_code": "AA203",
+                "price": 1262.51,
+                "return_flight_code": "AA202",
+                "return_operating_carrier": "American Airlines",
+            },
+            {
+                "operating_carrier": "Air New Zealand",
+                "outbound_flight_code": "NZ488",
+                "price": 1396.00,
+                "return_flight_code": "NZ527",
+                "return_operating_carrier": "Air New Zealand",
+            },
         ],
     }
-
-    return flight_search_results

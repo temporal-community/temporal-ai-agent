@@ -32,6 +32,16 @@ export default function LLMResponse({ data, onConfirm, isLastMessage }) {
           onConfirm={handleConfirm}
         />
       )}
+      {!requiresConfirm && data.tool && data.next === "confirm" && (
+        <div className="text-sm text-center  text-green-600 dark:text-green-400">
+          <div>
+            Agent ran tool: <strong>{data.tool ?? "Unknown"}</strong>
+          </div>
+          {/* <div>
+            {JSON.stringify(data, null, 2)}
+          </div> */}
+        </div>
+      )}
     </div>
   );
 }

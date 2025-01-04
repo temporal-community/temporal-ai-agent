@@ -2,14 +2,14 @@ import asyncio
 import sys
 from temporalio.client import Client
 
-from models.data_types import CombinedInput, ToolsData, ToolWorkflowParams
+from models.data_types import CombinedInput, AgentGoal, ToolWorkflowParams
 from tools.tool_registry import event_travel_tools
 from workflows.tool_workflow import ToolWorkflow
 
 
 async def main(prompt: str):
-    # Build the ToolsData
-    tools_data = ToolsData(
+    # Build the AgentGoal
+    agent_goal = AgentGoal(
         tools=event_travel_tools,
         description="Helps the user find an event to travel to, search flights, and create an invoice for those flights.",
     )
@@ -17,7 +17,7 @@ async def main(prompt: str):
     # 2) Create combined input
     combined_input = CombinedInput(
         tool_params=ToolWorkflowParams(None, None),
-        tools_data=tools_data,
+        agent_goal=agent_goal,
     )
 
     # 3) Connect to Temporal and start or signal the workflow
