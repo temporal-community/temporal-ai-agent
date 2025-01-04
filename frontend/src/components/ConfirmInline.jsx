@@ -11,6 +11,9 @@ export default function ConfirmInline({ data, confirmed, onConfirm }) {
           <div>
             <strong>Tool:</strong> {tool ?? "Unknown"}
           </div>
+          <div>
+            <strong>Tool:</strong> {tool ?? "Unknown"}
+          </div>
           {args && (
             <div className="mt-1">
               <strong>Args:</strong>
@@ -32,16 +35,19 @@ export default function ConfirmInline({ data, confirmed, onConfirm }) {
     <div className="mt-2 p-2 border border-gray-400 dark:border-gray-600 rounded bg-gray-50 dark:bg-gray-800">
       <div className="text-gray-600 dark:text-gray-300">
         <div>
-          <strong>Tool:</strong> {tool ?? "Unknown"}
+          Agent is ready to run the tool: <strong>{tool ?? "Unknown"}</strong>
         </div>
         {args && (
-          <div className="mt-1">
-            <strong>Args:</strong>
+          <div className="mt-1 text-sm">
+            With the following parameters
             <pre className="bg-gray-100 dark:bg-gray-700 p-1 rounded text-sm whitespace-pre-wrap">
               {JSON.stringify(args, null, 2)}
             </pre>
           </div>
         )}
+        <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          Please confirm to proceed.
+        </div>
       </div>
       <div className="text-right mt-2">
         <button
