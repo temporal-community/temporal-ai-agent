@@ -6,6 +6,7 @@ const POLL_INTERVAL = 500; // 0.5 seconds
 
 export default function App() {
     const containerRef = useRef(null);
+    const inputRef = useRef(null);
     const [conversation, setConversation] = useState([]);
     const [userInput, setUserInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -87,6 +88,12 @@ export default function App() {
         }
       }, [conversation, loading, done]);
     
+      useEffect(() => {
+        if (inputRef.current) {
+          inputRef.current.focus(); // Ensure the input box retains focus
+        }
+      }, [userInput, loading, done]); // Add other dependencies if necessary
+    
 
     return (
         <div className="flex flex-col h-screen">
@@ -122,6 +129,7 @@ export default function App() {
     >
                 <div className="flex items-center">
                     <input
+                        ref={inputRef}
                         type="text"
                         className={`flex-grow rounded-l px-3 py-2 border border-gray-300
                     dark:bg-gray-700 dark:border-gray-600 focus:outline-none
