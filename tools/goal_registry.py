@@ -10,7 +10,7 @@ goal_event_flight_invoice = AgentGoal(
     description="Help the user gather args for these tools in order: "
     "1. FindEvents: Find an event to travel to "
     "2. SearchFlights: search for a flight around the event dates "
-    "3. GenerateInvoice: Create a simple invoice for the cost of that flight ",
+    "3. CreateInvoice: Create a simple invoice for the cost of that flight ",
     example_conversation_history="\n ".join(
         [
             "user: I'd like to travel to an event",

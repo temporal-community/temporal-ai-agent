@@ -104,7 +104,7 @@ export default function App() {
 
     return (
         <div className="flex flex-col h-screen">
-            <NavBar title="Temporal AI Agent" />
+            <NavBar title="Temporal AI Agent 🤖" />
 
             {/* Centered content, but no manual bottom margin */}
             <div className="flex-grow flex justify-center px-4 py-2 overflow-hidden">
