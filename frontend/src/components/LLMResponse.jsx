@@ -1,44 +1,60 @@
-import React, { useState } from "react";
+import React, { memo, useEffect } from "react";
 import MessageBubble from "./MessageBubble";
 import ConfirmInline from "./ConfirmInline";
 
-export default function LLMResponse({ data, onConfirm, isLastMessage }) {
-  const [isConfirmed, setIsConfirmed] = useState(false);
+const LLMResponse = memo(({ data, onConfirm, isLastMessage, onHeightChange }) => {
+    const [isConfirmed, setIsConfirmed] = React.useState(false);
+    const responseRef = React.useRef(null);
 
-  const handleConfirm = async () => {
-    if (onConfirm) await onConfirm();
-    setIsConfirmed(true);
-  };
+    // Notify parent of height changes when confirm UI appears/changes
+    useEffect(() => {
+        if (isLastMessage && responseRef.current && onHeightChange) {
+            onHeightChange();
+        }
+    }, [isLastMessage, isConfirmed, onHeightChange]);
 
-  // Only requires confirm if data.next === "confirm" AND it's the last message
-  const requiresConfirm = data.next === "confirm" && isLastMessage;
+    const handleConfirm = async () => {
+        try {
+            if (onConfirm) await onConfirm();
+            setIsConfirmed(true);
+        } catch (error) {
+            console.error('Error confirming action:', error);
+        }
+    };
 
-  if (typeof data.response === "object") {
-    data.response = data.response.response;
-  }
+    const response = typeof data?.response === 'object' 
+        ? data.response.response 
+        : data?.response;
 
-  let displayText = (data.response || "").trim();
-  if (!displayText && requiresConfirm) {
-    displayText = `Agent is ready to run "${data.tool}". Please confirm.`;
-  }
+    const displayText = (response || '').trim();
+    const requiresConfirm = data.next === "confirm" && isLastMessage;
+    const defaultText = requiresConfirm 
+        ? `Agent is ready to run "${data.tool}". Please confirm.` 
+        : '';
 
-  return (
-    <div className="space-y-2">
-      <MessageBubble message={{ response: displayText }} />
-      {requiresConfirm && (
-        <ConfirmInline
-          data={data}
-          confirmed={isConfirmed}
-          onConfirm={handleConfirm}
-        />
-      )}
-      {!requiresConfirm && data.tool && data.next === "confirm" && (
-        <div className="text-sm text-center  text-green-600 dark:text-green-400">
-          <div>
-            Agent chose tool: <strong>{data.tool ?? "Unknown"}</strong>
-          </div>
+    return (
+        <div ref={responseRef} className="space-y-2">
+            <MessageBubble 
+                message={{ response: displayText || defaultText }} 
+            />
+            {requiresConfirm && (
+                <ConfirmInline
+                    data={data}
+                    confirmed={isConfirmed}
+                    onConfirm={handleConfirm}
+                />
+            )}
+            {!requiresConfirm && data.tool && data.next === "confirm" && (
+                <div className="text-sm text-center text-green-600 dark:text-green-400">
+                    <div>
+                        Agent chose tool: <strong>{data.tool ?? "Unknown"}</strong>
+                    </div>
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
-}
+    );
+});
+
+LLMResponse.displayName = 'LLMResponse';
+
+export default LLMResponse;

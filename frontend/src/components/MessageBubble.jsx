@@ -1,50 +1,53 @@
-import React from "react";
+import React, { memo } from "react";
 
-export default function MessageBubble({ message, fallback = "", isUser = false }) {
-  const bubbleStyle = isUser
-    ? "bg-blue-600 text-white self-end"
-    : "bg-gray-300 text-gray-900 dark:bg-gray-600 dark:text-gray-100";
+const MessageBubble = memo(({ message, fallback = "", isUser = false }) => {
+    const displayText = message.response?.trim() ? message.response : fallback;
 
-  const displayText = message.response?.trim() ? message.response : fallback;
+    if (displayText.startsWith("###")) {
+        return null;
+    }
 
-  if (displayText.startsWith("###")) {
-    return null;
-  }
+    const renderTextWithLinks = (text) => {
+        const urlRegex = /(https?:\/\/[^\s]+)/g;
+        const parts = text.split(urlRegex);
 
-  // Function to detect and render URLs as links
-  const renderTextWithLinks = (text) => {
-    const urlRegex = /(https?:\/\/[^\s]+)/g;
-    const parts = text.split(urlRegex);
+        return parts.map((part, index) => {
+            if (urlRegex.test(part)) {
+                return (
+                    <a
+                        key={index}
+                        href={part}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:text-blue-600 underline"
+                        aria-label={`External link to ${part}`}
+                    >
+                        {part}
+                    </a>
+                );
+            }
+            return part;
+        });
+    };
 
-    return parts.map((part, index) => {
-      if (urlRegex.test(part)) {
-        return (
-          <a
-            key={index}
-            href={part}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
-            {part}
-          </a>
-        );
-      }
-      return part;
-    });
-  };
+    return (
+        <div
+            className={`
+                inline-block px-4 py-2 mb-1 rounded-lg
+                ${isUser 
+                    ? "ml-auto bg-blue-100 dark:bg-blue-900 dark:text-white" 
+                    : "mr-auto bg-gray-200 dark:bg-gray-700 dark:text-white"
+                }
+                break-words max-w-[75%] transition-colors duration-200
+            `}
+            role="article"
+            aria-label={`${isUser ? 'User' : 'Agent'} message`}
+        >
+            {renderTextWithLinks(displayText)}
+        </div>
+    );
+});
 
-  return (
-    <div
-      className={`inline-block px-4 py-2 mb-1 rounded-lg ${
-        isUser ? "ml-auto bg-blue-100" : "mr-auto bg-gray-200"
-      } break-words`}
-      style={{
-        whiteSpace: "pre-wrap",
-        maxWidth: "75%", // or '80%'
-      }}
-    >
-      {renderTextWithLinks(displayText)}
-    </div>
-  );
-}
+MessageBubble.displayName = 'MessageBubble';
+
+export default MessageBubble;
