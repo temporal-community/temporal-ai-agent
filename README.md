@@ -20,6 +20,19 @@ Deprecated:
 * Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model (`ollama run qwen2.5:14b`). (note this model is about 9GB to download).
   * Local LLM is disabled as ChatGPT 4o was better for this use case. To use Ollama, examine `./activities/tool_activities.py` and rename the functions.
 
+## Python Environment setup
+
+Requires [Poetry](https://python-poetry.org/) to manage dependencies.
+
+Clone this repo.
+
+1. `python -m venv venv`
+
+2. `source venv/bin/activate`
+
+3. `poetry install`
+
+
 ## Running the example
 
 ### Temporal
