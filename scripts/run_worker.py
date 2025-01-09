@@ -34,7 +34,6 @@ async def main():
 
 if __name__ == "__main__":
     print("Starting worker")
-    print("Then run 'python send_message.py \"<prompt>\"'")
 
     logging.basicConfig(level=logging.INFO)
 

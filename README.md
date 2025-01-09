@@ -2,17 +2,17 @@
 
 Work in progress.
 
-This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to use mock functions to search for events, book flights around those events then create an invoice for those flights, see `send_message.py`). The AI will respond with clarifications and ask for any missing information to that goal. It uses a local LLM via Ollama.
+This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to use mock functions to search for events, book flights around those events then create an invoice for those flights). The AI will respond with clarifications and ask for any missing information to that goal. It uses a local LLM via Ollama.
 
 ## Setup
+* See .env_example for the required environment variables.
 * Requires an OpenAI key for the gpt-4o model. Set this in the `OPENAI_API_KEY` environment variable in .env
-* Requires a rapidapi key for sky-scrapper (how we find flights). Set this in the `RAPIDAPI_KEY` environment variable in .env
+* Requires a Rapidapi key for sky-scrapper (how we find flights). Set this in the `RAPIDAPI_KEY` environment variable in .env
     * It's free to sign up and get a key at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
     * If you're lazy go to `tools/search_flights.py` and replace the `get_flights` function with the mock `search_flights_example` that exists in the same file.
 * Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
     * It's free to sign up and get a key at [Stripe](https://stripe.com/)
     * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
-* See .env_example for the required environment variables.
 * Install and run Temporal. Follow the instructions in the [Temporal documentation](https://learn.temporal.io/getting_started/python/dev_environment/#set-up-a-local-temporal-service-for-development-with-temporal-cli) to install and run the Temporal server.
 * Install the dependencies: `poetry install`
 
@@ -22,31 +22,21 @@ Deprecated:
 
 ## Running the example
 
-### Temporal
+### Run a Temporal Dev Server
 
-From the /scripts directory:
+On a Mac
+```bash
+brew install temporal
+temporal server start-dev
+```
 
-1. Run the worker: `poetry run python run_worker.py`
-2. In another terminal run the client with a prompt.
+### Run a Temporal Worker
 
-    Example: `poetry run python send_message.py 'Can you find events in march in oceania?'`
+From the `/scripts` directory:
 
-3. View the worker's output for the response.
-4. Give followup prompts by signaling the workflow.
+- Run the worker: `poetry run python run_worker.py`
 
-    Example: `poetry run python send_message.py 'I want to fly from San Francisco'`
-
-    NOTE: The workflow will pause on the 'confirm' step until the user sends a 'confirm' signal. Use `poetry run python get_tool_data.py` query to see the current state of the workflow.
-
-    You can send a 'confirm' signal using `poetry run python send_confirm.py`
-5. Get the conversation history summary by querying the workflow.
-    
-    Example: `poetry run python get_history.py`
-6. To end the chat session, run `poetry run python end_chat.py`
-
-The chat session will end if it has collected enough information to complete the task or if the user explicitly ends the chat session.
-
-Run query get_tool_data to see the data the tool has collected so far.
+Then run the API and UI using the instructions below.
 
 ### API
 - `poetry run uvicorn api.main:app --reload` to start the API server.
@@ -56,9 +46,11 @@ Run query get_tool_data to see the data the tool has collected so far.
 - `cd frontend`
 - `npm install` to install the dependencies.
 - `npm run dev` to start the dev server.
+- Access the UI at `http://localhost:5173`
 
 ## Customizing the agent
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
+- `goal_registry.py` contains descriptions of goals and the tools used to achieve them
 - The tools themselves are defined in their own files in `/tools`
 - Note the mapping in `tools/__init__.py` to each tool
 - See main.py where some tool-specific logic is defined (todo, move this to the tool definition)
