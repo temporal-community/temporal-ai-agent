@@ -5,6 +5,8 @@ Work in progress.
 This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to use mock functions to search for events, book flights around those events then create an invoice for those flights, see `send_message.py`). The AI will respond with clarifications and ask for any missing information to that goal. It uses a local LLM via Ollama.
 
 ## Setup
+
+### Configuration
 * Requires an OpenAI key for the gpt-4o model. Set this in the `OPENAI_API_KEY` environment variable in .env
 * Requires a rapidapi key for sky-scrapper (how we find flights). Set this in the `RAPIDAPI_KEY` environment variable in .env
     * It's free to sign up and get a key at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
@@ -14,23 +16,25 @@ This demo shows a multi-turn conversation with an AI agent running inside a Temp
     * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
 * See .env_example for the required environment variables.
 * Install and run Temporal. Follow the instructions in the [Temporal documentation](https://learn.temporal.io/getting_started/python/dev_environment/#set-up-a-local-temporal-service-for-development-with-temporal-cli) to install and run the Temporal server.
-* Install the dependencies: `poetry install`
 
-Deprecated:
-* Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model (`ollama run qwen2.5:14b`). (note this model is about 9GB to download).
-  * Local LLM is disabled as ChatGPT 4o was better for this use case. To use Ollama, examine `./activities/tool_activities.py` and rename the functions.
-
-## Python Environment setup
+### Python Environment
 
 Requires [Poetry](https://python-poetry.org/) to manage dependencies.
-
-Clone this repo.
 
 1. `python -m venv venv`
 
 2. `source venv/bin/activate`
 
 3. `poetry install`
+
+### React UI
+- `cd frontend`
+- `npm install` to install the dependencies.
+
+
+#### Deprecated:
+* Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model (`ollama run qwen2.5:14b`). (note this model is about 9GB to download).
+  * Local LLM is disabled as ChatGPT 4o was better for this use case. To use Ollama, examine `./activities/tool_activities.py` and rename the functions.
 
 
 ## Running the example
@@ -66,8 +70,6 @@ Run query get_tool_data to see the data the tool has collected so far.
 - Access the API at `/docs` to see the available endpoints.
 
 ### UI
-- `cd frontend`
-- `npm install` to install the dependencies.
 - `npm run dev` to start the dev server.
 
 ## Customizing the agent
