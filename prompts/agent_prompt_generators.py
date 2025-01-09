@@ -82,7 +82,8 @@ def generate_genai_prompt(
         "2) If all required arguments are known, set next='confirm' and specify the tool.\n"
         "   The user will confirm before the tool is run.\n"
         "3) If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=null.\n"
-        "4) response should be short and user-friendly."
+        "4) response should be short and user-friendly.\n"
+        "5) Don't set next='done' until the final tool has returned user_confirmed_tool_run.\n"
     )
 
     # Validation Task (If raw_json is provided)
