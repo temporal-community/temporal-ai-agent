@@ -44,6 +44,7 @@ On a Mac
 brew install temporal
 temporal server start-dev
 ```
+See the [Temporal documentation](https://learn.temporal.io/getting_started/python/dev_environment/) for other platforms.
 
 ### Run a Temporal Worker
 
