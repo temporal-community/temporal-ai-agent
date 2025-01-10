@@ -2,7 +2,6 @@ import asyncio
 import sys
 
 from shared.config import get_temporal_client
-from workflows.tool_workflow import ToolWorkflow
 
 
 async def main():

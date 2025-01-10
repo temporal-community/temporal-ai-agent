@@ -8,7 +8,7 @@ This demo shows a multi-turn conversation with an AI agent running inside a Temp
 
 ## Configuration
 
-This application uses `.env` files for configuration. Copy the `.env.example` file to `.env` and update the values:
+This application uses `.env` files for configuration. Copy the [.env.example](.env.example) file to `.env` and update the values:
 
 ```bash
 cp .env.example .env
@@ -34,7 +34,7 @@ By default, this application will connect to a local Temporal server (`localhost
 
 ### Use Temporal Cloud
 
-See `.env.example` for details on connecting to Temporal Cloud using mTLS or API key authentication.
+See [.env.example](.env.example) for details on connecting to Temporal Cloud using mTLS or API key authentication.
 
 [Sign up for Temporal Cloud](https://temporal.io/get-cloud)
 
