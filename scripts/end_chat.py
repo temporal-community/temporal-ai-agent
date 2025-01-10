@@ -1,6 +1,6 @@
 import asyncio
 
-from temporalio.client import Client
+
 from workflows.tool_workflow import ToolWorkflow
 
 

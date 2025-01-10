@@ -1,27 +1,26 @@
 import asyncio
-import concurrent.futures
-import logging
 
-from temporalio.client import Client
+import concurrent.futures
+
 from temporalio.worker import Worker
 
 from activities.tool_activities import ToolActivities, dynamic_tool_activity
 from workflows.tool_workflow import ToolWorkflow
-from dotenv import load_dotenv
 
-load_dotenv()
+from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
 
 
 async def main():
-    # Create client connected to server at the given address
-    client = await Client.connect("localhost:7233")
+    # Create the client
+    client = await get_temporal_client()
+
     activities = ToolActivities()
 
     # Run the worker
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as activity_executor:
         worker = Worker(
             client,
-            task_queue="agent-task-queue",
+            task_queue=TEMPORAL_TASK_QUEUE,
             workflows=[ToolWorkflow],
             activities=[
                 activities.prompt_llm,
@@ -29,12 +28,10 @@ async def main():
             ],
             activity_executor=activity_executor,
         )
+
+        print(f"Starting worker, connecting to task queue: {TEMPORAL_TASK_QUEUE}")
         await worker.run()
 
 
 if __name__ == "__main__":
-    print("Starting worker")
-
-    logging.basicConfig(level=logging.INFO)
-
     asyncio.run(main())

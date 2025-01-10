@@ -1,12 +1,14 @@
 import asyncio
 import sys
-from temporalio.client import Client
+
+from shared.config import get_temporal_client
+from workflows.tool_workflow import ToolWorkflow
 
 
 async def main():
 
-    # 1) Connect to Temporal and signal the workflow
-    client = await Client.connect("localhost:7233")
+    # Connect to Temporal and signal the workflow
+    client = await get_temporal_client()
 
     workflow_id = "agent-workflow"
 

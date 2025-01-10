@@ -1,12 +1,21 @@
 from fastapi import FastAPI
+from typing import Optional
 from temporalio.client import Client
+
 from workflows.tool_workflow import ToolWorkflow
 from models.data_types import CombinedInput, ToolWorkflowParams
 from tools.goal_registry import goal_event_flight_invoice
 from temporalio.exceptions import TemporalError
 from fastapi.middleware.cors import CORSMiddleware
+from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
 
 app = FastAPI()
+temporal_client: Optional[Client] = None
+
+@app.on_event("startup")
+async def startup_event():
+    global temporal_client
+    temporal_client = await get_temporal_client()
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,10 +34,9 @@ def root():
 @app.get("/tool-data")
 async def get_tool_data():
     """Calls the workflow's 'get_tool_data' query."""
-    client = await Client.connect("localhost:7233")
     try:
         # Get workflow handle
-        handle = client.get_workflow_handle("agent-workflow")
+        handle = temporal_client.get_workflow_handle("agent-workflow")
 
         # Check if the workflow is completed
         workflow_status = await handle.describe()
@@ -48,9 +56,8 @@ async def get_tool_data():
 @app.get("/get-conversation-history")
 async def get_conversation_history():
     """Calls the workflow's 'get_conversation_history' query."""
-    client = await Client.connect("localhost:7233")
     try:
-        handle = client.get_workflow_handle("agent-workflow")
+        handle = temporal_client.get_workflow_handle("agent-workflow")
         conversation_history = await handle.query("get_conversation_history")
 
         return conversation_history
@@ -61,8 +68,6 @@ async def get_conversation_history():
 
 @app.post("/send-prompt")
 async def send_prompt(prompt: str):
-    client = await Client.connect("localhost:7233")
-
     # Create combined input
     combined_input = CombinedInput(
         tool_params=ToolWorkflowParams(None, None),
@@ -72,11 +77,11 @@ async def send_prompt(prompt: str):
     workflow_id = "agent-workflow"
 
     # Start (or signal) the workflow
-    await client.start_workflow(
+    await temporal_client.start_workflow(
         ToolWorkflow.run,
         combined_input,
         id=workflow_id,
-        task_queue="agent-task-queue",
+        task_queue=TEMPORAL_TASK_QUEUE,
         start_signal="user_prompt",
         start_signal_args=[prompt],
     )
@@ -87,9 +92,8 @@ async def send_prompt(prompt: str):
 @app.post("/confirm")
 async def send_confirm():
     """Sends a 'confirm' signal to the workflow."""
-    client = await Client.connect("localhost:7233")
     workflow_id = "agent-workflow"
-    handle = client.get_workflow_handle(workflow_id)
+    handle = temporal_client.get_workflow_handle(workflow_id)
     await handle.signal("confirm")
     return {"message": "Confirm signal sent."}
 
@@ -97,11 +101,10 @@ async def send_confirm():
 @app.post("/end-chat")
 async def end_chat():
     """Sends a 'end_chat' signal to the workflow."""
-    client = await Client.connect("localhost:7233")
     workflow_id = "agent-workflow"
 
     try:
-        handle = client.get_workflow_handle(workflow_id)
+        handle = temporal_client.get_workflow_handle(workflow_id)
         await handle.signal("end_chat")
         return {"message": "End chat signal sent."}
     except TemporalError as e:
