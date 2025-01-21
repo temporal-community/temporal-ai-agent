@@ -78,7 +78,7 @@ Start the frontend:
 ```bash
 cd frontend
 npm install
-npm run dev
+npx vite
 ```
 Access the UI at `http://localhost:5173`
 
