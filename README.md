@@ -95,3 +95,4 @@ With a small code change, the agent can use local LLMs.
 - I should prove this out with other tool definitions outside of the event/flight search case (take advantage of my nice DSL).
 - Currently hardcoded to the Temporal dev server at localhost:7233. Need to support options incl Temporal Cloud.
 - Continue-as-new shouldn't be a big consideration for this use case (as it would take many conversational turns to trigger). Regardless, I should ensure that it's able to carry the agent state over to the new workflow execution.
+- Tests would be nice!
