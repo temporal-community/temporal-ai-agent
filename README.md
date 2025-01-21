@@ -16,10 +16,6 @@ cp .env.example .env
 
 The agent requires an OpenAI key for the gpt-4o model. Set this in the `OPENAI_API_KEY` environment variable in .env
 
-#### Using a local LLM instead of ChatGPT 4o
-* Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model (`ollama run qwen2.5:14b`). (note this model is about 9GB to download).
-  * Local LLM is disabled as ChatGPT 4o was better for this use case. To use Ollama, examine `./activities/tool_activities.py` and rename the functions.
-
 ## Agent Tools
 * Requires a Rapidapi key for sky-scrapper (how we find flights). Set this in the `RAPIDAPI_KEY` environment variable in .env
     * It's free to sign up and get a key at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
@@ -88,6 +84,12 @@ Access the UI at `http://localhost:5173`
 - The tools themselves are defined in their own files in `/tools`
 - Note the mapping in `tools/__init__.py` to each tool
 - See main.py where some tool-specific logic is defined (todo, move this to the tool definition)
+
+## Using a local LLM instead of ChatGPT 4o
+With a small code change, the agent can use local LLMs.
+* Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model (`ollama run qwen2.5:14b`). (note this model is about 9GB to download).
+  * Local LLM is disabled as ChatGPT 4o was better for this use case. To use Ollama, examine `./activities/tool_activities.py` and rename the existing functions.
+  * Note that Qwen2.5 14B is not as good as ChatGPT 4o for this use case and will perform worse at moving the conversation towards the goal.
 
 ## TODO
 - I should prove this out with other tool definitions outside of the event/flight search case (take advantage of my nice DSL).
