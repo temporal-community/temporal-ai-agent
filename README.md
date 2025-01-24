@@ -16,10 +16,11 @@ cp .env.example .env
 
 ### LLM Provider Configuration
 
-The agent can use either OpenAI's GPT-4o or a local LLM via Ollama. Set the `LLM_PROVIDER` environment variable in your `.env` file to choose the desired provider:
+The agent can use either OpenAI's GPT-4o, a local LLM via Ollama, or Google Gemini. Set the `LLM_PROVIDER` environment variable in your `.env` file to choose the desired provider:
 
 - `LLM_PROVIDER=openai` for OpenAI's GPT-4o
 - `LLM_PROVIDER=ollama` for the local LLM via Ollama (not recommended for this use case)
+- `LLM_PROVIDER=google` for Google Gemini
 
 ### OpenAI Configuration
 
@@ -36,6 +37,13 @@ To use a local LLM with Ollama:
 2. Set `LLM_PROVIDER=ollama` in your `.env` file and `OLLAMA_MODEL_NAME` to the name of the model you installed.
 
 Note: The local LLM is disabled by default as ChatGPT 4o was found to be MUCH more reliable for this use case. However, you can switch to Ollama if desired.
+
+### Google Gemini Configuration
+
+To use Google Gemini:
+
+1. Obtain a Google API key and set it in the `GOOGLE_API_KEY` environment variable in `.env`.
+2. Set `LLM_PROVIDER=google` in your `.env` file.
 
 ## Agent Tools
 * Requires a Rapidapi key for sky-scrapper (how we find flights). Set this in the `RAPIDAPI_KEY` environment variable in .env

@@ -59,7 +59,7 @@ class ToolWorkflow:
 
         self.prompt_queue.append(
             f"### The '{current_tool}' tool completed successfully with {dynamic_result}. "
-            "INSTRUCTIONS: Parse this tool result as plain text, and use the system prompt containing the list of tools in sequence and the conversation history to figure out next steps, if any. "
+            "INSTRUCTIONS: Parse this tool result as plain text, and use the system prompt containing the list of tools in sequence and the conversation history (and previous tool_results) to figure out next steps, if any. "
             '{"next": "<question|confirm|done>", "tool": "<tool_name or null>", "args": {"<arg1>": "<value1 or null>", "<arg2>": "<value2 or null>}, "response": "<plain text>"}'
             "ONLY return those json keys (next, tool, args, response), nothing else."
             'Next should only be "done" if all tools have been run (use the system prompt to figure that out).'
