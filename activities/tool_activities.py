@@ -105,7 +105,7 @@ class ToolActivities:
 
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(
-            "models/gemini-1.5-flash",
+            "models/gemini-2.0-flash-exp",
             system_instruction=input.context_instructions,
         )
         response = model.generate_content(input.prompt)
