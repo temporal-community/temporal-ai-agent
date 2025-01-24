@@ -3,17 +3,19 @@ from models.tool_definitions import ToolDefinition, ToolArgument
 find_events_tool = ToolDefinition(
     name="FindEvents",
     description="Find upcoming events to travel to a given city (e.g., 'Melbourne') and a date or month. "
-    "It knows about events in Oceania only (e.g. major Australian and New Zealand cities).",
+    "It knows about events in Oceania only (e.g. major Australian and New Zealand cities). "
+    "It will search 1 month either side of the month provided. "
+    "Returns a list of events. ",
     arguments=[
         ToolArgument(
             name="city",
             type="string",
-            description="Which  city to search for events",
+            description="Which city to search for events",
         ),
         ToolArgument(
             name="month",
             type="string",
-            description="The month or approximate date range to find events",
+            description="The month to search for events (will search 1 month either side of the month provided)",
         ),
     ],
 )

@@ -53,7 +53,7 @@ def find_events(args: dict) -> dict:
                         "dateFrom": event["dateFrom"],
                         "dateTo": event["dateTo"],
                         "description": event["description"],
-                        "monthContext": month_context,
+                        "month": month_context,
                     }
                 )
 

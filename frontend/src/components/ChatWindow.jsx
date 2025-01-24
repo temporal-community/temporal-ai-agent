@@ -21,7 +21,7 @@ class ChatErrorBoundary extends React.Component {
         if (this.state.hasError) {
             return (
                 <div className="text-red-500 p-4 text-center">
-                    Something went wrong. Please refresh the page.
+                    Something went wrong. Please Terminate the workflow and try again.
                 </div>
             );
         }

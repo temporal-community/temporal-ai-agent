@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 from typing import Optional
 from temporalio.client import Client
+from temporalio.exceptions import TemporalError
+from temporalio.api.enums.v1 import WorkflowExecutionStatus
 
 from workflows.tool_workflow import ToolWorkflow
 from models.data_types import CombinedInput, ToolWorkflowParams
 from tools.goal_registry import goal_event_flight_invoice
-from temporalio.exceptions import TemporalError
 from fastapi.middleware.cors import CORSMiddleware
 from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
-
 app = FastAPI()
 temporal_client: Optional[Client] = None
 
@@ -58,11 +58,32 @@ async def get_conversation_history():
     """Calls the workflow's 'get_conversation_history' query."""
     try:
         handle = temporal_client.get_workflow_handle("agent-workflow")
-        conversation_history = await handle.query("get_conversation_history")
 
+        status_names = {
+            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_TERMINATED: "WORKFLOW_EXECUTION_STATUS_TERMINATED",
+            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CANCELED: "WORKFLOW_EXECUTION_STATUS_CANCELED",
+            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_FAILED: "WORKFLOW_EXECUTION_STATUS_FAILED"
+        }
+
+        failed_states = [
+            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_TERMINATED,
+            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CANCELED,
+            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_FAILED
+        ]
+
+        # Check workflow status first
+        description = await handle.describe()
+        if description.status in failed_states:
+            status_name = status_names.get(description.status, "UNKNOWN_STATUS")
+            print(f"Workflow is in {status_name} state. Returning empty history.")
+            return []
+            
+        # Only query if workflow is running
+        conversation_history = await handle.query("get_conversation_history")
         return conversation_history
+        
     except TemporalError as e:
-        print(e)
+        print(f"Temporal error: {e}")
         return []
 
 

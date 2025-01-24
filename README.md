@@ -14,7 +14,28 @@ This application uses `.env` files for configuration. Copy the [.env.example](.e
 cp .env.example .env
 ```
 
-The agent requires an OpenAI key for the gpt-4o model. Set this in the `OPENAI_API_KEY` environment variable in .env
+### LLM Provider Configuration
+
+The agent can use either OpenAI's GPT-4o or a local LLM via Ollama. Set the `LLM_PROVIDER` environment variable in your `.env` file to choose the desired provider:
+
+- `LLM_PROVIDER=openai` for OpenAI's GPT-4o
+- `LLM_PROVIDER=ollama` for the local LLM via Ollama (not recommended for this use case)
+
+### OpenAI Configuration
+
+If using OpenAI, ensure you have an OpenAI key for the GPT-4o model. Set this in the `OPENAI_API_KEY` environment variable in `.env`.
+
+### Ollama Configuration
+
+To use a local LLM with Ollama:
+
+1. Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model.
+   - Run `ollama run <OLLAMA_MODEL_NAME>` to start the model. Note that this model is about 9GB to download.
+   - Example: `ollama run qwen2.5:14b`
+
+2. Set `LLM_PROVIDER=ollama` in your `.env` file and `OLLAMA_MODEL_NAME` to the name of the model you installed.
+
+Note: The local LLM is disabled by default as ChatGPT 4o was found to be MUCH more reliable for this use case. However, you can switch to Ollama if desired.
 
 ## Agent Tools
 * Requires a Rapidapi key for sky-scrapper (how we find flights). Set this in the `RAPIDAPI_KEY` environment variable in .env
@@ -84,12 +105,6 @@ Access the UI at `http://localhost:5173`
 - The tools themselves are defined in their own files in `/tools`
 - Note the mapping in `tools/__init__.py` to each tool
 - See main.py where some tool-specific logic is defined (todo, move this to the tool definition)
-
-## Using a local LLM instead of ChatGPT 4o
-With a small code change, the agent can use local LLMs.
-* Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model (`ollama run qwen2.5:14b`). (note this model is about 9GB to download).
-  * Local LLM is disabled as ChatGPT 4o was better for this use case. To use Ollama, examine `./activities/tool_activities.py` and rename the existing functions.
-  * Note that Qwen2.5 14B is not as good as ChatGPT 4o for this use case and will perform worse at moving the conversation towards the goal.
 
 ## TODO
 - I should prove this out with other tool definitions outside of the event/flight search case (take advantage of my nice DSL).
