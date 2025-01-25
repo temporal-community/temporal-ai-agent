@@ -21,7 +21,7 @@ The agent can use OpenAI's GPT-4o, Google Gemini, Anthropic Claude, or a local L
 - `LLM_PROVIDER=openai` for OpenAI's GPT-4o
 - `LLM_PROVIDER=google` for Google Gemini
 - `LLM_PROVIDER=anthropic` for Anthropic
-- `LLM_PROVIDER=ollama` for the local LLM via Ollama (not recommended for this use case)
+- `LLM_PROVIDER=ollama` for running LLMs via [Ollama](https://ollama.ai) (not recommended for this use case)
 
 ### Option 1: OpenAI
 
@@ -51,7 +51,7 @@ To use a local LLM with Ollama:
 
 2. Set `LLM_PROVIDER=ollama` in your `.env` file and `OLLAMA_MODEL_NAME` to the name of the model you installed.
 
-Note: The local LLM is disabled by default as ChatGPT 4o was found to be MUCH more reliable for this use case. However, you can switch to Ollama if desired.
+Note: I found the other (hosted) LLMs to be MUCH more reliable for this use case. However, you can switch to Ollama if desired, and choose a suitably large model if your computer has the resources.
 
 ## Agent Tools
 * Requires a Rapidapi key for sky-scrapper (how we find flights). Set this in the `RAPIDAPI_KEY` environment variable in .env
