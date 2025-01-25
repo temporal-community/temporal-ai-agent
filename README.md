@@ -20,7 +20,7 @@ The agent can use OpenAI's GPT-4o, Google Gemini, Anthropic Claude, or a local L
 
 - `LLM_PROVIDER=openai` for OpenAI's GPT-4o
 - `LLM_PROVIDER=google` for Google Gemini
-- `LLM_PROVIDER=anthropic` for Anthropic
+- `LLM_PROVIDER=anthropic` for Anthropic Claude
 - `LLM_PROVIDER=ollama` for running LLMs via [Ollama](https://ollama.ai) (not recommended for this use case)
 
 ### Option 1: OpenAI
