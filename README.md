@@ -16,14 +16,14 @@ cp .env.example .env
 
 ### LLM Provider Configuration
 
-The agent can use either OpenAI's GPT-4o, Google Gemini, or a local LLM via Ollama. Set the `LLM_PROVIDER` environment variable in your `.env` file to choose the desired provider:
+The agent can use OpenAI's GPT-4o, Google Gemini, Anthropic Claude, or a local LLM via Ollama. Set the `LLM_PROVIDER` environment variable in your `.env` file to choose the desired provider:
 
 - `LLM_PROVIDER=openai` for OpenAI's GPT-4o
 - `LLM_PROVIDER=google` for Google Gemini
 - `LLM_PROVIDER=anthropic` for Anthropic
 - `LLM_PROVIDER=ollama` for the local LLM via Ollama (not recommended for this use case)
 
-### Option 1: OpenAI Configuration
+### Option 1: OpenAI
 
 If using OpenAI, ensure you have an OpenAI key for the GPT-4o model. Set this in the `OPENAI_API_KEY` environment variable in `.env`.
 
@@ -34,7 +34,7 @@ To use Google Gemini:
 1. Obtain a Google API key and set it in the `GOOGLE_API_KEY` environment variable in `.env`.
 2. Set `LLM_PROVIDER=google` in your `.env` file.
 
-### Option 3: Anthropic
+### Option 3: Anthropic Claude
 
 To use Anthropic:
 
