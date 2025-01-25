@@ -1,6 +1,6 @@
 # Temporal AI Agent
 
-This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to use mock functions to search for events, book flights around those events then create an invoice for those flights). The AI will respond with clarifications and ask for any missing information to that goal. It uses [ChatGPT 4o](https://openai.com/index/hello-gpt-4o/) but can be made to use a local LLM via [Ollama](https://ollama.com) (see the section about this at the bottom of this README).
+This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to use mock functions to search for events, book flights around those events then create an invoice for those flights). The AI will respond with clarifications and ask for any missing information to that goal. You can configure it to use [ChatGPT 4o](https://openai.com/index/hello-gpt-4o/), [Anthropic Claude](https://www.anthropic.com/claude), [Google Gemini](https://gemini.google.com) or a local LLM of your choice using [Ollama](https://ollama.com).
 
 [Watch the demo (5 minute YouTube video)](https://www.youtube.com/watch?v=GEXllEH2XiQ)
 
