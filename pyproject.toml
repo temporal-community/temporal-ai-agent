@@ -29,6 +29,7 @@ python-dotenv = "^1.0.1"
 openai = "^1.59.2"
 stripe = "^11.4.1"
 google-generativeai = "^0.8.4"
+anthropic = "^0.45.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3"

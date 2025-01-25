@@ -8,6 +8,7 @@ from temporalio.common import RawValue
 import os
 from datetime import datetime
 import google.generativeai as genai
+import anthropic
 
 
 @dataclass
@@ -25,6 +26,8 @@ class ToolActivities:
             return self.prompt_llm_ollama(input)
         elif llm_provider == "google":
             return self.prompt_llm_google(input)
+        elif llm_provider == "anthropic":
+            return self.prompt_llm_anthropic(input)
         else:
             return self.prompt_llm_openai(input)
 
@@ -32,7 +35,7 @@ class ToolActivities:
         client = OpenAI(
             api_key=os.environ.get(
                 "OPENAI_API_KEY"
-            ),  # This is the default and can be omitted
+            ),
         )
 
         messages = [
@@ -111,6 +114,34 @@ class ToolActivities:
         response = model.generate_content(input.prompt)
         response_content = response.text
         print(f"Google Gemini response: {response_content}")
+
+        # Use the new sanitize function
+        response_content = self.sanitize_json_response(response_content)
+
+        try:
+            data = json.loads(response_content)
+        except json.JSONDecodeError as e:
+            print(f"Invalid JSON: {e}")
+            raise json.JSONDecodeError
+
+        return data
+
+    def prompt_llm_anthropic(self, input: ToolPromptInput) -> dict:
+        api_key = os.environ.get("ANTHROPIC_API_KEY")
+        if not api_key:
+            raise ValueError("ANTHROPIC_API_KEY is not set in the environment variables.")
+
+        client = anthropic.Anthropic(api_key=api_key)
+
+        response = client.messages.create(
+            model="claude-3-5-sonnet-20241022",
+            max_tokens=1024,
+            system=input.context_instructions,
+            messages=input.prompt
+        )
+
+        response_content = response.content[0].text
+        print(f"Anthropic response: {response_content}")
 
         # Use the new sanitize function
         response_content = self.sanitize_json_response(response_content)

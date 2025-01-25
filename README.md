@@ -20,6 +20,7 @@ The agent can use either OpenAI's GPT-4o, Google Gemini, or a local LLM via Olla
 
 - `LLM_PROVIDER=openai` for OpenAI's GPT-4o
 - `LLM_PROVIDER=google` for Google Gemini
+- `LLM_PROVIDER=anthropic` for Anthropic
 - `LLM_PROVIDER=ollama` for the local LLM via Ollama (not recommended for this use case)
 
 ### Option 1: OpenAI Configuration
@@ -33,7 +34,14 @@ To use Google Gemini:
 1. Obtain a Google API key and set it in the `GOOGLE_API_KEY` environment variable in `.env`.
 2. Set `LLM_PROVIDER=google` in your `.env` file.
 
-### Option 3: Local LLM via Ollama (not recommended)
+### Option 3: Anthropic
+
+To use Anthropic:
+
+1. Obtain an Anthropic API key and set it in the `ANTHROPIC_API_KEY` environment variable in `.env`.
+2. Set `LLM_PROVIDER=anthropic` in your `.env` file.
+
+### Option 4: Local LLM via Ollama (not recommended)
 
 To use a local LLM with Ollama:
 
