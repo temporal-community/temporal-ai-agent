@@ -133,5 +133,6 @@ Access the UI at `http://localhost:5173`
 ## TODO
 - I should prove this out with other tool definitions outside of the event/flight search case (take advantage of my nice DSL).
 - Currently hardcoded to the Temporal dev server at localhost:7233. Need to support options incl Temporal Cloud.
+- In a prod setting, I would need to ensure that payload data is stored separately (e.g. in S3 or a noSQL db - the claim-check pattern), or otherwise 'garbage collected'. Without these techniques, long conversations will fill up the workflow's conversation history, and start to breach Temporal event history payload limits.
 - Continue-as-new shouldn't be a big consideration for this use case (as it would take many conversational turns to trigger). Regardless, I should ensure that it's able to carry the agent state over to the new workflow execution.
 - Tests would be nice!
