@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from temporalio.client import Client
 from temporalio.service import TLSConfig
 
-load_dotenv()
+load_dotenv(override=True)
 
 # Temporal connection settings
 TEMPORAL_ADDRESS = os.getenv("TEMPORAL_ADDRESS", "localhost:7233")
@@ -14,6 +14,7 @@ TEMPORAL_TASK_QUEUE = os.getenv("TEMPORAL_TASK_QUEUE", "agent-task-queue")
 TEMPORAL_TLS_CERT = os.getenv("TEMPORAL_TLS_CERT", "")
 TEMPORAL_TLS_KEY = os.getenv("TEMPORAL_TLS_KEY", "")
 TEMPORAL_API_KEY = os.getenv("TEMPORAL_API_KEY", "")
+
 
 async def get_temporal_client() -> Client:
     """
@@ -47,10 +48,10 @@ async def get_temporal_client() -> Client:
             api_key=TEMPORAL_API_KEY,
             tls=True,  # Always use TLS with API key
         )
-    
+
     # Use mTLS or local connection
     return await Client.connect(
         TEMPORAL_ADDRESS,
         namespace=TEMPORAL_NAMESPACE,
         tls=tls_config,
-    ) 
+    )

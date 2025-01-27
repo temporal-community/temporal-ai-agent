@@ -9,7 +9,7 @@ def search_airport(query: str) -> list:
     """
     Returns a list of matching airports/cities from sky-scrapper's searchAirport endpoint.
     """
-    load_dotenv()
+    load_dotenv(override=True)
     api_key = os.getenv("RAPIDAPI_KEY", "YOUR_DEFAULT_KEY")
     api_host = os.getenv("RAPIDAPI_HOST", "sky-scrapper.p.rapidapi.com")
 
@@ -67,7 +67,7 @@ def search_flights(args: dict) -> dict:  # _realapi
     dest_entity_id = dest_params["entityId"]  # e.g. "27537542"
 
     # Step 2: Call flight search with resolved codes
-    load_dotenv()
+    load_dotenv(override=True)
     api_key = os.getenv("RAPIDAPI_KEY", "YOUR_DEFAULT_KEY")
     api_host = os.getenv("RAPIDAPI_HOST", "sky-scrapper.p.rapidapi.com")
 

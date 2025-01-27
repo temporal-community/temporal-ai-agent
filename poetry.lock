@@ -252,6 +252,19 @@ files = [
 ]
 
 [[package]]
+name = "deepseek"
+version = "1.0.0"
+description = "Deepseek API Library"
+optional = false
+python-versions = "*"
+files = [
+    {file = "deepseek-1.0.0-py3-none-any.whl", hash = "sha256:ee4175bfcb7ac1154369dbd86a4d8bc1809f6fa20e3e7baa362544567197cb3f"},
+]
+
+[package.dependencies]
+requests = "*"
+
+[[package]]
 name = "distro"
 version = "1.9.0"
 description = "Distro - an OS platform information API"
@@ -1399,4 +1412,4 @@ standard = ["colorama (>=0.4)", "httptools (>=0.6.3)", "python-dotenv (>=0.13)",
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<4.0"
-content-hash = "a6b005e6cf77139e266ddf6b3263890f31a7b8813b3b5db95831d5fdb4d20239"
+content-hash = "07f540e2c348c45ac9f6f7f4c79f1c060ae269a380474795843b1a444094acb5"

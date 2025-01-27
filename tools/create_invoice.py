@@ -2,7 +2,7 @@ import os
 import stripe
 from dotenv import load_dotenv
 
-load_dotenv()  # Load environment variables from a .env file
+load_dotenv(override=True)  # Load environment variables from a .env file
 
 stripe.api_key = os.getenv("STRIPE_API_KEY", "YOUR_DEFAULT_KEY")
 
