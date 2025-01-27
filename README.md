@@ -44,7 +44,7 @@ To use Anthropic:
 
 ### Option 4: Deepseek-V3
 
-To use Anthropic:
+To use Deepseek-V3:
 
 1. Obtain a Deepseek API key and set it in the `DEEPSEEK_API_KEY` environment variable in `.env`.
 2. Set `LLM_PROVIDER=deepseek` in your `.env` file.
