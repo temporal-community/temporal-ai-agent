@@ -1,6 +1,6 @@
 # Temporal AI Agent
 
-This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to use mock functions to search for events, search for flights around those events, then create a test Stripe invoice for those flights). The AI will respond with clarifications and ask for any missing information to that goal. You can configure it to use [ChatGPT 4o](https://openai.com/index/hello-gpt-4o/), [Anthropic Claude](https://www.anthropic.com/claude), [Google Gemini](https://gemini.google.com) or a local LLM of your choice using [Ollama](https://ollama.com).
+This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The goal is to collect information towards a goal. There's a simple DSL input for collecting information (currently set up to use mock functions to search for events, search for flights around those events, then create a test Stripe invoice for those flights). The AI will respond with clarifications and ask for any missing information to that goal. You can configure it to use [ChatGPT 4o](https://openai.com/index/hello-gpt-4o/), [Anthropic Claude](https://www.anthropic.com/claude), [Google Gemini](https://gemini.google.com), [Deepseek-V3](https://www.deepseek.com/) or a local LLM of your choice using [Ollama](https://ollama.com).
 
 [Watch the demo (5 minute YouTube video)](https://www.youtube.com/watch?v=GEXllEH2XiQ)
 
@@ -21,6 +21,7 @@ The agent can use OpenAI's GPT-4o, Google Gemini, Anthropic Claude, or a local L
 - `LLM_PROVIDER=openai` for OpenAI's GPT-4o
 - `LLM_PROVIDER=google` for Google Gemini
 - `LLM_PROVIDER=anthropic` for Anthropic Claude
+- `LLM_PROVIDER=deepseek` for DeepSeek-V3
 - `LLM_PROVIDER=ollama` for running LLMs via [Ollama](https://ollama.ai) (not recommended for this use case)
 
 ### Option 1: OpenAI
@@ -41,7 +42,14 @@ To use Anthropic:
 1. Obtain an Anthropic API key and set it in the `ANTHROPIC_API_KEY` environment variable in `.env`.
 2. Set `LLM_PROVIDER=anthropic` in your `.env` file.
 
-### Option 4: Local LLM via Ollama (not recommended)
+### Option 4: Deepseek-V3
+
+To use Anthropic:
+
+1. Obtain an Anthropic API key and set it in the `DEEPSEEK_API_KEY` environment variable in `.env`.
+2. Set `LLM_PROVIDER=deepseek` in your `.env` file.
+
+### Option 5: Local LLM via Ollama (not recommended)
 
 To use a local LLM with Ollama:
 
