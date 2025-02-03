@@ -150,24 +150,24 @@ class ToolWorkflow:
                 prompt = self.prompt_queue.popleft()
                 if not prompt.startswith("###"):
                     self.add_message("user", prompt)
+                
+                    # Validate the prompt before proceeding
+                    validation_input = ValidationInput(
+                        prompt=prompt,
+                        conversation_history=self.conversation_history,
+                        agent_goal=agent_goal,
+                    )
+                    validation_result = await workflow.execute_activity(
+                        ToolActivities.validate_llm_prompt,
+                        args=[validation_input],
+                        schedule_to_close_timeout=LLM_ACTIVITY_TIMEOUT,
+                        retry_policy=RetryPolicy(initial_interval=timedelta(seconds=5)),
+                    )
 
-                # Validate the prompt before proceeding
-                validation_input = ValidationInput(
-                    prompt=prompt,
-                    conversation_history=self.conversation_history,
-                    agent_goal=agent_goal,
-                )
-                validation_result = await workflow.execute_activity(
-                    ToolActivities.validate_llm_prompt,
-                    args=[validation_input],
-                    schedule_to_close_timeout=LLM_ACTIVITY_TIMEOUT,
-                    retry_policy=RetryPolicy(initial_interval=timedelta(seconds=5)),
-                )
-
-                if not validation_result.validationResult:
-                    # Handle validation failure
-                    self.add_message("agent", validation_result.validationFailedReason)
-                    continue  # Skip to the next iteration
+                    if not validation_result.validationResult:
+                        # Handle validation failure
+                        self.add_message("agent", validation_result.validationFailedReason)
+                        continue  # Skip to the next iteration
 
                 # Proceed with generating the context and prompt
 

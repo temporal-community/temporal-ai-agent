@@ -132,3 +132,26 @@ async def end_chat():
         print(e)
         # Workflow not found; return an empty response
         return {}
+
+
+@app.post("/start-workflow")
+async def start_workflow():
+    # Create combined input
+    combined_input = CombinedInput(
+        tool_params=ToolWorkflowParams(None, None),
+        agent_goal=goal_event_flight_invoice,
+    )
+
+    workflow_id = "agent-workflow"
+
+    # Start the workflow with the starter prompt from the goal
+    await temporal_client.start_workflow(
+        ToolWorkflow.run,
+        combined_input,
+        id=workflow_id,
+        task_queue=TEMPORAL_TASK_QUEUE,
+        start_signal="user_prompt",
+        start_signal_args=["### " + goal_event_flight_invoice.starter_prompt],
+    )
+
+    return {"message": f"Workflow started with goal's starter prompt: {goal_event_flight_invoice.starter_prompt}."}

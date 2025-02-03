@@ -11,6 +11,7 @@ goal_event_flight_invoice = AgentGoal(
     "1. FindFixtures: Find fixtures for a team in a given month "
     "2. SearchFlights: search for a flight around the event dates "
     "3. CreateInvoice: Create a simple invoice for the cost of that flight ",
+    starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to do your job",
     example_conversation_history="\n ".join(
         [
             "user: I'd like to travel to a football match",
