@@ -65,3 +65,20 @@ create_invoice_tool = ToolDefinition(
         ),
     ],
 )
+
+find_fixtures_tool = ToolDefinition(
+    name="FindFixtures",
+    description="Find upcoming fixtures for a given team and month",
+    arguments=[
+        ToolArgument(
+            name="team",
+            type="string",
+            description="The name of the team to search for",
+        ),
+        ToolArgument(
+            name="month",
+            type="string",
+            description="The month to search for fixtures",
+        ),
+    ],
+)
