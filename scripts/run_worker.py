@@ -24,6 +24,7 @@ async def main():
             workflows=[ToolWorkflow],
             activities=[
                 activities.prompt_llm,
+                activities.validate_llm_prompt,
                 dynamic_tool_activity,
             ],
             activity_executor=activity_executor,

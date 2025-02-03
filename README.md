@@ -68,6 +68,7 @@ Note: I found the other (hosted) LLMs to be MUCH more reliable for this use case
 * Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
     * It's free to sign up and get a key at [Stripe](https://stripe.com/)
     * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
+* Requires a key from [Football Data](https://www.football-data.org). Sign up for a free account, then see the 'My Account' page to get your API token. Set `FOOTBALL_DATA_API_KEY` to this value.
 
 ## Configuring Temporal Connection
 
@@ -137,3 +138,12 @@ Access the UI at `http://localhost:5173`
 - Continue-as-new shouldn't be a big consideration for this use case (as it would take many conversational turns to trigger). Regardless, I should ensure that it's able to carry the agent state over to the new workflow execution.
 - Perhaps the UI should show when the LLM response is being retried (i.e. activity retry attempt because the LLM provided bad output)
 - Tests would be nice!
+
+# TODO for this branch
+## Agent
+- We'll have to figure out which matches are where. No use going to Manchester for a match that isn't there.
+- The use of `###` in prompts I want excluded from the conversation history is a bit of a hack.
+
+## Validator function
+- Probably keep data types, but move the activity and workflow code for the demo
+- Probably don't need the validator function if its the result from a tool call or confirmation step

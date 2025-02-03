@@ -167,7 +167,7 @@ export default function App() {
         try {
             setError(INITIAL_ERROR_STATE);
             setLoading(true);
-            await apiService.sendMessage("I'd like to travel for an event.");
+            await apiService.startWorkflow();
             setConversation([]);
             setLastMessage(null);
         } catch (err) {

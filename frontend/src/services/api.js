@@ -56,6 +56,26 @@ export const apiService = {
         }
     },
 
+    async startWorkflow() {
+        try {
+            const res = await fetch(
+                `${API_BASE_URL}/start-workflow`,
+                { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            return handleResponse(res);
+        } catch (error) {
+            throw new ApiError(
+                'Failed to start workflow',
+                error.status || 500
+            );
+        }
+    },
+
     async confirm() {
         try {
             const res = await fetch(`${API_BASE_URL}/confirm`, { 
