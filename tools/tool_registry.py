@@ -51,7 +51,7 @@ search_flights_tool = ToolDefinition(
 # 3) Define the CreateInvoice tool
 create_invoice_tool = ToolDefinition(
     name="CreateInvoice",
-    description="Generate an invoice for the items described for the amount provided",
+    description="Generate an invoice for the items described for the amount provided. Returns URL to invoice.",
     arguments=[
         ToolArgument(
             name="amount",

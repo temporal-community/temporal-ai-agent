@@ -4,6 +4,7 @@ from typing import Dict, Any, Union, List, Optional, Deque, TypedDict
 
 from temporalio.common import RetryPolicy
 from temporalio import workflow
+from temporalio.exceptions import ActivityError
 
 from models.data_types import ConversationHistory, NextStep, ValidationInput
 
@@ -43,16 +44,21 @@ class ToolWorkflow:
     ) -> None:
         """Execute a tool after confirmation and handle its result."""
         workflow.logger.info(f"Confirmed. Proceeding with tool: {current_tool}")
-
-        dynamic_result = await workflow.execute_activity(
-            current_tool,
-            tool_data["args"],
-            schedule_to_close_timeout=TOOL_ACTIVITY_TIMEOUT,
-        )
-        dynamic_result["tool"] = current_tool
-        self.add_message(
-            "tool_result", {"tool": current_tool, "result": dynamic_result}
-        )
+        
+        try:
+            dynamic_result = await workflow.execute_activity(
+                current_tool,
+                tool_data["args"],
+                schedule_to_close_timeout=TOOL_ACTIVITY_TIMEOUT,
+                retry_policy=RetryPolicy(maximum_attempts=3)
+            )
+            dynamic_result["tool"] = current_tool
+            self.tool_results.append(dynamic_result)
+        except ActivityError as e:
+            workflow.logger.error(f"Tool execution failed: {str(e)}")
+            dynamic_result = {"error": str(e), "tool": current_tool}
+        
+        self.add_message("tool_result", dynamic_result)
 
         self.prompt_queue.append(
             f"### The '{current_tool}' tool completed successfully with {dynamic_result}. "
@@ -165,9 +171,11 @@ class ToolWorkflow:
                     )
 
                     if not validation_result.validationResult:
-                        # Handle validation failure
+                        workflow.logger.warning(
+                            f"Prompt validation failed: {validation_result.validationFailedReason}"
+                        )
                         self.add_message("agent", validation_result.validationFailedReason)
-                        continue  # Skip to the next iteration
+                        continue
 
                 # Proceed with generating the context and prompt
 
@@ -226,6 +234,7 @@ class ToolWorkflow:
     @workflow.signal
     async def confirm(self) -> None:
         """Signal handler for user confirmation of tool execution."""
+        workflow.logger.info("Received user confirmation")
         self.confirm = True
 
     @workflow.query
@@ -285,6 +294,12 @@ class ToolWorkflow:
             actor: The entity that generated the message (e.g., "user", "agent")
             response: The message content, either as a string or structured data
         """
+        if isinstance(response, dict):
+            response_str = str(response)
+            workflow.logger.debug(f"Adding {actor} message: {response_str[:100]}...")
+        else:
+            workflow.logger.debug(f"Adding {actor} message: {response[:100]}...")
+            
         self.conversation_history["messages"].append(
             {"actor": actor, "response": response}
         )

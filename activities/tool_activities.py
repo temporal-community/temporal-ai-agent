@@ -196,7 +196,8 @@ class ToolActivities:
         response = client.messages.create(
             model="claude-3-5-sonnet-20241022",
             max_tokens=1024,
-            system=input.context_instructions,
+            system=input.context_instructions + ". The current date is "
+                + get_current_date_human_readable(),
             messages=[
                 {
                     "role": "user",
