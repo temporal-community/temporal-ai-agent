@@ -144,6 +144,9 @@ Access the UI at `http://localhost:5173`
 - We'll have to figure out which matches are where. No use going to Manchester for a match that isn't there.
 - The use of `###` in prompts I want excluded from the conversation history is a bit of a hack.
 
+## UI
+- Possibly need a 'worker down' type of message? I think I already have one when queries fail
+
 ## Validator function
 - Probably keep data types, but move the activity and workflow code for the demo
 - Probably don't need the validator function if its the result from a tool call or confirmation step
