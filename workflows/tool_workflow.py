@@ -17,7 +17,7 @@ with workflow.unsafe.imports_passed_through():
 MAX_TURNS_BEFORE_CONTINUE = 250
 TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=10)
 TOOL_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT = timedelta(minutes=30)
-LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=5)
+LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=10)
 LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT = timedelta(minutes=30)
 
 
