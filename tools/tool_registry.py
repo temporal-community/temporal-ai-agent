@@ -1,26 +1,5 @@
 from models.tool_definitions import ToolDefinition, ToolArgument
 
-find_events_tool = ToolDefinition(
-    name="FindEvents",
-    description="Find upcoming events to travel to a given city (e.g., 'Melbourne') and a date or month. "
-    "It knows about events in Oceania only (e.g. major Australian and New Zealand cities). "
-    "It will search 1 month either side of the month provided. "
-    "Returns a list of events. ",
-    arguments=[
-        ToolArgument(
-            name="city",
-            type="string",
-            description="Which city to search for events",
-        ),
-        ToolArgument(
-            name="month",
-            type="string",
-            description="The month to search for events (will search 1 month either side of the month provided)",
-        ),
-    ],
-)
-
-# 2) Define the SearchFlights tool
 search_flights_tool = ToolDefinition(
     name="SearchFlights",
     description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn).",
@@ -48,7 +27,45 @@ search_flights_tool = ToolDefinition(
     ],
 )
 
-# 3) Define the CreateInvoice tool
+search_trains_tool = ToolDefinition(
+    name="SearchTrains",
+    description="Search for trains between two stations. Returns a list of trains.",
+    arguments=[
+        ToolArgument(
+            name="origin",
+            type="string",
+            description="The station to depart from",
+        ),
+        ToolArgument(
+            name="destination",
+            type="string",
+            description="The station to arrive at",
+        ),
+        ToolArgument(
+            name="outbound_time",
+            type="ISO8601",
+            description="The date and time to search for outbound trains",
+        ),
+        ToolArgument(
+            name="return_time",
+            type="ISO8601",
+            description="The date and time to search for return trains",
+        ),
+    ],
+)
+
+book_train_tool = ToolDefinition(
+    name="BookTrain",
+    description="Books a train ticket. Returns a booking reference.",
+    arguments=[
+        ToolArgument(
+            name="journey_id",
+            type="string",
+            description="The ID of the journey to book",
+        ),
+    ],
+)
+
 create_invoice_tool = ToolDefinition(
     name="CreateInvoice",
     description="Generate an invoice for the items described for the amount provided. Returns URL to invoice.",
@@ -66,19 +83,19 @@ create_invoice_tool = ToolDefinition(
     ],
 )
 
-find_fixtures_tool = ToolDefinition(
-    name="FindFixtures",
-    description="Find upcoming fixtures for a given team and month",
+search_fixtures_tool = ToolDefinition(
+    name="SearchFixtures",
+    description="Search for upcoming fixtures for a given team and month",
     arguments=[
         ToolArgument(
             name="team",
             type="string",
-            description="The name of the team to search for",
+            description="The full name of the team to search for.",
         ),
         ToolArgument(
             name="month",
             type="string",
-            description="The month to search for fixtures",
+            description="The month to search for fixtures.",
         ),
     ],
 )
