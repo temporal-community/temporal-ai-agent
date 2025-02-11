@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 BASE_URL = 'https://api.football-data.org/v4'
 
-def find_fixtures(args: dict) -> dict:
+def search_fixtures(args: dict) -> dict:
     load_dotenv(override=True)
     api_key = os.getenv("FOOTBALL_DATA_API_KEY", "YOUR_DEFAULT_KEY")
 
