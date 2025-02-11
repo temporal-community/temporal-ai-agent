@@ -7,8 +7,49 @@ from tools.tool_registry import (
     create_invoice_tool,
 )
 
+goal_match_train_invoice = AgentGoal(
+    tools=[
+        search_fixtures_tool,
+        search_trains_tool,
+        book_train_tool,
+        create_invoice_tool,
+    ],
+    description="Help the user book trains to a premier league match. The user lives in London. Gather args for these tools in order: "
+    "1. SearchFixtures: Search for fixtures for a team in a given month"
+    "2. SearchTrains: Search for trains to visit somewhere before or after the match"
+    "3. BookTrain: Book the train tickets"
+    "4. CreateInvoice: Create a simple invoice for the cost of the flights and train tickets",
+    starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to do your job",
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to travel to a premier league match",
+            "agent: Sure! Let's start by finding an match you'd like to attend. I know about Premier League fixtures in the UK. Could you tell me which team and month you're interested in?",
+            "user: Wolves in May please",
+            "agent: Great! Let's find a match for Wolverhampton Wanderers FC in May.",
+            "user_confirmed_tool_run: <user clicks confirm on SearchFixtures tool, passing the full team name as an input>",
+            'tool_result: results including {"homeTeam": "Wolverhampton Wanderers FC", "awayTeam": "Manchester United", "date": "2025-05-04"}',
+            "agent: Found a match! There's an away game against Manchester United on May 4 2025. Would you like to plan train travel from London for around this date?",
+            "user_confirmed_tool_run: <user clicks confirm on SearchTrains tool>",
+            "tool_result: results including train dates and times, origin and depature stations",
+            "agent: Found some trains! The best option is leaving <origin> on <date> <time> and arriving in <destination> at <date> <time>. The return trip is leaving <origin> on <date> <time> and arriving in <destination> at <date> <time>. Would you like to book this train?",
+            "user_confirmed_tool_run: <user clicks confirm on BookTrain tool>",
+            'tool_result: results including {"status": "success"}',
+            "agent: Train tickets booked! Now let's create an invoice for your train tickets",
+            "user_confirmed_tool_run: <user clicks confirm on CreateInvoice tool which includes details of the train journey, the match, and the total cost>",
+            "tool_result: contains an invoiceURL",
+            "agent: Great! I've generated your invoice for your trains to the <match>. You can view and pay your invoice at this link: https://invoice.stripe.com/i/acct_1NBOLuKVZbzw7QA5/test_YWNjdF8xTkJPTHVLVlpienc3UUE1LF9SaHlBTU9GYnFibEJ4VlpNaThkWkhrcUR6a1dwTmNULDEyOTE2MjkwNA0200CCUNvTox?s=ap",
+        ]
+    ),
+)
+
+# unused
 goal_event_flight_invoice = AgentGoal(
-    tools=[search_fixtures_tool, search_flights_tool, search_trains_tool, create_invoice_tool],
+    tools=[
+        search_fixtures_tool,
+        search_flights_tool,
+        search_trains_tool,
+        create_invoice_tool,
+    ],
     description="Help the user gather args for these tools in order: "
     "1. SearchFixtures: Search for fixtures for a team in a given month"
     "2. SearchFlights: Search for a flight around the match dates"

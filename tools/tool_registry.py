@@ -76,7 +76,7 @@ create_invoice_tool = ToolDefinition(
             description="The total cost to be invoiced",
         ),
         ToolArgument(
-            name="flightDetails",
+            name="tripDetails",
             type="string",
             description="A description of the item details to be invoiced",
         ),
