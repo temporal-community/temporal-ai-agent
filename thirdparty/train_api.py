@@ -110,7 +110,6 @@ class TrainServer(BaseHTTPRequestHandler):
                 "arrival_time": format_datetime(
                     year, month, arr_day, arr_hour, arr_minute
                 ),
-                "platform": str(random.randint(1, 8)),
                 "price": round(30 + random.random() * 50, 2),
             }
             journeys.append(journey)
@@ -143,7 +142,6 @@ class TrainServer(BaseHTTPRequestHandler):
                     "arrival_time": format_datetime(
                         year, month, arr_day, arr_hour, arr_minute
                     ),
-                    "platform": str(random.randint(1, 8)),
                     "price": round(30 + random.random() * 50, 2),
                 }
                 journeys.append(journey)
