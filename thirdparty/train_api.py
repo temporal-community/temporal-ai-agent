@@ -82,7 +82,7 @@ class TrainServer(BaseHTTPRequestHandler):
 
         # Generate outbound journeys
         year, month, day, hour, minute = out_datetime
-        for offset in [-60, -30, 0, 30, 60]:
+        for offset in [-30, 0, 30]:
             # Calculate journey times
             adj_minutes = minute + offset
             adj_hour = hour + (adj_minutes // 60)
@@ -110,7 +110,6 @@ class TrainServer(BaseHTTPRequestHandler):
                 "arrival_time": format_datetime(
                     year, month, arr_day, arr_hour, arr_minute
                 ),
-                "platform": str(random.randint(1, 8)),
                 "price": round(30 + random.random() * 50, 2),
             }
             journeys.append(journey)
@@ -118,7 +117,7 @@ class TrainServer(BaseHTTPRequestHandler):
         # Generate return journeys if return datetime provided
         if ret_datetime[0] is not None:
             year, month, day, hour, minute = ret_datetime
-            for offset in [-60, -30, 0, 30, 60]:
+            for offset in [-30, 0, 30]:
                 adj_minutes = minute + offset
                 adj_hour = hour + (adj_minutes // 60)
                 adj_minute = adj_minutes % 60
@@ -143,7 +142,6 @@ class TrainServer(BaseHTTPRequestHandler):
                     "arrival_time": format_datetime(
                         year, month, arr_day, arr_hour, arr_minute
                     ),
-                    "platform": str(random.randint(1, 8)),
                     "price": round(30 + random.random() * 50, 2),
                 }
                 journeys.append(journey)
