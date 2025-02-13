@@ -13,6 +13,8 @@ with workflow.unsafe.imports_passed_through():
     from prompts.agent_prompt_generators import generate_genai_prompt
     from models.data_types import CombinedInput, ToolWorkflowParams, ToolPromptInput
 
+from shared.config import TEMPORAL_LEGACY_TASK_QUEUE
+
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
 TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=10)
@@ -47,10 +49,13 @@ class ToolWorkflow:
         """Execute a tool after confirmation and handle its result."""
         workflow.logger.info(f"Confirmed. Proceeding with tool: {current_tool}")
 
+        task_queue = TEMPORAL_LEGACY_TASK_QUEUE if current_tool == "BookTrain" else None
+
         try:
             dynamic_result = await workflow.execute_activity(
                 current_tool,
                 tool_data["args"],
+                task_queue=task_queue,
                 schedule_to_close_timeout=TOOL_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
                 start_to_close_timeout=TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT,
                 retry_policy=RetryPolicy(
