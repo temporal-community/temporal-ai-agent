@@ -16,9 +16,9 @@ goal_match_train_invoice = AgentGoal(
     ],
     description="Help the user book trains to a premier league match. The user lives in London. Gather args for these tools in order: "
     "1. SearchFixtures: Search for fixtures for a team in a given month"
-    "2. SearchTrains: Search for trains to visit somewhere before or after the match"
+    "2. SearchTrains: Search for trains to the city of the match and list them for the customer to choose from"
     "3. BookTrain: Book the train tickets"
-    "4. CreateInvoice: Create a simple invoice for the cost of the flights and train tickets",
+    "4. CreateInvoice: Proactively offer to create a simple invoice for the cost of the flights and train tickets",
     starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to do your job",
     example_conversation_history="\n ".join(
         [
@@ -28,13 +28,13 @@ goal_match_train_invoice = AgentGoal(
             "agent: Great! Let's find a match for Wolverhampton Wanderers FC in May.",
             "user_confirmed_tool_run: <user clicks confirm on SearchFixtures tool, passing the full team name as an input>",
             'tool_result: results including {"homeTeam": "Wolverhampton Wanderers FC", "awayTeam": "Manchester United", "date": "2025-05-04"}',
-            "agent: Found a match! There's an away game against Manchester United on May 4 2025. Would you like to plan train travel from London for around this date?",
+            "agent: Found a match! <agent provides a human-readable list of match options including the location and date>",
             "user_confirmed_tool_run: <user clicks confirm on SearchTrains tool>",
-            "tool_result: results including train dates and times, origin and depature stations",
-            "agent: Found some trains! The best option is leaving <origin> on <date> <time> and arriving in <destination> at <date> <time>. The return trip is leaving <origin> on <date> <time> and arriving in <destination> at <date> <time>. Would you like to book this train?",
+            "tool_result: <results including train dates and times, origin and depature stations>",
+            "agent: Found some trains! <agent provides a human-readable list of train options>",
             "user_confirmed_tool_run: <user clicks confirm on BookTrain tool>",
             'tool_result: results including {"status": "success"}',
-            "agent: Train tickets booked! Now let's create an invoice for your train tickets",
+            "agent: Train tickets booked! Please confirm the following invoice for the journey. <agent infers total amount for the invoice and details from the conversation history>",
             "user_confirmed_tool_run: <user clicks confirm on CreateInvoice tool which includes details of the train journey, the match, and the total cost>",
             "tool_result: contains an invoiceURL",
             "agent: Great! I've generated your invoice for your trains to the <match>. You can view and pay your invoice at this link: https://invoice.stripe.com/i/acct_1NBOLuKVZbzw7QA5/test_YWNjdF8xTkJPTHVLVlpienc3UUE1LF9SaHlBTU9GYnFibEJ4VlpNaThkWkhrcUR6a1dwTmNULDEyOTE2MjkwNA0200CCUNvTox?s=ap",

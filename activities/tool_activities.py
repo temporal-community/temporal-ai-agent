@@ -57,18 +57,20 @@ class ToolActivities:
         # Create validation prompt
         validation_prompt = f"""The user's prompt is: "{validation_input.prompt}"
             Please validate if this prompt makes sense given the agent goal and conversation history.
-            If the prompt doesn't make sense toward the goal then validationResult should be true.
-            Only return false if the prompt is nonsensical given the goal, tools available, and conversation history.
+            If the prompt makes sense toward the goal then validationResult should be true.
+            If the prompt is wildly nonsensical or makes no sense toward the goal and current conversation history then validationResult should be false.
+            If the response is low content such as "yes" or "that's right" then the user is probably responding to a previous prompt.  
+             Therefore examine it in the context of the conversation history to determine if it makes sense and return true if it makes sense.
             Return ONLY a JSON object with the following structure:
                 "validationResult": true/false,
-                "validationFailedReason": "If validationResult is false, provide a clear explanation to the user 
+                "validationFailedReason": "If validationResult is false, provide a clear explanation to the user in the response field 
                 about why their request doesn't make sense in the context and what information they should provide instead.
                 validationFailedReason should contain JSON in the format
                 {{
                     "next": "question",
                     "response": "[your reason here and a response to get the user back on track with the agent goal]"
                 }}
-                If validationResult is true, return an empty dict {{}}"
+                If validationResult is true (the prompt makes sense), return an empty dict as its value {{}}"
             """
 
         # Call the LLM with the validation prompt
@@ -172,8 +174,10 @@ class ToolActivities:
 
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel(
-            "models/gemini-2.0-flash-exp",
-            system_instruction=input.context_instructions,
+            "models/gemini-1.5-flash",
+            system_instruction=input.context_instructions
+            + ". The current date is "
+            + datetime.now().strftime("%B %d, %Y"),
         )
         response = model.generate_content(input.prompt)
         response_content = response.text
@@ -196,8 +200,9 @@ class ToolActivities:
         response = client.messages.create(
             model="claude-3-5-sonnet-20241022",
             max_tokens=1024,
-            system=input.context_instructions + ". The current date is "
-                + get_current_date_human_readable(),
+            system=input.context_instructions
+            + ". The current date is "
+            + get_current_date_human_readable(),
             messages=[
                 {
                     "role": "user",

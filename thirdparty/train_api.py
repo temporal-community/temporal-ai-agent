@@ -23,17 +23,23 @@ def parse_datetime(datetime_str):
         "%Y-%m-%dT%H:%M",  # e.g. "2025-04-18T09:00"
         "%Y-%m-%dT%H:%M:%S",  # e.g. "2025-04-18T09:00:00"
         "%Y-%m-%d %H:%M:%S",  # e.g. "2025-04-18 09:00:00"
+        "%Y-%m-%d",  # e.g. "2025-04-11"
     ]
 
     for fmt in formats:
         try:
             parsed = time.strptime(datetime_str, fmt)
+            if fmt == "%Y-%m-%d":
+                # Default to 9am if no time provided
+                hour, minute = 9, 0
+            else:
+                hour, minute = parsed.tm_hour, parsed.tm_min
             return (
                 parsed.tm_year,
                 parsed.tm_mon,
                 parsed.tm_mday,
-                parsed.tm_hour,
-                parsed.tm_min,
+                hour,
+                minute,
             )
         except ValueError:
             continue

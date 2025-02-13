@@ -29,17 +29,17 @@ search_flights_tool = ToolDefinition(
 
 search_trains_tool = ToolDefinition(
     name="SearchTrains",
-    description="Search for trains between two stations. Returns a list of trains.",
+    description="Search for trains between two English cities. Returns a list of train information for the user to choose from.",
     arguments=[
         ToolArgument(
             name="origin",
             type="string",
-            description="The station to depart from",
+            description="The city or place to depart from",
         ),
         ToolArgument(
             name="destination",
             type="string",
-            description="The station to arrive at",
+            description="The city or place to arrive at",
         ),
         ToolArgument(
             name="outbound_time",
