@@ -151,7 +151,7 @@ class TrainServer(BaseHTTPRequestHandler):
     def do_GET(self):
         parsed_url = urlparse(self.path)
 
-        if parsed_url.path == "/api/journeys":
+        if parsed_url.path == "/api/search":
             try:
                 params = parse_qs(parsed_url.query)
                 origin = params.get("from", [""])[0]
@@ -212,7 +212,7 @@ class TrainServer(BaseHTTPRequestHandler):
         parsed_url = urlparse(self.path)
 
         if parsed_url.path.startswith("/api/book/"):
-            journey_id = parsed_url.path.split("/")[-1]
+            train_ids = parsed_url.path.split("/")[-1].split(",")
             self.send_response(200)
             self.send_header("Content-Type", "application/json")
             self.end_headers()
@@ -224,7 +224,7 @@ class TrainServer(BaseHTTPRequestHandler):
             response = self.format_json(
                 {
                     "booking_reference": booking_ref,
-                    "journey_id": journey_id,
+                    "train_ids": train_ids,
                     "status": "confirmed",
                 }
             )

@@ -54,14 +54,14 @@ search_trains_tool = ToolDefinition(
     ],
 )
 
-book_train_tool = ToolDefinition(
-    name="BookTrain",
-    description="Books a train ticket. Returns a booking reference.",
+book_trains_tool = ToolDefinition(
+    name="BookTrains",
+    description="Books train tickets. Returns a booking reference.",
     arguments=[
         ToolArgument(
-            name="journey_id",
+            name="train_ids",
             type="string",
-            description="The ID of the journey to book",
+            description="The IDs of the trains to book, comma separated",
         ),
     ],
 )

@@ -3,7 +3,7 @@ from tools.tool_registry import (
     search_fixtures_tool,
     search_flights_tool,
     search_trains_tool,
-    book_train_tool,
+    book_trains_tool,
     create_invoice_tool,
 )
 
@@ -11,13 +11,13 @@ goal_match_train_invoice = AgentGoal(
     tools=[
         search_fixtures_tool,
         search_trains_tool,
-        book_train_tool,
+        book_trains_tool,
         create_invoice_tool,
     ],
     description="Help the user book trains to a premier league match. The user lives in London. Gather args for these tools in order: "
     "1. SearchFixtures: Search for fixtures for a team in a given month"
     "2. SearchTrains: Search for trains to the city of the match and list them for the customer to choose from"
-    "3. BookTrain: Book the train tickets"
+    "3. BookTrains: Book the train tickets"
     "4. CreateInvoice: Proactively offer to create a simple invoice for the cost of the flights and train tickets",
     starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to do your job",
     example_conversation_history="\n ".join(
@@ -32,7 +32,7 @@ goal_match_train_invoice = AgentGoal(
             "user_confirmed_tool_run: <user clicks confirm on SearchTrains tool>",
             "tool_result: <results including train dates and times, origin and depature stations>",
             "agent: Found some trains! <agent provides a human-readable list of train options>",
-            "user_confirmed_tool_run: <user clicks confirm on BookTrain tool>",
+            "user_confirmed_tool_run: <user clicks confirm on BookTrains tool>",
             'tool_result: results including {"status": "success"}',
             "agent: Train tickets booked! Please confirm the following invoice for the journey. <agent infers total amount for the invoice and details from the conversation history>",
             "user_confirmed_tool_run: <user clicks confirm on CreateInvoice tool which includes details of the train journey, the match, and the total cost>",
