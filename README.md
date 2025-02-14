@@ -115,6 +115,21 @@ poetry run uvicorn api.main:app --reload
 ```
 Access the API at `/docs` to see the available endpoints.
 
+### Python Search Trains API
+Required to search and book trains!
+```bash
+poetry run python thirdparty/train_api.py
+```
+
+### .NET (enterprise) Backend ;)
+We have activities written in C# to call the train APIs.
+```bash
+cd enterprise
+dotnet build # ensure you brew install dotnet@8 first!
+dotnet run
+```
+If you're running your train API above on a different host/port then change the API URL in `Program.cs`.
+
 ### React UI
 Start the frontend:
 ```bash
