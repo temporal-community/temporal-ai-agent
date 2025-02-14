@@ -49,7 +49,11 @@ class ToolWorkflow:
         """Execute a tool after confirmation and handle its result."""
         workflow.logger.info(f"Confirmed. Proceeding with tool: {current_tool}")
 
-        task_queue = TEMPORAL_LEGACY_TASK_QUEUE if current_tool in ["SearchTrain", "BookTrain"] else None
+        task_queue = (
+            TEMPORAL_LEGACY_TASK_QUEUE
+            if current_tool in ["SearchTrains", "BookTrains"]
+            else None
+        )
 
         try:
             dynamic_result = await workflow.execute_activity(

@@ -3,6 +3,7 @@ using Temporalio.Client;
 using Temporalio.Worker;
 using TrainSearchWorker.Activities;
 
+// Set up dependency injection
 var services = new ServiceCollection();
 
 // Add HTTP client
@@ -17,11 +18,17 @@ services.AddScoped<TrainActivities>();
 
 var serviceProvider = services.BuildServiceProvider();
 
-// Create client
-var client = await TemporalClient.ConnectAsync(new()
-{
-    TargetHost = "localhost:7233",
-});
+// Create client using the helper, which supports Temporal Cloud if environment variables are set
+var client = await TemporalClientHelper.CreateClientAsync();
+
+// Read connection details from environment or use defaults
+var address = Environment.GetEnvironmentVariable("TEMPORAL_ADDRESS") ?? "localhost:7233";
+var ns = Environment.GetEnvironmentVariable("TEMPORAL_NAMESPACE") ?? "default";
+
+// Log connection details
+Console.WriteLine("Starting worker...");
+Console.WriteLine($"Connecting to Temporal at address: {address}");
+Console.WriteLine($"Using namespace: {ns}");
 
 // Create worker options
 var options = new TemporalWorkerOptions("agent-task-queue-legacy");
@@ -34,7 +41,6 @@ options.AddActivity(activities.BookTrains);
 // Create and run worker
 var worker = new TemporalWorker(client, options);
 
-Console.WriteLine("Starting worker...");
 using var tokenSource = new CancellationTokenSource();
 Console.CancelKeyPress += (_, eventArgs) =>
 {

@@ -197,6 +197,7 @@ class TrainServer(BaseHTTPRequestHandler):
 
                 journeys = self.generate_journeys(origin, destination, out_dt, ret_dt)
                 response = self.format_json({"journeys": journeys})
+
                 self.write_response(response)
 
             except Exception as e:
@@ -228,6 +229,7 @@ class TrainServer(BaseHTTPRequestHandler):
                     "status": "confirmed",
                 }
             )
+
             self.write_response(response)
 
         else:
