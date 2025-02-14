@@ -2,7 +2,6 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using Temporalio.Activities;
 using TrainSearchWorker.Models;
-using TrainSearchWorker.Converters;
 
 namespace TrainSearchWorker.Activities;
 
