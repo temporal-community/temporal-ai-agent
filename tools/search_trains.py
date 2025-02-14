@@ -15,7 +15,7 @@ def search_trains(args: dict) -> dict:
     if not origin or not destination or not outbound_time or not return_time:
         return {"error": "Origin, destination, outbound_time and return_time are required."}
 
-    search_url = f'{BASE_URL}/api/journeys'
+    search_url = f'{BASE_URL}/api/search'
     params = {
         'from': origin,
         'to': destination,
@@ -31,15 +31,15 @@ def search_trains(args: dict) -> dict:
     journey_data = response.json()
     return journey_data
 
-def book_train(args: dict) -> dict:
+def book_trains(args: dict) -> dict:
     load_dotenv(override=True)
 
-    journey_id = args.get("journey_id")
+    train_ids = args.get("train_ids")
 
-    if not journey_id:
-        return {"error": "Journey ID is required."}
+    if not train_ids:
+        return {"error": "Train IDs is required."}
 
-    book_url = f'{BASE_URL}/api/book/{journey_id}'
+    book_url = f'{BASE_URL}/api/book/{train_ids}'
     response = requests.post(book_url)
     if response.status_code != 200:
         return {"error": "Failed to book ticket."}
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     print(search_results)
 
     book_args = {
-        "journey_id": "12345",
+        "train_ids": "12345",
     }
-    booking_results = book_train(book_args)
+    booking_results = book_trains(book_args)
     print(booking_results)
