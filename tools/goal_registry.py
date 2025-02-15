@@ -18,7 +18,7 @@ goal_match_train_invoice = AgentGoal(
     "1. SearchFixtures: Search for fixtures for a team within a specified date range."
     "2. SearchTrains: Search for trains to the city of the match and list them for the customer to choose from"
     "3. BookTrains: Book the train tickets"
-    "4. CreateInvoice: Proactively offer to create a simple invoice for the cost of the flights and train tickets",
+    "4. CreateInvoice: Proactively offer to create a simple invoice for the cost the train tickets, inferred from the conversation history",
     starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to do your job",
     example_conversation_history="\n ".join(
         [
@@ -38,7 +38,7 @@ goal_match_train_invoice = AgentGoal(
             "agent: Sounds good, let's book train tickets for the 11am outbound and 3:30pm return trains on May 9 and May 11, one day before and after the match.",
             "user_confirmed_tool_run: <user clicks confirm on BookTrains tool>",
             'tool_result: BookTrains responds in this JSON format and the results are parsed by the agent belowg [{"booking_reference": "BR10879","journey_id": "T9532,T1027","status": "confirmed"}]',
-            "agent: Your train tickets have been booked. Would you like me to create an invoice now for the cost of the train tickets?",
+            "agent: Your train tickets have been booked with the reference ABCD1234. Shall I create an invoice now for the cost of the train tickets?",
             "user: Sure",
             "user_confirmed_tool_run: <user clicks confirm on CreateInvoice tool which includes details of the train journey, the match, and the total cost>",
             'tool_result: CreateInvoice responds in this JSON format and the results are parsed by the agent below (including a link to the invoice): {"invoiceStatus": "open","invoiceURL": "https://invoice.stripe.com/i/acct_1NBOLuKVZbzw7QA5/test_YWNjdF8xTkJPTHVLVlpienc3UUE1LF9SbGJlZ2xLMjhlc3lxNzFkVVBXbkswOUlFa2Rna1RxLDEzMDAwMTY4Nw0200RLeJRMlw?s=ap","reference": "F9B01CD7-0001"}',
@@ -89,7 +89,7 @@ goal_event_flight_invoice = AgentGoal(
             "agent: Great, lets book the train tickets",
             "user_confirmed_tool_run: <user clicks confirm on BookTrain tool>",
             'tool_result: results including {"status": "success"}',
-            "agent: Train tickets booked! Now let's create an invoice for the flights and train tickets",
+            "agent: Train tickets booked! Would you like me to create an invoice for the flights and train tickets?",
             "user_confirmed_tool_run: <user clicks confirm on CreateInvoice tool>",
             'tool_result: { "status": "success", "invoice": { "flight_number": "CX101", "amount": 850.0 }, invoiceURL: "https://example.com/invoice" }',
             "agent: Invoice generated! Here's the link: https://example.com/invoice",
