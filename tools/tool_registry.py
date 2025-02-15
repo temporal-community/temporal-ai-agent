@@ -85,7 +85,7 @@ create_invoice_tool = ToolDefinition(
 
 search_fixtures_tool = ToolDefinition(
     name="SearchFixtures",
-    description="Search for upcoming fixtures for a given team and month",
+    description="Search for upcoming fixtures for a given team and month. Valid teams this 24/25 season are Arsenal FC, Aston Villa FC, AFC Bournemouth, Brentford FC, Brighton & Hove Albion FC, Chelsea FC, Crystal Palace FC, Everton FC, Fulham FC, Ipswich Town FC, Leicester City FC, Liverpool FC, Manchester City FC, Manchester United FC, Newcastle United FC, Nottingham Forest FC, Southampton FC, Tottenham Hotspur FC, West Ham United FC, Wolverhampton Wanderers FC",
     arguments=[
         ToolArgument(
             name="team",
