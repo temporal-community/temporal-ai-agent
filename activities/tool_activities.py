@@ -25,7 +25,7 @@ if os.environ.get("LLM_PROVIDER") == "ollama":
 
 class ToolActivities:
     @activity.defn
-    async def validate_llm_prompt(
+    async def agent_validatePrompt(
         self, validation_input: ValidationInput
     ) -> ValidationResult:
         """
@@ -78,7 +78,7 @@ class ToolActivities:
             prompt=validation_prompt, context_instructions=context_instructions
         )
 
-        result = self.prompt_llm(prompt_input)
+        result = self.agent_toolPlanner(prompt_input)
 
         return ValidationResult(
             validationResult=result.get("validationResult", False),
@@ -86,7 +86,7 @@ class ToolActivities:
         )
 
     @activity.defn
-    def prompt_llm(self, input: ToolPromptInput) -> dict:
+    def agent_toolPlanner(self, input: ToolPromptInput) -> dict:
         llm_provider = os.environ.get("LLM_PROVIDER", "openai").lower()
 
         print(f"LLM provider: {llm_provider}")

@@ -4,8 +4,8 @@ from temporalio.client import Client
 from temporalio.exceptions import TemporalError
 from temporalio.api.enums.v1 import WorkflowExecutionStatus
 
-from workflows.tool_workflow import ToolWorkflow
-from models.data_types import CombinedInput, ToolWorkflowParams
+from workflows.agent_goal_workflow import AgentGoalWorkflow
+from models.data_types import CombinedInput, AgentGoalWorkflowParams
 from tools.goal_registry import goal_match_train_invoice
 from fastapi.middleware.cors import CORSMiddleware
 from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
@@ -94,7 +94,7 @@ async def get_conversation_history():
 async def send_prompt(prompt: str):
     # Create combined input
     combined_input = CombinedInput(
-        tool_params=ToolWorkflowParams(None, None),
+        tool_params=AgentGoalWorkflowParams(None, None),
         agent_goal=goal_match_train_invoice,
     )
 
@@ -102,7 +102,7 @@ async def send_prompt(prompt: str):
 
     # Start (or signal) the workflow
     await temporal_client.start_workflow(
-        ToolWorkflow.run,
+        AgentGoalWorkflow.run,
         combined_input,
         id=workflow_id,
         task_queue=TEMPORAL_TASK_QUEUE,
@@ -141,7 +141,7 @@ async def end_chat():
 async def start_workflow():
     # Create combined input
     combined_input = CombinedInput(
-        tool_params=ToolWorkflowParams(None, None),
+        tool_params=AgentGoalWorkflowParams(None, None),
         agent_goal=goal_match_train_invoice,
     )
 
@@ -149,7 +149,7 @@ async def start_workflow():
 
     # Start the workflow with the starter prompt from the goal
     await temporal_client.start_workflow(
-        ToolWorkflow.run,
+        AgentGoalWorkflow.run,
         combined_input,
         id=workflow_id,
         task_queue=TEMPORAL_TASK_QUEUE,

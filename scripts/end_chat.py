@@ -1,7 +1,7 @@
 import asyncio
 
 
-from workflows.tool_workflow import ToolWorkflow
+from workflows.agent_goal_workflow import AgentGoalWorkflow
 
 
 async def main():
@@ -10,10 +10,10 @@ async def main():
 
     workflow_id = "agent-workflow"
 
-    handle = client.get_workflow_handle_for(ToolWorkflow.run, workflow_id)
+    handle = client.get_workflow_handle_for(AgentGoalWorkflow.run, workflow_id)
 
     # Sends a signal to the workflow
-    await handle.signal(ToolWorkflow.end_chat)
+    await handle.signal(AgentGoalWorkflow.end_chat)
 
 
 if __name__ == "__main__":

@@ -11,7 +11,11 @@ from models.data_types import ConversationHistory, NextStep, ValidationInput
 with workflow.unsafe.imports_passed_through():
     from activities.tool_activities import ToolActivities
     from prompts.agent_prompt_generators import generate_genai_prompt
-    from models.data_types import CombinedInput, ToolWorkflowParams, ToolPromptInput
+    from models.data_types import (
+        CombinedInput,
+        AgentGoalWorkflowParams,
+        ToolPromptInput,
+    )
 
 from shared.config import TEMPORAL_LEGACY_TASK_QUEUE
 
@@ -31,7 +35,7 @@ class ToolData(TypedDict, total=False):
 
 
 @workflow.defn
-class ToolWorkflow:
+class AgentGoalWorkflow:
     """Workflow that manages tool execution with user confirmation and conversation history."""
 
     def __init__(self) -> None:
@@ -111,7 +115,7 @@ class ToolWorkflow:
                 prompt=summary_prompt, context_instructions=summary_context
             )
             self.conversation_summary = await workflow.start_activity_method(
-                ToolActivities.prompt_llm,
+                ToolActivities.agent_toolPlanner,
                 summary_input,
                 schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
             )
@@ -121,7 +125,7 @@ class ToolWorkflow:
             workflow.continue_as_new(
                 args=[
                     CombinedInput(
-                        tool_params=ToolWorkflowParams(
+                        tool_params=AgentGoalWorkflowParams(
                             conversation_summary=self.conversation_summary,
                             prompt_queue=self.prompt_queue,
                         ),
@@ -178,7 +182,7 @@ class ToolWorkflow:
                         agent_goal=agent_goal,
                     )
                     validation_result = await workflow.execute_activity(
-                        ToolActivities.validate_llm_prompt,
+                        ToolActivities.agent_validatePrompt,
                         args=[validation_input],
                         schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
                         start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
@@ -208,7 +212,7 @@ class ToolWorkflow:
                 )
 
                 tool_data = await workflow.execute_activity(
-                    ToolActivities.prompt_llm,
+                    ToolActivities.agent_toolPlanner,
                     prompt_input,
                     schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
                     start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,

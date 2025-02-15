@@ -5,7 +5,7 @@ import concurrent.futures
 from temporalio.worker import Worker
 
 from activities.tool_activities import ToolActivities, dynamic_tool_activity
-from workflows.tool_workflow import ToolWorkflow
+from workflows.agent_goal_workflow import AgentGoalWorkflow
 
 from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
 
@@ -21,10 +21,10 @@ async def main():
         worker = Worker(
             client,
             task_queue=TEMPORAL_TASK_QUEUE,
-            workflows=[ToolWorkflow],
+            workflows=[AgentGoalWorkflow],
             activities=[
-                activities.prompt_llm,
-                activities.validate_llm_prompt,
+                activities.agent_validatePrompt,
+                activities.agent_toolPlanner,
                 dynamic_tool_activity,
             ],
             activity_executor=activity_executor,

@@ -4,14 +4,14 @@ from models.tool_definitions import AgentGoal
 
 
 @dataclass
-class ToolWorkflowParams:
+class AgentGoalWorkflowParams:
     conversation_summary: Optional[str] = None
     prompt_queue: Optional[Deque[str]] = None
 
 
 @dataclass
 class CombinedInput:
-    tool_params: ToolWorkflowParams
+    tool_params: AgentGoalWorkflowParams
     agent_goal: AgentGoal
 
 

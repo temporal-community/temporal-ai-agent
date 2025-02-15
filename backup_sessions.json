@@ -1,0 +1,50 @@
+{
+    "$schema": "https://cdn.statically.io/gh/nguyenngoclongdev/cdn/main/schema/v10/terminal-keeper.json",
+    "theme": "tribe",
+    "active": "default",
+    "activateOnStartup": false,
+    "keepExistingTerminals": false,
+    "sessions": {
+        "default": [
+            [
+                {
+                    "name": "frontend",
+                    "autoExecuteCommands": true,
+                    "commands": [
+                        "cd frontend && npx vite"
+                    ]
+                },
+                {
+                    "name": "uvicorn",
+                    "autoExecuteCommands": true,
+                    "commands": [
+                        "poetry run uvicorn api.main:app --reload"
+                    ]
+                }
+            ],
+            [
+                {
+                    "name": "agent worker",
+                    "autoExecuteCommands": true,
+                    "commands": [
+                        "poetry run python scripts/run_worker.py"
+                    ]
+                },
+                {
+                    "name": "trains worker",
+                    "autoExecuteCommands": true,
+                    "commands": [
+                        "poetry run python scripts/run_legacy_worker.py"
+                    ]
+                }
+            ],
+            {
+                "name": "trains_api",
+                "autoExecuteCommands": true,
+                "commands": [
+                    "poetry run python thirdparty/train_api.py"
+                ]
+            }
+        ]
+    }
+}
