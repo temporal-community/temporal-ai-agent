@@ -15,7 +15,7 @@ goal_match_train_invoice = AgentGoal(
         create_invoice_tool,
     ],
     description="Help the user book trains to a premier league match. The user lives in London. Gather args for these tools in order: "
-    "1. SearchFixtures: Search for fixtures for a team in a given month"
+    "1. SearchFixtures: Search for fixtures for a team within a specified date range."
     "2. SearchTrains: Search for trains to the city of the match and list them for the customer to choose from"
     "3. BookTrains: Book the train tickets"
     "4. CreateInvoice: Proactively offer to create a simple invoice for the cost of the flights and train tickets",
@@ -23,9 +23,9 @@ goal_match_train_invoice = AgentGoal(
     example_conversation_history="\n ".join(
         [
             "user: I'd like to travel to a premier league match",
-            "agent: Sure! Let's start by finding an match you'd like to attend. I know about Premier League fixtures in the UK. Could you tell me which team and month you're interested in?",
-            "user: Wolves in May please",
-            "agent: Great! Let's find a match for Wolverhampton Wanderers FC in May.",
+            "agent: Sure! Let's start by finding a match you'd like to attend. I know about Premier League fixtures in the UK. Could you tell me which team and what date range you're interested in?"
+            "user: Wolves between mid-April and the first week of May, please."
+            "agent: Great! Let's find fixtures for Wolverhampton Wanderers FC between 2025-04-15 and 2025-05-05."
             "user_confirmed_tool_run: <user clicks confirm on SearchFixtures tool, passing the full team name as an input>",
             'tool_result: SearchFixtures responds in this JSON format and the results are parsed by the agent below {"fixtures": [{"awayTeam": "West Ham United FC","date": "2025-04-01","homeTeam": "Wolverhampton Wanderers FC"},...,'
             "agent: I found 4 Wolves matches in May 2025: 1. Man City vs Wolves (Away) - May 3 2. Wolves vs Brighton (Home) - May 10 3. Crystal Palace vs Wolves (Away) - May 18 4. Wolves vs Brentford (Home) - May 25 Which match would you like to attend? I'll help you find trains from London.",

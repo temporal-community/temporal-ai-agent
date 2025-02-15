@@ -44,12 +44,12 @@ search_trains_tool = ToolDefinition(
         ToolArgument(
             name="outbound_time",
             type="ISO8601",
-            description="The date and time to search for outbound trains",
+            description="The date and time to search for outbound trains. If time of day isn't asked for, assume a decent time of day/evening for the outbound journey",
         ),
         ToolArgument(
             name="return_time",
             type="ISO8601",
-            description="The date and time to search for return trains",
+            description="The date and time to search for return trains. If time of day isn't asked for, assume a decent time of day/evening for the inbound journey",
         ),
     ],
 )
@@ -85,7 +85,7 @@ create_invoice_tool = ToolDefinition(
 
 search_fixtures_tool = ToolDefinition(
     name="SearchFixtures",
-    description="Search for upcoming fixtures for a given team and month. Valid teams this 24/25 season are Arsenal FC, Aston Villa FC, AFC Bournemouth, Brentford FC, Brighton & Hove Albion FC, Chelsea FC, Crystal Palace FC, Everton FC, Fulham FC, Ipswich Town FC, Leicester City FC, Liverpool FC, Manchester City FC, Manchester United FC, Newcastle United FC, Nottingham Forest FC, Southampton FC, Tottenham Hotspur FC, West Ham United FC, Wolverhampton Wanderers FC",
+    description="Search for upcoming fixtures for a given team within a specified date range. Valid teams this 24/25 season are Arsenal FC, Aston Villa FC, AFC Bournemouth, Brentford FC, Brighton & Hove Albion FC, Chelsea FC, Crystal Palace FC, Everton FC, Fulham FC, Ipswich Town FC, Leicester City FC, Liverpool FC, Manchester City FC, Manchester United FC, Newcastle United FC, Nottingham Forest FC, Southampton FC, Tottenham Hotspur FC, West Ham United FC, Wolverhampton Wanderers FC",
     arguments=[
         ToolArgument(
             name="team",
@@ -93,9 +93,14 @@ search_fixtures_tool = ToolDefinition(
             description="The full name of the team to search for.",
         ),
         ToolArgument(
-            name="month",
+            name="start_date",
             type="string",
-            description="The month to search for fixtures.",
+            description="The start date (YYYY-MM-DD) for the fixture search.",
+        ),
+        ToolArgument(
+            name="end_date",
+            type="string",
+            description="The end date (YYYY-MM-DD) for the fixture search.",
         ),
     ],
 )
