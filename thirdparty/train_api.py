@@ -1,14 +1,6 @@
-# Version-compatible imports
-try:
-    # Modern Python
-    from http.server import HTTPServer, BaseHTTPRequestHandler
-    from urllib.parse import parse_qs, urlparse
-    import json
-except ImportError:
-    # Python 1.5.2
-    from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
-    from urlparse import parse_qs, urlparse
-
+from http.server import HTTPServer, BaseHTTPRequestHandler
+from urllib.parse import parse_qs, urlparse
+import json
 import time
 import random
 import string
@@ -47,38 +39,12 @@ def parse_datetime(datetime_str):
 
 
 class TrainServer(BaseHTTPRequestHandler):
-    def format_json(self, obj):
-        # Simple JSON-like string formatter for 1.5.2 compatibility
-        try:
-            return json.dumps(obj)
-        except NameError:
-            if isinstance(obj, dict):
-                pairs = []
-                for k, v in obj.items():
-                    if isinstance(v, str):
-                        pairs.append('"%s": "%s"' % (k, v))
-                    else:
-                        pairs.append('"%s": %s' % (k, str(v)))
-                return "{" + ", ".join(pairs) + "}"
-            elif isinstance(obj, list):
-                return "[" + ", ".join([self.format_json(x) for x in obj]) + "]"
-            else:
-                return str(obj)
-
-    def write_response(self, response):
-        try:
-            # Python 3
-            self.wfile.write(response.encode("utf-8"))
-        except AttributeError:
-            # Python 1.5.2
-            self.wfile.write(response)
-
     def generate_journeys(self, origin, destination, out_datetime, ret_datetime):
         journeys = []
 
         # Helper to format datetime
         def format_datetime(year, month, day, hour, minute):
-            return "%04d-%02d-%02dT%02d:%02d" % (year, month, day, hour, minute)
+            return f"{year:04d}-{month:02d}-{day:02d}T{hour:02d}:{minute:02d}"
 
         # Generate outbound journeys
         year, month, day, hour, minute = out_datetime
@@ -100,7 +66,7 @@ class TrainServer(BaseHTTPRequestHandler):
             arr_hour = arr_hour % 24
 
             journey = {
-                "id": "T%d" % random.randint(1000, 9999),
+                "id": f"T{random.randint(1000, 9999)}",
                 "type": "outbound",
                 "departure": origin,
                 "arrival": destination,
@@ -132,7 +98,7 @@ class TrainServer(BaseHTTPRequestHandler):
                 arr_hour = arr_hour % 24
 
                 journey = {
-                    "id": "T%d" % random.randint(1000, 9999),
+                    "id": f"T{random.randint(1000, 9999)}",
                     "type": "return",
                     "departure": destination,
                     "arrival": origin,
@@ -163,12 +129,12 @@ class TrainServer(BaseHTTPRequestHandler):
                     self.send_response(400)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
-                    self.write_response(
-                        self.format_json(
+                    self.wfile.write(
+                        json.dumps(
                             {
                                 "error": "Required parameters: 'from', 'to', and 'outbound_time'"
                             }
-                        )
+                        ).encode("utf-8")
                     )
                     return
 
@@ -184,10 +150,10 @@ class TrainServer(BaseHTTPRequestHandler):
                     self.send_response(400)
                     self.send_header("Content-Type", "application/json")
                     self.end_headers()
-                    self.write_response(
-                        self.format_json(
+                    self.wfile.write(
+                        json.dumps(
                             {"error": "Invalid datetime format. Use YYYY-MM-DDTHH:MM"}
-                        )
+                        ).encode("utf-8")
                     )
                     return
 
@@ -196,15 +162,15 @@ class TrainServer(BaseHTTPRequestHandler):
                 self.end_headers()
 
                 journeys = self.generate_journeys(origin, destination, out_dt, ret_dt)
-                response = self.format_json({"journeys": journeys})
+                response = json.dumps({"journeys": journeys})
 
-                self.write_response(response)
+                self.wfile.write(response.encode("utf-8"))
 
             except Exception as e:
                 self.send_response(500)
                 self.send_header("Content-Type", "application/json")
                 self.end_headers()
-                self.write_response(self.format_json({"error": str(e)}))
+                self.wfile.write(json.dumps({"error": str(e)}).encode("utf-8"))
         else:
             self.send_response(404)
             self.end_headers()
@@ -222,7 +188,7 @@ class TrainServer(BaseHTTPRequestHandler):
                 [random.choice(string.digits) for _ in range(5)]
             )
 
-            response = self.format_json(
+            response = json.dumps(
                 {
                     "booking_reference": booking_ref,
                     "train_ids": train_ids,
@@ -230,7 +196,7 @@ class TrainServer(BaseHTTPRequestHandler):
                 }
             )
 
-            self.write_response(response)
+            self.wfile.write(response.encode("utf-8"))
 
         else:
             self.send_response(404)
