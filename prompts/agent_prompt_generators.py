@@ -108,3 +108,43 @@ def generate_genai_prompt(
         )
 
     return "\n".join(prompt_lines)
+
+def generate_tool_completion_prompt(current_tool: str, dynamic_result: dict) -> str:
+    """
+    Generates a prompt for handling tool completion and determining next steps.
+    
+    Args:
+        current_tool: The name of the tool that just completed
+        dynamic_result: The result data from the tool execution
+        
+    Returns:
+        str: A formatted prompt string for the agent to process the tool completion
+    """
+    return (
+        f"### The '{current_tool}' tool completed successfully with {dynamic_result}. "
+        "INSTRUCTIONS: Parse this tool result as plain text, and use the system prompt containing the list of tools in sequence and the conversation history (and previous tool_results) to figure out next steps, if any. "
+        "You will need to use the tool_results to auto-fill arguments for subsequent tools and also to figure out if all tools have been run."
+        '{"next": "<question|confirm|done>", "tool": "<tool_name or null>", "args": {"<arg1>": "<value1 or null>", "<arg2>": "<value2 or null>}, "response": "<plain text (can include \\n line breaks)>"}'
+        "ONLY return those json keys (next, tool, args, response), nothing else."
+        'Next should only be "done" if all tools have been run (use the system prompt to figure that out).'
+        'Next should be "question" if the tool is not the last one in the sequence.'
+        'Next should NOT be "confirm" at this point.'
+    )
+
+def generate_missing_args_prompt(current_tool: str, tool_data: dict, missing_args: list[str]) -> str:
+    """
+    Generates a prompt for handling missing arguments for a tool.
+    
+    Args:
+        current_tool: The name of the tool that needs arguments
+        tool_data: The current tool data containing the response
+        missing_args: List of argument names that are missing
+        
+    Returns:
+        str: A formatted prompt string for requesting missing arguments
+    """
+    return (
+        f"### INSTRUCTIONS set next='question', combine this response response='{tool_data.get('response')}' "
+        f"and following missing arguments for tool {current_tool}: {missing_args}. "
+        "Only provide a valid JSON response without any comments or metadata."
+    )

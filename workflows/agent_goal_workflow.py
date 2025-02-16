@@ -10,7 +10,11 @@ from models.data_types import ConversationHistory, NextStep, ValidationInput
 
 with workflow.unsafe.imports_passed_through():
     from activities.tool_activities import ToolActivities
-    from prompts.agent_prompt_generators import generate_genai_prompt
+    from prompts.agent_prompt_generators import (
+        generate_genai_prompt,
+        generate_tool_completion_prompt,
+        generate_missing_args_prompt,
+    )
     from models.data_types import (
         CombinedInput,
         AgentGoalWorkflowParams,
@@ -78,16 +82,7 @@ class AgentGoalWorkflow:
 
         self.add_message("tool_result", dynamic_result)
 
-        self.prompt_queue.append(
-            f"### The '{current_tool}' tool completed successfully with {dynamic_result}. "
-            "INSTRUCTIONS: Parse this tool result as plain text, and use the system prompt containing the list of tools in sequence and the conversation history (and previous tool_results) to figure out next steps, if any. "
-            "You will need to use the tool_results to auto-fill arguments for subsequent tools and also to figure out if all tools have been run."
-            '{"next": "<question|confirm|done>", "tool": "<tool_name or null>", "args": {"<arg1>": "<value1 or null>", "<arg2>": "<value2 or null>}, "response": "<plain text (can include \\n line breaks)>"}'
-            "ONLY return those json keys (next, tool, args, response), nothing else."
-            'Next should only be "done" if all tools have been run (use the system prompt to figure that out).'
-            'Next should be "question" if the tool is not the last one in the sequence.'
-            'Next should NOT be "confirm" at this point.'
-        )
+        self.prompt_queue.append(generate_tool_completion_prompt(current_tool, dynamic_result))
 
     async def _handle_missing_args(
         self, current_tool: str, args: Dict[str, Any], tool_data: ToolData
@@ -97,9 +92,7 @@ class AgentGoalWorkflow:
 
         if missing_args:
             self.prompt_queue.append(
-                f"### INSTRUCTIONS set next='question', combine this response response='{tool_data.get('response')}' "
-                f"and following missing arguments for tool {current_tool}: {missing_args}. "
-                "Only provide a valid JSON response without any comments or metadata."
+                generate_missing_args_prompt(current_tool, tool_data, missing_args)
             )
             workflow.logger.info(
                 f"Missing arguments for tool: {current_tool}: {' '.join(missing_args)}"
