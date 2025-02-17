@@ -14,12 +14,15 @@ goal_match_train_invoice = AgentGoal(
         book_trains_tool,
         create_invoice_tool,
     ],
-    description="Help the user book trains to a premier league match. The user lives in London. Gather args for these tools in order: "
-    "1. SearchFixtures: Search for fixtures for a team within a specified date range."
-    "2. SearchTrains: Search for trains to the city of the match and list them for the customer to choose from"
-    "3. BookTrains: Book the train tickets"
-    "4. CreateInvoice: Proactively offer to create a simple invoice for the cost the train tickets, inferred from the conversation history",
-    starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to do your job",
+    description="The user wants to book a trip to a city in the UK around the dates of a premier league match. "
+    "Help the user find a premier league match to attend, search and book trains for that match and offers to invoice them for the cost of train tickets. "
+    "The user lives in London. "
+    "Gather args for these tools in order, ensuring you move the user from one tool to the next: "
+    "1. SearchFixtures: Search for fixtures for a team within a specified date range. The user might ask questions about the matches dates and locations to decide on where to go. "
+    "2. SearchTrains: Search for trains to the city of the match and list them for the customer to choose from "
+    "3. BookTrains: Book the train tickets, used to invoice the user for the cost of the train tickets "
+    "4. CreateInvoice: Invoices the user for the cost of train tickets, with total and details inferred from the conversation history ",
+    starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to begin your job as an agent ",
     example_conversation_history="\n ".join(
         [
             "user: I'd like to travel to a premier league match",
@@ -38,8 +41,8 @@ goal_match_train_invoice = AgentGoal(
             "agent: Sounds good, let's book train tickets for the 11am outbound and 3:30pm return trains on May 9 and May 11, one day before and after the match.",
             "user_confirmed_tool_run: <user clicks confirm on BookTrains tool>",
             'tool_result: BookTrains responds in this JSON format and the results are parsed by the agent belowg [{"booking_reference": "BR10879","journey_id": "T9532,T1027","status": "confirmed"}]',
-            "agent: Your train tickets have been booked with the reference ABCD1234. Shall I create an invoice now for the cost of the train tickets?",
-            "user: Sure",
+            "agent: Your train tickets have been booked with the reference ABCD1234. Are you ready to be invoiced for the total cost of the train tickets?",
+            "user: Yes, pelase invoice me.",
             "user_confirmed_tool_run: <user clicks confirm on CreateInvoice tool which includes details of the train journey, the match, and the total cost>",
             'tool_result: CreateInvoice responds in this JSON format and the results are parsed by the agent below (including a link to the invoice): {"invoiceStatus": "open","invoiceURL": "https://invoice.stripe.com/i/acct_1NBOLuKVZbzw7QA5/test_YWNjdF8xTkJPTHVLVlpienc3UUE1LF9SbGJlZ2xLMjhlc3lxNzFkVVBXbkswOUlFa2Rna1RxLDEzMDAwMTY4Nw0200RLeJRMlw?s=ap","reference": "F9B01CD7-0001"}',
             "agent: Great! I've generated your invoice for your trains to the Manchester City match on the 10th of May. You can view and pay your invoice at this link: https://invoice.stripe.com/i/acct_1NBOLuKVZbzw7QA5/test_YWNjdF8xTkJPTHVLVlpienc3UUE1LF9SbGJlZ2xLMjhlc3lxNzFkVVBXbkswOUlFa2Rna1RxLDEzMDAwMTY4Nw0200RLeJRMlw?s=ap",
