@@ -3,15 +3,29 @@ from typing import Optional
 from temporalio.client import Client
 from temporalio.exceptions import TemporalError
 from temporalio.api.enums.v1 import WorkflowExecutionStatus
+from dotenv import load_dotenv
+import os
 
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 from models.data_types import CombinedInput, AgentGoalWorkflowParams
-from tools.goal_registry import goal_match_train_invoice
+from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice
 from fastapi.middleware.cors import CORSMiddleware
 from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
 
 app = FastAPI()
 temporal_client: Optional[Client] = None
+
+# Load environment variables
+load_dotenv()
+
+def get_agent_goal():
+    """Get the agent goal from environment variables."""
+    goal_name = os.getenv("AGENT_GOAL", "goal_match_train_invoice")
+    goals = {
+        "goal_match_train_invoice": goal_match_train_invoice,
+        "goal_event_flight_invoice": goal_event_flight_invoice
+    }
+    return goals.get(goal_name, goal_event_flight_invoice)
 
 
 @app.on_event("startup")
@@ -92,10 +106,10 @@ async def get_conversation_history():
 
 @app.post("/send-prompt")
 async def send_prompt(prompt: str):
-    # Create combined input
+    # Create combined input with goal from environment
     combined_input = CombinedInput(
         tool_params=AgentGoalWorkflowParams(None, None),
-        agent_goal=goal_match_train_invoice,
+        agent_goal=get_agent_goal(),
     )
 
     workflow_id = "agent-workflow"
@@ -139,10 +153,13 @@ async def end_chat():
 
 @app.post("/start-workflow")
 async def start_workflow():
+    # Get the configured goal
+    agent_goal = get_agent_goal()
+    
     # Create combined input
     combined_input = CombinedInput(
         tool_params=AgentGoalWorkflowParams(None, None),
-        agent_goal=goal_match_train_invoice,
+        agent_goal=agent_goal,
     )
 
     workflow_id = "agent-workflow"
@@ -154,9 +171,9 @@ async def start_workflow():
         id=workflow_id,
         task_queue=TEMPORAL_TASK_QUEUE,
         start_signal="user_prompt",
-        start_signal_args=["### " + goal_match_train_invoice.starter_prompt],
+        start_signal_args=["### " + agent_goal.starter_prompt],
     )
 
     return {
-        "message": f"Workflow started with goal's starter prompt: {goal_match_train_invoice.starter_prompt}."
+        "message": f"Workflow started with goal's starter prompt: {agent_goal.starter_prompt}."
     }
