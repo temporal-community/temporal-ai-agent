@@ -3,6 +3,7 @@ from .search_flights import search_flights
 from .search_trains import search_trains
 from .search_trains import book_trains
 from .create_invoice import create_invoice
+from .find_events import find_events
 
 
 def get_handler(tool_name: str):
@@ -16,5 +17,7 @@ def get_handler(tool_name: str):
         return book_trains
     if tool_name == "CreateInvoice":
         return create_invoice
+    if tool_name == "FindEvents":
+        return find_events
 
     raise ValueError(f"Unknown tool: {tool_name}")

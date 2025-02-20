@@ -37,10 +37,14 @@ def search_airport(query: str) -> list:
     try:
         return json.loads(data).get("data", [])
     except json.JSONDecodeError:
+        print("Error: Failed to decode JSON response")
+        print(f"Response: {data.decode('utf-8')}")
         return []
 
 
-def search_flights(args: dict) -> dict:  # _realapi
+def search_flights_real_api(
+    args: dict,
+) -> dict:  # rename to search_flights to use the real API
     """
     1) Looks up airport/city codes via search_airport.
     2) Finds the first matching skyId/entityId for both origin & destination.
@@ -169,7 +173,7 @@ def search_flights(args: dict) -> dict:  # _realapi
     }
 
 
-def search_flights_example(args: dict) -> dict:
+def search_flights(args: dict) -> dict:
     """
     Returns example flight search results in the requested JSON format.
     """
@@ -194,6 +198,20 @@ def search_flights_example(args: dict) -> dict:
                 "price": 1396.00,
                 "return_flight_code": "NZ527",
                 "return_operating_carrier": "Air New Zealand",
+            },
+            {
+                "operating_carrier": "United Airlines",
+                "outbound_flight_code": "UA100",
+                "price": 1500.00,
+                "return_flight_code": "UA101",
+                "return_operating_carrier": "United Airlines",
+            },
+            {
+                "operating_carrier": "Delta Airlines",
+                "outbound_flight_code": "DL200",
+                "price": 1600.00,
+                "return_flight_code": "DL201",
+                "return_operating_carrier": "Delta Airlines",
             },
         ],
     }

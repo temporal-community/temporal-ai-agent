@@ -1,0 +1,252 @@
+{
+    "Melbourne": [
+      {
+        "eventName": "Australian Open",
+        "dateFrom": "2025-01-13",
+        "dateTo": "2025-01-26",
+        "description": "A two-week Grand Slam tennis tournament featuring the world's top players, accompanied by various entertainment options including live music and family-friendly activities."
+      },
+      {
+        "eventName": "Melbourne International Comedy Festival",
+        "dateFrom": "2025-03-26",
+        "dateTo": "2025-04-20",
+        "description": "One of the world's largest comedy festivals, showcasing stand-up, cabaret, theatre, and street performances across numerous city venues."
+      },
+      {
+        "eventName": "Melbourne International Film Festival (MIFF)",
+        "dateFrom": "2025-08-07",
+        "dateTo": "2025-08-23",
+        "description": "Established in 1952, MIFF presents a diverse selection of Australian and international films, including features, documentaries, and shorts."
+      },
+      {
+        "eventName": "Melbourne Fringe Festival",
+        "dateFrom": "2025-09-17",
+        "dateTo": "2025-10-04",
+        "description": "An open-access arts festival featuring a wide array of art forms such as theatre, comedy, music, and digital art across various venues."
+      },
+      {
+        "eventName": "Moomba Festival",
+        "dateFrom": "2025-03-07",
+        "dateTo": "2025-03-10",
+        "description": "Australia's largest free community festival, celebrated over four days during the Labour Day long weekend, including a parade, live music, fireworks, and the famous Birdman Rally along the Yarra River."
+      },
+      {
+        "eventName": "White Night Melbourne",
+        "dateFrom": "2025-08-22",
+        "dateTo": "2025-08-24",
+        "description": "A dusk-to-dawn arts and cultural festival transforming the city with light installations, projections, music, and performances."
+      },
+      {
+        "eventName": "Melbourne Food and Wine Festival",
+        "dateFrom": "2025-03-19",
+        "dateTo": "2025-03-29",
+        "description": "A celebration of Victoria's culinary scene, featuring food and wine events, masterclasses, and dining experiences."
+      }
+    ],
+    "Sydney": [
+      {
+        "eventName": "Sydney Gay and Lesbian Mardi Gras",
+        "dateFrom": "2025-02-14",
+        "dateTo": "2025-03-01",
+        "description": "One of the largest LGBTQ+ festivals globally, featuring a vibrant parade, parties, and cultural events celebrating diversity and inclusion."
+      },
+      {
+        "eventName": "Vivid Sydney",
+        "dateFrom": "2025-05-22",
+        "dateTo": "2025-06-13",
+        "description": "An annual festival of light, music, and ideas, transforming the city with mesmerizing light installations and projections."
+      },
+      {
+        "eventName": "Sydney Festival",
+        "dateFrom": "2025-01-08",
+        "dateTo": "2025-01-26",
+        "description": "A major arts festival presenting a diverse program of theatre, dance, music, and visual arts across the city."
+      },
+      {
+        "eventName": "Sculpture by the Sea, Bondi",
+        "dateFrom": "2025-10-23",
+        "dateTo": "2025-11-09",
+        "description": "An outdoor sculpture exhibition along the Bondi to Tamarama coastal walk, showcasing works by Australian and international artists."
+      },
+      {
+        "eventName": "Sydney Writers' Festival",
+        "dateFrom": "2025-04-27",
+        "dateTo": "2025-05-03",
+        "description": "An annual literary festival featuring talks, panel discussions, and workshops with acclaimed authors and thinkers."
+      },
+      {
+        "eventName": "Sydney Film Festival",
+        "dateFrom": "2025-06-04",
+        "dateTo": "2025-06-15",
+        "description": "One of the longest-running film festivals in the world, showcasing a diverse selection of local and international films."
+      }
+    ],
+    "Auckland": [
+      {
+        "eventName": "Pasifika Festival",
+        "dateFrom": "2025-03-08",
+        "dateTo": "2025-03-09",
+        "description": "The largest Pacific Islands-themed festival globally, celebrating the diverse cultures of the Pacific with traditional cuisine, performances, and arts."
+      },
+      {
+        "eventName": "Auckland Arts Festival",
+        "dateFrom": "2025-03-11",
+        "dateTo": "2025-03-29",
+        "description": "A biennial multi-arts festival showcasing local and international artists in theatre, dance, music, and visual arts."
+      },
+      {
+        "eventName": "Auckland Writers Festival",
+        "dateFrom": "2025-05-13",
+        "dateTo": "2025-05-18",
+        "description": "An annual event bringing together international and local writers for discussions, readings, and workshops."
+      },
+      {
+        "eventName": "Auckland Diwali Festival",
+        "dateFrom": "2025-10-26",
+        "dateTo": "2025-10-27",
+        "description": "A vibrant celebration of Indian culture and the Hindu festival of Diwali, featuring performances, food stalls, and traditional activities."
+      }
+    ],
+    "Brisbane": [
+      {
+        "eventName": "Brisbane Festival",
+        "dateFrom": "2025-09-05",
+        "dateTo": "2025-09-26",
+        "description": "A major international arts festival featuring theatre, music, dance, and visual arts, culminating in the Riverfire fireworks display."
+      },
+      {
+        "eventName": "NRL Magic Round",
+        "dateFrom": "2025-05-02",
+        "dateTo": "2025-05-04",
+        "description": "A rugby league extravaganza where all NRL matches for the round are played at Suncorp Stadium, attracting fans nationwide."
+      },
+      {
+        "eventName": "Brisbane International Film Festival",
+        "dateFrom": "2025-10-01",
+        "dateTo": "2025-10-11",
+        "description": "Showcasing a curated selection of films from around the world, including premieres and special events."
+      },
+      {
+        "eventName": "Brisbane Comedy Festival",
+        "dateFrom": "2025-02-22",
+        "dateTo": "2025-03-24",
+        "description": "A month-long comedy festival featuring local and international comedians in stand-up, sketch, and improv performances."
+      },
+      {
+        "eventName": "Brisbane Writers Festival",
+        "dateFrom": "2025-09-05",
+        "dateTo": "2025-09-08",
+        "description": "An annual literary festival celebrating books, writing, and ideas with author talks, panel discussions, and workshops."
+      },
+      {
+        "eventName": "Brisbane Asia Pacific Film Festival",
+        "dateFrom": "2025-11-29",
+        "dateTo": "2025-12-08",
+        "description": "Showcasing the best cinema from the Asia Pacific region, including features, documentaries, and short films."
+      }
+    ],
+    "Perth": [
+      {
+        "eventName": "Perth Festival",
+        "dateFrom": "2025-02-07",
+        "dateTo": "2025-03-01",
+        "description": "Australia's longest-running cultural festival, offering a diverse program of music, theatre, dance, literature, and visual arts."
+      },
+      {
+        "eventName": "Fringe World Festival",
+        "dateFrom": "2025-01-16",
+        "dateTo": "2025-02-15",
+        "description": "One of the largest fringe festivals globally, featuring a vast array of performances including comedy, cabaret, theatre, and street arts."
+      },
+      {
+        "eventName": "Sculpture by the Sea",
+        "dateFrom": "2025-03-06",
+        "dateTo": "2025-03-23",
+        "description": "An annual outdoor sculpture exhibition along Cottesloe Beach, showcasing works from Australian and international artists."
+      },
+      {
+        "eventName": "Revelation Perth International Film Festival",
+        "dateFrom": "2025-07-03",
+        "dateTo": "2025-07-13",
+        "description": "A showcase of independent cinema, featuring a diverse selection of films, documentaries, and short films."
+      },
+      {
+        "eventName": "Perth Comedy Festival",
+        "dateFrom": "2025-04-22",
+        "dateTo": "2025-05-19",
+        "description": "A month-long comedy festival featuring local and international comedians in stand-up, sketch, and improv performances."
+      }
+    ],
+    "Adelaide": [
+      {
+        "eventName": "Adelaide Festival",
+        "dateFrom": "2025-02-28",
+        "dateTo": "2025-03-15",
+        "description": "A premier arts festival offering a rich program of theatre, music, dance, and visual arts from renowned international and local artists."
+      },
+      {
+        "eventName": "Adelaide Fringe",
+        "dateFrom": "2025-02-14",
+        "dateTo": "2025-03-15",
+        "description": "The largest open-access arts festival in the Southern Hemisphere, featuring thousands of performances across various genres and venues."
+      },
+      {
+        "eventName": "SALA Festival",
+        "dateFrom": "2025-08-01",
+        "dateTo": "2025-08-31",
+        "description": "South Australia's largest visual arts festival, showcasing the work of local artists in exhibitions, workshops, and events."
+      },
+      {
+        "eventName": "OzAsia Festival",
+        "dateFrom": "2025-09-25",
+        "dateTo": "2025-10-11",
+        "description": "A celebration of Asian arts and culture, featuring performances, exhibitions, and events from across the region."
+      },
+      {
+        "eventName": "Adelaide Film Festival",
+        "dateFrom": "2025-10-16",
+        "dateTo": "2025-10-26",
+        "description": "Showcasing a diverse selection of Australian and international films, including features, documentaries, and shorts."
+      },
+      {
+        "eventName": "Adelaide Writers' Week",
+        "dateFrom": "2025-03-01",
+        "dateTo": "2025-03-06",
+        "description": "An annual literary festival featuring talks, panel discussions, and readings by acclaimed authors and thinkers."
+      }
+    ],
+    "Wellington": [
+      {
+        "eventName": "New Zealand Festival of the Arts",
+        "dateFrom": "2025-02-21",
+        "dateTo": "2025-03-15",
+        "description": "The nation's largest celebration of contemporary arts and culture, featuring a diverse range of performances and exhibitions across various venues in Wellington.",
+        "url": "https://www.festival.nz/"
+      },
+      {
+        "eventName": "Wellington Jazz Festival",
+        "dateFrom": "2025-06-05",
+        "dateTo": "2025-06-09",
+        "description": "A five-day festival showcasing local and international jazz musicians in concerts, workshops, and community events.",
+        "url": "https://www.jazzfestival.co.nz/"
+      },
+      {
+        "eventName": "Wellington on a Plate",
+        "dateFrom": "2025-08-01",
+        "dateTo": "2025-08-16",
+        "description": "A culinary festival celebrating the city's food and beverage industry with special menus, events, and culinary experiences."
+      },
+      {
+        "eventName": "CubaDupa",
+        "dateFrom": "2025-03-28",
+        "dateTo": "2025-03-29",
+        "description": "A vibrant street festival in Wellington's Cuba Street, featuring music, dance, street performers, and food stalls."
+      },
+      {
+        "eventName": "Wellington Pasifika Festival",
+        "dateFrom": "2025-01-18",
+        "dateTo": "2025-01-19",
+        "description": "A celebration of Pacific Island culture with traditional performances, food stalls, and arts and crafts."
+      }
+    ]
+  }
