@@ -4,33 +4,27 @@ import concurrent.futures
 
 from temporalio.worker import Worker
 
-from activities.tool_activities import ToolActivities, dynamic_tool_activity
-from workflows.agent_goal_workflow import AgentGoalWorkflow
+from activities.tool_activities import dynamic_tool_activity
 
-from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
+from shared.config import get_temporal_client, TEMPORAL_LEGACY_TASK_QUEUE
 
 
 async def main():
     # Create the client
     client = await get_temporal_client()
 
-    activities = ToolActivities()
-
     # Run the worker
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as activity_executor:
         worker = Worker(
             client,
-            task_queue=TEMPORAL_TASK_QUEUE,
-            workflows=[AgentGoalWorkflow],
+            task_queue=TEMPORAL_LEGACY_TASK_QUEUE,
             activities=[
-                activities.agent_validatePrompt,
-                activities.agent_toolPlanner,
                 dynamic_tool_activity,
             ],
             activity_executor=activity_executor,
         )
 
-        print(f"Starting worker, connecting to task queue: {TEMPORAL_TASK_QUEUE}")
+        print(f"Starting legacy worker, connecting to task queue: {TEMPORAL_LEGACY_TASK_QUEUE}")
         await worker.run()
 
 

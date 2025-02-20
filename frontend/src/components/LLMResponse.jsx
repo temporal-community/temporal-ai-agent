@@ -33,7 +33,7 @@ const LLMResponse = memo(({ data, onConfirm, isLastMessage, onHeightChange }) =>
         : '';
 
     return (
-        <div ref={responseRef} className="space-y-2">
+        <div ref={responseRef} className="space-y-2" style={{ whiteSpace: 'pre-line' }}>
             <MessageBubble 
                 message={{ response: displayText || defaultText }} 
             />

@@ -1,4 +1,4 @@
-from tools.find_events import find_events
+from tools.search_events import find_events
 import json
 
 # Example usage

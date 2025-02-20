@@ -3,19 +3,36 @@ from typing import Optional
 from temporalio.client import Client
 from temporalio.exceptions import TemporalError
 from temporalio.api.enums.v1 import WorkflowExecutionStatus
+from dotenv import load_dotenv
+import os
 
-from workflows.tool_workflow import ToolWorkflow
-from models.data_types import CombinedInput, ToolWorkflowParams
-from tools.goal_registry import goal_event_flight_invoice
+from workflows.agent_goal_workflow import AgentGoalWorkflow
+from models.data_types import CombinedInput, AgentGoalWorkflowParams
+from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice
 from fastapi.middleware.cors import CORSMiddleware
 from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
+
 app = FastAPI()
 temporal_client: Optional[Client] = None
+
+# Load environment variables
+load_dotenv()
+
+def get_agent_goal():
+    """Get the agent goal from environment variables."""
+    goal_name = os.getenv("AGENT_GOAL", "goal_match_train_invoice")
+    goals = {
+        "goal_match_train_invoice": goal_match_train_invoice,
+        "goal_event_flight_invoice": goal_event_flight_invoice
+    }
+    return goals.get(goal_name, goal_event_flight_invoice)
+
 
 @app.on_event("startup")
 async def startup_event():
     global temporal_client
     temporal_client = await get_temporal_client()
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -62,13 +79,13 @@ async def get_conversation_history():
         status_names = {
             WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_TERMINATED: "WORKFLOW_EXECUTION_STATUS_TERMINATED",
             WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CANCELED: "WORKFLOW_EXECUTION_STATUS_CANCELED",
-            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_FAILED: "WORKFLOW_EXECUTION_STATUS_FAILED"
+            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_FAILED: "WORKFLOW_EXECUTION_STATUS_FAILED",
         }
 
         failed_states = [
             WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_TERMINATED,
             WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CANCELED,
-            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_FAILED
+            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_FAILED,
         ]
 
         # Check workflow status first
@@ -77,11 +94,11 @@ async def get_conversation_history():
             status_name = status_names.get(description.status, "UNKNOWN_STATUS")
             print(f"Workflow is in {status_name} state. Returning empty history.")
             return []
-            
+
         # Only query if workflow is running
         conversation_history = await handle.query("get_conversation_history")
         return conversation_history
-        
+
     except TemporalError as e:
         print(f"Temporal error: {e}")
         return []
@@ -89,17 +106,17 @@ async def get_conversation_history():
 
 @app.post("/send-prompt")
 async def send_prompt(prompt: str):
-    # Create combined input
+    # Create combined input with goal from environment
     combined_input = CombinedInput(
-        tool_params=ToolWorkflowParams(None, None),
-        agent_goal=goal_event_flight_invoice,
+        tool_params=AgentGoalWorkflowParams(None, None),
+        agent_goal=get_agent_goal(),
     )
 
     workflow_id = "agent-workflow"
 
     # Start (or signal) the workflow
     await temporal_client.start_workflow(
-        ToolWorkflow.run,
+        AgentGoalWorkflow.run,
         combined_input,
         id=workflow_id,
         task_queue=TEMPORAL_TASK_QUEUE,
@@ -132,3 +149,31 @@ async def end_chat():
         print(e)
         # Workflow not found; return an empty response
         return {}
+
+
+@app.post("/start-workflow")
+async def start_workflow():
+    # Get the configured goal
+    agent_goal = get_agent_goal()
+    
+    # Create combined input
+    combined_input = CombinedInput(
+        tool_params=AgentGoalWorkflowParams(None, None),
+        agent_goal=agent_goal,
+    )
+
+    workflow_id = "agent-workflow"
+
+    # Start the workflow with the starter prompt from the goal
+    await temporal_client.start_workflow(
+        AgentGoalWorkflow.run,
+        combined_input,
+        id=workflow_id,
+        task_queue=TEMPORAL_TASK_QUEUE,
+        start_signal="user_prompt",
+        start_signal_args=["### " + agent_goal.starter_prompt],
+    )
+
+    return {
+        "message": f"Workflow started with goal's starter prompt: {agent_goal.starter_prompt}."
+    }

@@ -42,8 +42,8 @@ def create_invoice(args: dict) -> dict:
     stripe.InvoiceItem.create(
         customer=customer_id,
         amount=amount_cents,
-        currency="usd",
-        description=args.get("flightDetails", "Service Invoice"),
+        currency="gbp",
+        description=args.get("tripDetails", "Service Invoice"),
     )
 
     # Create and finalize the invoice
