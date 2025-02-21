@@ -20,7 +20,7 @@ cp .env.example .env
 
 The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file.
 
-#### Goal: Find an event in APAC, book flights to it and invoice the user for the cost
+#### Goal: Find an event in Australia / New Zealand, book flights to it and invoice the user for the cost
 - `AGENT_GOAL=goal_event_flight_invoice` (default) - Helps users find events, book flights, and arrange train travel with invoice generation
     - This is the scenario in the video above
 
