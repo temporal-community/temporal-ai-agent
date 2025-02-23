@@ -58,8 +58,8 @@ class TrainServer(BaseHTTPRequestHandler):
             adj_day = day + (adj_hour // 24)
             adj_hour = adj_hour % 24
 
-            # Journey takes 1-2 hours
-            duration = 60 + random.randint(0, 60)
+            # Journey takes 2h15m-2h45m (135-165 minutes)
+            duration = 135 + random.randint(0, 30)
             arr_hour = adj_hour + (duration // 60)
             arr_minute = (adj_minute + (duration % 60)) % 60
             arr_day = adj_day + (arr_hour // 24)
@@ -91,7 +91,8 @@ class TrainServer(BaseHTTPRequestHandler):
                 adj_day = day + (adj_hour // 24)
                 adj_hour = adj_hour % 24
 
-                duration = 60 + random.randint(0, 60)
+                # Journey takes 2h15m-2h45m (135-165 minutes)
+                duration = 135 + random.randint(0, 30)
                 arr_hour = adj_hour + (duration // 60)
                 arr_minute = (adj_minute + (duration % 60)) % 60
                 arr_day = adj_day + (arr_hour // 24)
