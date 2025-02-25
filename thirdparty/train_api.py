@@ -68,7 +68,7 @@ class TrainServer(BaseHTTPRequestHandler):
             arr_hour = arr_hour % 24
 
             journey = {
-                "id": "T%s".format(random.randint(1000, 9999)),
+                "id": "T{}".format(random.randint(1000, 9999)),
                 "type": "outbound",
                 "departure": origin,
                 "arrival": destination,
@@ -101,7 +101,7 @@ class TrainServer(BaseHTTPRequestHandler):
                 arr_hour = arr_hour % 24
 
                 journey = {
-                    "id": "T%s".format(random.randint(1000, 9999)),
+                    "id": "T{}".format(random.randint(1000, 9999)),
                     "type": "return",
                     "departure": destination,
                     "arrival": origin,
