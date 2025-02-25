@@ -62,7 +62,6 @@ class TrainServer(BaseHTTPRequestHandler):
 
             # Journey takes 2h15m-2h45m (135-165 minutes)
             duration = 135 + random.randint(0, 30)
-            print(duration)
             arr_hour = adj_hour + (duration // 60)
             arr_minute = (adj_minute + (duration % 60)) % 60
             arr_day = adj_day + (arr_hour // 24)
