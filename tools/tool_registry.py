@@ -93,12 +93,12 @@ search_fixtures_tool = ToolDefinition(
             description="The full name of the team to search for.",
         ),
         ToolArgument(
-            name="start_date",
+            name="date_from",
             type="string",
             description="The start date in format (YYYY-MM-DD) for the fixture search inferred from the user's request (e.g. mid-March).",
         ),
         ToolArgument(
-            name="end_date",
+            name="date_to",
             type="string",
             description="The end date in format (YYYY-MM-DD) for the fixture search (e.g. 'the last week of May').",
         ),
