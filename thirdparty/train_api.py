@@ -44,7 +44,9 @@ class TrainServer(BaseHTTPRequestHandler):
 
         # Helper to format datetime
         def format_datetime(year, month, day, hour, minute):
-            return f"{year:04d}-{month:02d}-{day:02d}T{hour:02d}:{minute:02d}"
+            return "{year:04d}-{month:02d}-{day:02d}T{hour:02d}:{minute:02d}".format(
+                year=year, month=month, day=day, hour=hour, minute=minute
+            )
 
         # Generate outbound journeys
         year, month, day, hour, minute = out_datetime
@@ -60,13 +62,14 @@ class TrainServer(BaseHTTPRequestHandler):
 
             # Journey takes 2h15m-2h45m (135-165 minutes)
             duration = 135 + random.randint(0, 30)
+            print(duration)
             arr_hour = adj_hour + (duration // 60)
             arr_minute = (adj_minute + (duration % 60)) % 60
             arr_day = adj_day + (arr_hour // 24)
             arr_hour = arr_hour % 24
 
             journey = {
-                "id": f"T{random.randint(1000, 9999)}",
+                "id": "T%s".format(random.randint(1000, 9999)),
                 "type": "outbound",
                 "departure": origin,
                 "arrival": destination,
@@ -99,7 +102,7 @@ class TrainServer(BaseHTTPRequestHandler):
                 arr_hour = arr_hour % 24
 
                 journey = {
-                    "id": f"T{random.randint(1000, 9999)}",
+                    "id": "T%s".format(random.randint(1000, 9999)),
                     "type": "return",
                     "departure": destination,
                     "arrival": origin,
