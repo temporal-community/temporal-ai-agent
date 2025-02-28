@@ -12,9 +12,9 @@ from prompts.agent_prompt_generators import (
 from shared.config import TEMPORAL_LEGACY_TASK_QUEUE
 
 # Constants from original file
-TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=10)
+TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=12)
 TOOL_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT = timedelta(minutes=30)
-LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=10)
+LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=20)
 LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT = timedelta(minutes=30)
 
 
