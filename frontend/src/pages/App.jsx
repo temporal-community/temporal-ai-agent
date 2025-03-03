@@ -38,68 +38,84 @@ export default function App() {
 
     const debouncedUserInput = useDebounce(userInput, DEBOUNCE_DELAY);
 
-    // Error handling utility with auto-dismiss
+    const errorTimerRef = useRef(null);
+
     const handleError = useCallback((error, context) => {
         console.error(`${context}:`, error);
-        const errorMessage = error.status === 400 
-            ? error.message 
-            : `Error ${context.toLowerCase()}. Please try again.`;
-            
-        setError({
-            visible: true,
-            message: errorMessage
-        });
         
-        const timer = setTimeout(() => setError(INITIAL_ERROR_STATE), 3000);
-        return () => clearTimeout(timer);
+        const isConversationFetchError = error.status === 404;
+        const errorMessage = isConversationFetchError 
+            ? "Error fetching conversation. Retrying..."  // Updated message
+            : `Error ${context.toLowerCase()}. Please try again.`;
+    
+        setError(prevError => {
+            // If the same 404 error is already being displayed, don't reset state (prevents flickering)
+            if (prevError.visible && prevError.message === errorMessage) {
+                return prevError;
+            }
+            return { visible: true, message: errorMessage };
+        });
+    
+        // Clear any existing timeout
+        if (errorTimerRef.current) {
+            clearTimeout(errorTimerRef.current);
+        }
+    
+        // Only auto-dismiss non-404 errors after 3 seconds
+        if (!isConversationFetchError) {
+            errorTimerRef.current = setTimeout(() => setError(INITIAL_ERROR_STATE), 3000);
+        }
     }, []);
-
+    
+    
+    const clearErrorOnSuccess = useCallback(() => {
+        if (errorTimerRef.current) {
+            clearTimeout(errorTimerRef.current);
+        }
+        setError(INITIAL_ERROR_STATE);
+    }, []);
+    
     const fetchConversationHistory = useCallback(async () => {
         try {
             const data = await apiService.getConversationHistory();
             const newConversation = data.messages || [];
             
-            setConversation(prevConversation => {
-                // Only update if there are actual changes
-                if (JSON.stringify(prevConversation) !== JSON.stringify(newConversation)) {
-                    return newConversation;
-                }
-                return prevConversation;
-            });
-
+            setConversation(prevConversation => 
+                JSON.stringify(prevConversation) !== JSON.stringify(newConversation) ? newConversation : prevConversation
+            );
+    
             if (newConversation.length > 0) {
                 const lastMsg = newConversation[newConversation.length - 1];
                 const isAgentMessage = lastMsg.actor === "agent";
                 
                 setLoading(!isAgentMessage);
                 setDone(lastMsg.response.next === "done");
-
-                setLastMessage(prevLastMessage => {
-                    if (!prevLastMessage || lastMsg.response.response !== prevLastMessage.response.response) {
-                        return lastMsg;
-                    }
-                    return prevLastMessage;
-                });
+    
+                setLastMessage(prevLastMessage =>
+                    !prevLastMessage || lastMsg.response.response !== prevLastMessage.response.response
+                        ? lastMsg
+                        : prevLastMessage
+                );
             } else {
                 setLoading(false);
                 setDone(true);
                 setLastMessage(null);
             }
+    
+            // Successfully fetched data, clear any persistent errors
+            clearErrorOnSuccess();
         } catch (err) {
             handleError(err, "fetching conversation");
         }
-    }, [handleError]);
-
+    }, [handleError, clearErrorOnSuccess]);
+    
     // Setup polling with cleanup
     useEffect(() => {
         pollingRef.current = setInterval(fetchConversationHistory, POLL_INTERVAL);
         
-        return () => {
-            if (pollingRef.current) {
-                clearInterval(pollingRef.current);
-            }
-        };
+        return () => clearInterval(pollingRef.current);
     }, [fetchConversationHistory]);
+    
 
     const scrollToBottom = useCallback(() => {
         if (containerRef.current) {

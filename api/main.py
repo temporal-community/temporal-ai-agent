@@ -3,7 +3,9 @@ from typing import Optional
 from temporalio.client import Client
 from temporalio.exceptions import TemporalError
 from temporalio.api.enums.v1 import WorkflowExecutionStatus
+from fastapi import HTTPException
 from dotenv import load_dotenv
+import asyncio
 import os
 
 from workflows.agent_goal_workflow import AgentGoalWorkflow
@@ -18,12 +20,13 @@ temporal_client: Optional[Client] = None
 # Load environment variables
 load_dotenv()
 
+
 def get_agent_goal():
     """Get the agent goal from environment variables."""
     goal_name = os.getenv("AGENT_GOAL", "goal_match_train_invoice")
     goals = {
         "goal_match_train_invoice": goal_match_train_invoice,
-        "goal_event_flight_invoice": goal_event_flight_invoice
+        "goal_event_flight_invoice": goal_event_flight_invoice,
     }
     return goals.get(goal_name, goal_event_flight_invoice)
 
@@ -76,32 +79,44 @@ async def get_conversation_history():
     try:
         handle = temporal_client.get_workflow_handle("agent-workflow")
 
-        status_names = {
-            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_TERMINATED: "WORKFLOW_EXECUTION_STATUS_TERMINATED",
-            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CANCELED: "WORKFLOW_EXECUTION_STATUS_CANCELED",
-            WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_FAILED: "WORKFLOW_EXECUTION_STATUS_FAILED",
-        }
-
         failed_states = [
             WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_TERMINATED,
             WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_CANCELED,
             WorkflowExecutionStatus.WORKFLOW_EXECUTION_STATUS_FAILED,
         ]
 
-        # Check workflow status first
         description = await handle.describe()
         if description.status in failed_states:
-            status_name = status_names.get(description.status, "UNKNOWN_STATUS")
-            print(f"Workflow is in {status_name} state. Returning empty history.")
+            print("Workflow is in a failed state. Returning empty history.")
             return []
 
-        # Only query if workflow is running
-        conversation_history = await handle.query("get_conversation_history")
-        return conversation_history
+        # Set a timeout for the query
+        try:
+            conversation_history = await asyncio.wait_for(
+                handle.query("get_conversation_history"),
+                timeout=5,  # Timeout after 5 seconds
+            )
+            return conversation_history
+        except asyncio.TimeoutError:
+            raise HTTPException(
+                status_code=404,
+                detail="Temporal query timed out (worker may be unavailable).",
+            )
 
     except TemporalError as e:
-        print(f"Temporal error: {e}")
-        return []
+        error_message = str(e)
+        print(f"Temporal error: {error_message}")
+
+        # If worker is down or no poller is available, return a 404
+        if "no poller seen for task queue recently" in error_message:
+            raise HTTPException(
+                status_code=404, detail="Workflow worker unavailable or not found."
+            )
+
+        # For other Temporal errors, return a 500
+        raise HTTPException(
+            status_code=500, detail="Internal server error while querying workflow."
+        )
 
 
 @app.post("/send-prompt")
@@ -155,7 +170,7 @@ async def end_chat():
 async def start_workflow():
     # Get the configured goal
     agent_goal = get_agent_goal()
-    
+
     # Create combined input
     combined_input = CombinedInput(
         tool_params=AgentGoalWorkflowParams(None, None),
