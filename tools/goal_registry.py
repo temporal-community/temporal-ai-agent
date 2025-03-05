@@ -51,7 +51,6 @@ goal_match_train_invoice = AgentGoal(
     ),
 )
 
-# unused
 goal_event_flight_invoice = AgentGoal(
     tools=[
         find_events_tool,

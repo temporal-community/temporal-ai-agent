@@ -23,12 +23,21 @@ load_dotenv()
 
 def get_agent_goal():
     """Get the agent goal from environment variables."""
-    goal_name = os.getenv("AGENT_GOAL", "goal_match_train_invoice")
     goals = {
         "goal_match_train_invoice": goal_match_train_invoice,
         "goal_event_flight_invoice": goal_event_flight_invoice,
     }
-    return goals.get(goal_name, goal_event_flight_invoice)
+# Agent Goal Configuration
+#AGENT_GOAL=goal_event_flight_invoice  
+#AGENT_GOAL=goal_match_train_invoice
+
+    #goal_name = os.getenv("AGENT_GOAL")
+    goal_name = "goal_event_flight_invoice"
+    if goal_name is not None:
+        return goals.get(goal_name)
+    else:
+        #if no goal is set in the env file, default to event/flight use case
+        return goals.get("goal_event_flight_invoice", goal_event_flight_invoice)
 
 
 @app.on_event("startup")
