@@ -6,13 +6,12 @@ from temporalio.api.enums.v1 import WorkflowExecutionStatus
 from fastapi import HTTPException
 from dotenv import load_dotenv
 import asyncio
-import os
 
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 from models.data_types import CombinedInput, AgentGoalWorkflowParams
-from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice
+from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice, goal_choose_agent_type
 from fastapi.middleware.cors import CORSMiddleware
-from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
+from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE, AGENT_GOAL
 
 app = FastAPI()
 temporal_client: Optional[Client] = None
@@ -26,15 +25,11 @@ def get_agent_goal():
     goals = {
         "goal_match_train_invoice": goal_match_train_invoice,
         "goal_event_flight_invoice": goal_event_flight_invoice,
+        "goal_choose_agent_type": goal_choose_agent_type,
     }
-# Agent Goal Configuration
-#AGENT_GOAL=goal_event_flight_invoice  
-#AGENT_GOAL=goal_match_train_invoice
 
-    #goal_name = os.getenv("AGENT_GOAL")
-    goal_name = "goal_event_flight_invoice"
-    if goal_name is not None:
-        return goals.get(goal_name)
+    if AGENT_GOAL is not None:
+        return goals.get(AGENT_GOAL)
     else:
         #if no goal is set in the env file, default to event/flight use case
         return goals.get("goal_event_flight_invoice", goal_event_flight_invoice)

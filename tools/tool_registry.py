@@ -1,5 +1,43 @@
 from models.tool_definitions import ToolDefinition, ToolArgument
 
+#This also doesn't help...
+transfer_control_tool = ToolDefinition(
+    name="TransferControl",
+    description="Do one extra input from user to apply the new goal to the workflow (Hacky, hopefully temp). ",
+    arguments=[        
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="dummy variable to make thing work",
+        ),
+    ],
+)
+
+
+choose_agent_tool = ToolDefinition(
+    name="ChooseAgent",
+    description="List available agents to interact with, pulled from goal_registry. ",
+    arguments=[        
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="dummy variable to make thing work",
+        ),
+    ],
+)
+
+change_goal_tool = ToolDefinition(
+    name="ChangeGoal",
+    description="Change the goal of the active agent. ",
+    arguments=[
+        ToolArgument(
+            name="goalID",
+            type="string",
+            description="Which goal to change to",
+        ),
+    ],
+)
+
 search_flights_tool = ToolDefinition(
     name="SearchFlights",
     description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn).",

@@ -1,5 +1,6 @@
 from collections import deque
 from datetime import timedelta
+import importlib
 from typing import Dict, Any, Union, List, Optional, Deque, TypedDict
 
 from temporalio.common import RetryPolicy
@@ -10,6 +11,9 @@ from workflows.workflow_helpers import LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT, \
     LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT
 from workflows import workflow_helpers as helpers
 
+
+#importlib.reload(my_module)
+
 with workflow.unsafe.imports_passed_through():
     from activities.tool_activities import ToolActivities
     from prompts.agent_prompt_generators import (
@@ -19,6 +23,10 @@ with workflow.unsafe.imports_passed_through():
         CombinedInput,
         ToolPromptInput,
     )
+    import shared.config
+    importlib.reload(shared.config)
+    #from shared.config import AGENT_GOAL
+    from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice, goal_choose_agent_type
 
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
@@ -46,11 +54,11 @@ class AgentGoalWorkflow:
     @workflow.run
     async def run(self, combined_input: CombinedInput) -> str:
         """Main workflow execution method."""
-        # setup phase
+        # setup phase, starts with blank tool_params and agent_goal prompt as defined in tools/goal_registry.py
         params = combined_input.tool_params
         agent_goal = combined_input.agent_goal
 
-        # set sample conversation to start
+        # add message from sample conversation provided in tools/goal_registry.py, if it exists
         if params and params.conversation_summary:
             self.add_message("conversation_summary", params.conversation_summary)
             self.conversation_summary = params.conversation_summary
@@ -63,12 +71,25 @@ class AgentGoalWorkflow:
 
         # interactive loop
         while True:
-            # wait for signals
+            # wait for signals - user_prompt, end_chat, or confirm as defined below
             await workflow.wait_condition(
                 lambda: bool(self.prompt_queue) or self.chat_ended or self.confirm
             )
 
+            #update the goal, in case it's changed - doesn't help
+            goals = {
+                "goal_match_train_invoice": goal_match_train_invoice,
+                "goal_event_flight_invoice": goal_event_flight_invoice,
+                "goal_choose_agent_type": goal_choose_agent_type,
+            }
+
+            if shared.config.AGENT_GOAL is not None:
+                agent_goal = goals.get(shared.config.AGENT_GOAL)
+            workflow.logger.warning("AGENT_GOAL: " + shared.config.AGENT_GOAL)
+           # workflow.logger.warning("agent_goal", agent_goal)
+
             #process signals of various kinds
+
             #chat-end signal
             if self.chat_ended:
                 workflow.logger.info("Chat ended.")
@@ -83,6 +104,7 @@ class AgentGoalWorkflow:
                 confirmed_tool_data["next"] = "user_confirmed_tool_run"
                 self.add_message("user_confirmed_tool_run", confirmed_tool_data)
 
+                # execute the tool by key as defined in tools/__init__.py
                 await helpers.handle_tool_execution(
                     current_tool,
                     self.tool_data,
@@ -113,6 +135,7 @@ class AgentGoalWorkflow:
                         ),
                     )
 
+                    #If validation fails, provide that feedback to the user - i.e., "your words make no sense, human"
                     if not validation_result.validationResult:
                         workflow.logger.warning(
                             f"Prompt validation failed: {validation_result.validationFailedReason}"
@@ -132,7 +155,7 @@ class AgentGoalWorkflow:
                     context_instructions=context_instructions,
                 )
 
-                # connect to LLM and get which tool to run
+                # connect to LLM and get...its feedback? which tool to run? ??
                 tool_data = await workflow.execute_activity(
                     ToolActivities.agent_toolPlanner,
                     prompt_input,
@@ -171,6 +194,7 @@ class AgentGoalWorkflow:
                     self.add_message
                 )
 
+    #Signal that comes from api/main.py via a post to /send-prompt
     @workflow.signal
     async def user_prompt(self, prompt: str) -> None:
         """Signal handler for receiving user prompts."""
@@ -179,12 +203,14 @@ class AgentGoalWorkflow:
             return
         self.prompt_queue.append(prompt)
 
+    #Signal that comes from api/main.py via a post to /confirm
     @workflow.signal
     async def confirm(self) -> None:
         """Signal handler for user confirmation of tool execution."""
         workflow.logger.info("Received user confirmation")
         self.confirm = True
 
+    #Signal that comes from api/main.py via a post to /end-chat
     @workflow.signal
     async def end_chat(self) -> None:
         """Signal handler for ending the chat session."""
