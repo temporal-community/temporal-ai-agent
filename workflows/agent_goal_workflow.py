@@ -42,9 +42,11 @@ class AgentGoalWorkflow:
         self.confirm: bool = False
         self.tool_results: List[Dict[str, Any]] = []
 
+    # see ../api/main.py#temporal_client.start_workflow() for how these parameters are set
     @workflow.run
     async def run(self, combined_input: CombinedInput) -> str:
         """Main workflow execution method."""
+        # setup phase
         params = combined_input.tool_params
         agent_goal = combined_input.agent_goal
 
@@ -55,18 +57,23 @@ class AgentGoalWorkflow:
         if params and params.prompt_queue:
             self.prompt_queue.extend(params.prompt_queue)
 
-        waiting_for_confirm = False
+        waiting_for_confirm = False # controls if we confirm with the user
         current_tool = None
 
+        # interactive loop
         while True:
+            # wait for signals
             await workflow.wait_condition(
                 lambda: bool(self.prompt_queue) or self.chat_ended or self.confirm
             )
 
+            #process signals of various kinds
+            #chat-end signal
             if self.chat_ended:
                 workflow.logger.info("Chat ended.")
                 return f"{self.conversation_history}"
 
+            # tool execution if selected and confirmed
             if self.confirm and waiting_for_confirm and current_tool and self.tool_data:
                 self.confirm = False
                 waiting_for_confirm = False
@@ -135,6 +142,7 @@ class AgentGoalWorkflow:
                 )
                 self.tool_data = tool_data
 
+                # move forward in the tool chain
                 next_step = tool_data.get("next")
                 current_tool = tool_data.get("tool")
 
