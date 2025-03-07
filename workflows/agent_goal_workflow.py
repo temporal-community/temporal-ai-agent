@@ -50,6 +50,7 @@ class AgentGoalWorkflow:
         params = combined_input.tool_params
         agent_goal = combined_input.agent_goal
 
+        # set sample conversation to start
         if params and params.conversation_summary:
             self.add_message("conversation_summary", params.conversation_summary)
             self.conversation_summary = params.conversation_summary
@@ -131,6 +132,7 @@ class AgentGoalWorkflow:
                     context_instructions=context_instructions,
                 )
 
+                # connect to LLM and get which tool to run
                 tool_data = await workflow.execute_activity(
                     ToolActivities.agent_toolPlanner,
                     prompt_input,
