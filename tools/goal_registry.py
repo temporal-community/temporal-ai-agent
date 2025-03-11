@@ -7,39 +7,32 @@ from tools.tool_registry import (
     create_invoice_tool,
     find_events_tool,
     change_goal_tool,
-    choose_agent_tool,
-    transfer_control_tool
+    list_agents_tool
 )
 
 starter_prompt_generic = "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job"
 
 goal_choose_agent_type = AgentGoal(
     tools=[
-        choose_agent_tool, 
-        change_goal_tool,
-        transfer_control_tool
+        list_agents_tool, 
+        change_goal_tool
     ],
     description="The user wants to choose which type of agent they will interact with. "
         "Help the user gather args for these tools, in order: "
-        "1. ChooseAgent: Choose which agent to interact with "
+        "1. ListAgents: List agents available to interact with "
         "2. ChangeGoal: Change goal of agent "
-        "3. TransferControl: Transfer control to new agent "
         "After these tools are complete, change your goal to the new goal as chosen by the user. ",
     starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
         [
             "user: I'd like to choose an agent",
             "agent: Sure! Would you like me to list the available agents?",
-            "user_confirmed_tool_run: <user clicks confirm on ChooseAgent tool>",
+            "user_confirmed_tool_run: <user clicks confirm on ListAgents tool>",
             "tool_result: { 'agent_name': 'Event Flight Finder', 'goal_id': 'goal_event_flight_invoice', 'agent_description': 'Helps users find interesting events and arrange travel to them' }",
             "agent: The available agents are: 1. Event Flight Finder. Which agent would you like to speak to?",
             "user: 1",
             "user_confirmed_tool_run: <user clicks confirm on ChangeGoal tool>",
-            # bot changes goal here and hopefully just...switches??
-            # could also end 1 workflow and start another with new goal
             "tool_result: { 'new_goal': 'goal_event_flight_invoice' }",
-            "agent: Would you like to transfer control to the new agent now?",
-            "user: yes",
         ]
     ),
 )

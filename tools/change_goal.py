@@ -13,8 +13,7 @@ import shared.config
 def change_goal(args: dict) -> dict:
 
     new_goal = args.get("goalID")
-    shared.config.AGENT_GOAL = new_goal
 
     return {
-        "new_goal": shared.config.AGENT_GOAL,
+        "new_goal": new_goal,
     }
