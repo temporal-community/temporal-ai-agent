@@ -194,7 +194,6 @@ async def end_chat():
 
 @app.post("/start-workflow")
 async def start_workflow():
-    # Get the initial goal as set in shared/config or env or just...always should be "pick a goal?"
     initial_agent_goal = get_initial_agent_goal()
 
     # Create combined input

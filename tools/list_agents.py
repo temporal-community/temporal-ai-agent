@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-def choose_agent(args: dict) -> dict:
+def list_agents(args: dict) -> dict:
 
    # file_path = Path(__file__).resolve().parent / "goal_regsitry.py"
     #if not file_path.exists():

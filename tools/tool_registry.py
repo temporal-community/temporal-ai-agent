@@ -1,21 +1,7 @@
 from models.tool_definitions import ToolDefinition, ToolArgument
 
-#This also doesn't help...
-transfer_control_tool = ToolDefinition(
-    name="TransferControl",
-    description="Do one extra input from user to apply the new goal to the workflow (Hacky, hopefully temp). ",
-    arguments=[        
-        ToolArgument(
-            name="userConfirmation",
-            type="string",
-            description="dummy variable to make thing work",
-        ),
-    ],
-)
-
-
-choose_agent_tool = ToolDefinition(
-    name="ChooseAgent",
+list_agents_tool = ToolDefinition(
+    name="ListAgents",
     description="List available agents to interact with, pulled from goal_registry. ",
     arguments=[        
         ToolArgument(

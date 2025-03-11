@@ -12,9 +12,6 @@ from workflows.workflow_helpers import LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT, \
     LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT
 from workflows import workflow_helpers as helpers
 
-
-#importlib.reload(my_module)
-
 with workflow.unsafe.imports_passed_through():
     from activities.tool_activities import ToolActivities
     from prompts.agent_prompt_generators import (
@@ -24,9 +21,6 @@ with workflow.unsafe.imports_passed_through():
         CombinedInput,
         ToolPromptInput,
     )
-    import shared.config
-    importlib.reload(shared.config)
-    #from shared.config import AGENT_GOAL
     from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice, goal_choose_agent_type
 
 # Constants
@@ -50,7 +44,6 @@ class AgentGoalWorkflow:
         self.tool_data: Optional[ToolData] = None
         self.confirm: bool = False
         self.tool_results: List[Dict[str, Any]] = []
-        #set initial goal of "pick an agent" here??
         self.goal: AgentGoal = {"tools": []}
 
     # see ../api/main.py#temporal_client.start_workflow() for how the input parameters are set
@@ -111,16 +104,8 @@ class AgentGoalWorkflow:
                 if len(self.tool_results) > 0 and "new_goal" in self.tool_results[-1].keys() and "ChangeGoal" in self.tool_results[-1].values():
                     
                     new_goal = self.tool_results[-1].get("new_goal")
-                    workflow.logger.info(f"Booya new goal!: {new_goal}")
-                    goals = {
-                        "goal_match_train_invoice": goal_match_train_invoice,
-                        "goal_event_flight_invoice": goal_event_flight_invoice,
-                        "goal_choose_agent_type": goal_choose_agent_type,
-                    }
-
-                    if new_goal is not None:
-                        self.goal = goals.get(new_goal)
-                    #todo reset goal or tools if this doesn't work or whatever
+                    workflow.logger.warning(f"Booya new goal!: {new_goal}")
+                    self.change_goal(new_goal)
                 continue
 
             # push messages to UI if there are any
@@ -264,3 +249,15 @@ class AgentGoalWorkflow:
         self.conversation_history["messages"].append(
             {"actor": actor, "response": response}
         )
+
+    def change_goal(self, goal: str) -> None:
+        goals = {
+            "goal_match_train_invoice": goal_match_train_invoice,
+            "goal_event_flight_invoice": goal_event_flight_invoice,
+            "goal_choose_agent_type": goal_choose_agent_type,
+        }
+
+        if goal is not None:
+            self.goal = goals.get(goal)
+            workflow.logger.warning("Changed goal to " + goal)
+        #todo reset goal or tools if this doesn't work or whatever
