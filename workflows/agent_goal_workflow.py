@@ -79,18 +79,6 @@ class AgentGoalWorkflow:
                 lambda: bool(self.prompt_queue) or self.chat_ended or self.confirm
             )
 
-            #update the goal, in case it's changed - doesn't help
-            #goals = {
-             #   "goal_match_train_invoice": goal_match_train_invoice,
-              #  "goal_event_flight_invoice": goal_event_flight_invoice,
-               # "goal_choose_agent_type": goal_choose_agent_type,
-            #}
-
-            #if shared.config.AGENT_GOAL is not None:
-             #   agent_goal = goals.get(shared.config.AGENT_GOAL)
-            #workflow.logger.warning("AGENT_GOAL: " + shared.config.AGENT_GOAL)
-           # workflow.logger.warning("agent_goal", agent_goal)
-
             #process signals of various kinds
 
             #chat-end signal
@@ -115,24 +103,21 @@ class AgentGoalWorkflow:
                     self.add_message,
                     self.prompt_queue
                 )
-                if len(self.tool_results) > 0:
-                    #workflow.logger.warning("last tool_results keys: ", self.tool_results[-1].keys())
-                    workflow.logger.warning(f"last tool_results keys: {self.tool_results[-1].keys()}")
-                    workflow.logger.warning(f"last tool_results values:{ self.tool_results[-1].values()}")
-                    if "new_goal" in self.tool_results[-1].keys() and "ChangeGoal" in self.tool_results[-1].values():
-                        new_goal = self.tool_results[-1].get("new_goal")
-                        workflow.logger.warning(f"Booya new goal!: {new_goal}")
-                        goals = {
-                            "goal_match_train_invoice": goal_match_train_invoice,
-                            "goal_event_flight_invoice": goal_event_flight_invoice,
-                            "goal_choose_agent_type": goal_choose_agent_type,
-                        }
 
-                        if new_goal is not None:
-                            self.goal = goals.get(new_goal)
-                        #todo reset goal or tools if this doesn't work or whatever
-                else:
-                    workflow.logger.warning("no tool results yet")
+                #set new goal if we should
+                if len(self.tool_results) > 0 and "new_goal" in self.tool_results[-1].keys() and "ChangeGoal" in self.tool_results[-1].values():
+                    
+                    new_goal = self.tool_results[-1].get("new_goal")
+                    workflow.logger.info(f"Booya new goal!: {new_goal}")
+                    goals = {
+                        "goal_match_train_invoice": goal_match_train_invoice,
+                        "goal_event_flight_invoice": goal_event_flight_invoice,
+                        "goal_choose_agent_type": goal_choose_agent_type,
+                    }
+
+                    if new_goal is not None:
+                        self.goal = goals.get(new_goal)
+                    #todo reset goal or tools if this doesn't work or whatever
                 continue
 
             if self.prompt_queue:
