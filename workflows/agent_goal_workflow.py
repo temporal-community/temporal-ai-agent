@@ -7,6 +7,7 @@ from temporalio.common import RetryPolicy
 from temporalio import workflow
 
 from models.data_types import ConversationHistory, NextStep, ValidationInput
+from models.tool_definitions import AgentGoal
 from workflows.workflow_helpers import LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT, \
     LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT
 from workflows import workflow_helpers as helpers
@@ -49,6 +50,8 @@ class AgentGoalWorkflow:
         self.tool_data: Optional[ToolData] = None
         self.confirm: bool = False
         self.tool_results: List[Dict[str, Any]] = []
+        #set initial goal of "pick an agent" here??
+        self.goal: AgentGoal = {"tools": []}
 
     # see ../api/main.py#temporal_client.start_workflow() for how these parameters are set
     @workflow.run
@@ -56,7 +59,7 @@ class AgentGoalWorkflow:
         """Main workflow execution method."""
         # setup phase, starts with blank tool_params and agent_goal prompt as defined in tools/goal_registry.py
         params = combined_input.tool_params
-        agent_goal = combined_input.agent_goal
+        self.goal = combined_input.agent_goal
 
         # add message from sample conversation provided in tools/goal_registry.py, if it exists
         if params and params.conversation_summary:
@@ -77,15 +80,15 @@ class AgentGoalWorkflow:
             )
 
             #update the goal, in case it's changed - doesn't help
-            goals = {
-                "goal_match_train_invoice": goal_match_train_invoice,
-                "goal_event_flight_invoice": goal_event_flight_invoice,
-                "goal_choose_agent_type": goal_choose_agent_type,
-            }
+            #goals = {
+             #   "goal_match_train_invoice": goal_match_train_invoice,
+              #  "goal_event_flight_invoice": goal_event_flight_invoice,
+               # "goal_choose_agent_type": goal_choose_agent_type,
+            #}
 
-            if shared.config.AGENT_GOAL is not None:
-                agent_goal = goals.get(shared.config.AGENT_GOAL)
-            workflow.logger.warning("AGENT_GOAL: " + shared.config.AGENT_GOAL)
+            #if shared.config.AGENT_GOAL is not None:
+             #   agent_goal = goals.get(shared.config.AGENT_GOAL)
+            #workflow.logger.warning("AGENT_GOAL: " + shared.config.AGENT_GOAL)
            # workflow.logger.warning("agent_goal", agent_goal)
 
             #process signals of various kinds
@@ -112,6 +115,9 @@ class AgentGoalWorkflow:
                     self.add_message,
                     self.prompt_queue
                 )
+               # workflow.logger.warning("last tool_data tool: ", self.tool_data[-1].tool)
+                #workflow.logger.warning("last tool_data args: ", self.tool_data[-1].args)
+               # workflow.logger.warning("last tool_results [args]: ", self.tool_results[-1]["args"])
                 continue
 
             if self.prompt_queue:
@@ -123,7 +129,7 @@ class AgentGoalWorkflow:
                     validation_input = ValidationInput(
                         prompt=prompt,
                         conversation_history=self.conversation_history,
-                        agent_goal=agent_goal,
+                        agent_goal=self.goal,
                     )
                     validation_result = await workflow.execute_activity(
                         ToolActivities.agent_validatePrompt,
@@ -147,7 +153,7 @@ class AgentGoalWorkflow:
 
                 # Proceed with generating the context and prompt
                 context_instructions = generate_genai_prompt(
-                    agent_goal, self.conversation_history, self.tool_data
+                    self.goal, self.conversation_history, self.tool_data
                 )
 
                 prompt_input = ToolPromptInput(
@@ -189,7 +195,7 @@ class AgentGoalWorkflow:
                 await helpers.continue_as_new_if_needed(
                     self.conversation_history,
                     self.prompt_queue,
-                    agent_goal,
+                    self.goal,
                     MAX_TURNS_BEFORE_CONTINUE,
                     self.add_message
                 )
@@ -220,6 +226,11 @@ class AgentGoalWorkflow:
     def get_conversation_history(self) -> ConversationHistory:
         """Query handler to retrieve the full conversation history."""
         return self.conversation_history
+    
+    @workflow.query
+    def get_agent_goal(self) -> AgentGoal:
+        """Query handler to retrieve the current goal of the agent."""
+        return self.goal
 
     @workflow.query
     def get_summary_from_history(self) -> Optional[str]:

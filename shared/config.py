@@ -18,6 +18,7 @@ TEMPORAL_API_KEY = os.getenv("TEMPORAL_API_KEY", "")
 
 #Starting agent goal - 1st goal is always to help user pick a next goal
 AGENT_GOAL = "goal_choose_agent_type"
+#AGENT_GOAL = "goal_event_flight_invoice"
 
 
 async def get_temporal_client() -> Client:
