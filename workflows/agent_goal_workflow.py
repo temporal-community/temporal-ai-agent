@@ -169,8 +169,13 @@ class AgentGoalWorkflow:
                 # move forward in the tool chain
                 next_step = tool_data.get("next")
                 current_tool = tool_data.get("tool")
+                if "next" in self.tool_data.keys():
+                    workflow.logger.warning(f"ran the toolplanner, next step: {next_step}")
+                else: 
+                    workflow.logger.warning("ran the toolplanner, next step not set!")
 
                 if next_step == "confirm" and current_tool:
+                    workflow.logger.warning("ran the toolplanner, trying to confirm")
                     args = tool_data.get("args", {})
                     if await helpers.handle_missing_args(current_tool, args, tool_data, self.prompt_queue):
                         continue
@@ -180,10 +185,12 @@ class AgentGoalWorkflow:
                     workflow.logger.info("Waiting for user confirm signal...")
 
                 # todo probably here we can set the next step to be change-goal 
-                elif next_step == "done":
-                    workflow.logger.info("All steps completed. Exiting workflow.")
-                    self.add_message("agent", tool_data)
-                    return str(self.conversation_history)
+                elif next_step == "pick-new-goal":
+                    workflow.logger.info("All steps completed. Resetting goal.")
+                    #self.add_message("agent", tool_data)
+                    workflow.logger.warning("pick-new-goal time, setting goal to goal_choose_agent_type")
+                    self.change_goal("goal_choose_agent_type")
+                    #return str(self.conversation_history)
 
                 self.add_message("agent", tool_data)
                 await helpers.continue_as_new_if_needed(
