@@ -15,9 +15,11 @@ class ToolDefinition:
     description: str
     arguments: List[ToolArgument]
 
-
 @dataclass
 class AgentGoal:
+    id: str
+    agent_name: str
+    agent_friendly_description: str
     tools: List[ToolDefinition]
     description: str = "Description of the tools purpose and overall goal"
     starter_prompt: str = "Initial prompt to start the conversation"

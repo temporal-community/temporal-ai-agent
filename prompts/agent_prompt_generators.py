@@ -125,7 +125,8 @@ def generate_tool_completion_prompt(current_tool: str, dynamic_result: dict) -> 
         "You will need to use the tool_results to auto-fill arguments for subsequent tools and also to figure out if all tools have been run."
         '{"next": "<question|confirm|done>", "tool": "<tool_name or null>", "args": {"<arg1>": "<value1 or null>", "<arg2>": "<value2 or null>}, "response": "<plain text (can include \\n line breaks)>"}'
         "ONLY return those json keys (next, tool, args, response), nothing else."
-        'Next should be "question".'
+        'Next should be "question" if the tool is not the last one in the sequence.'
+        'Next should only be "confirm" if all tools have been run (use the system prompt to figure that out).'
     )
 
 def generate_missing_args_prompt(current_tool: str, tool_data: dict, missing_args: list[str]) -> str:

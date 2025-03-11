@@ -1,6 +1,5 @@
 from collections import deque
 from datetime import timedelta
-import importlib
 from typing import Dict, Any, Union, List, Optional, Deque, TypedDict
 
 from temporalio.common import RetryPolicy
@@ -97,12 +96,17 @@ class AgentGoalWorkflow:
                     self.prompt_queue
                 )
 
+                workflow.logger.warning(f"tool_results keys: {self.tool_results[-1].keys()}")
+                workflow.logger.warning(f"tool_results values: {self.tool_results[-1].values()}")
                 #set new goal if we should
-                if len(self.tool_results) > 0 and "new_goal" in self.tool_results[-1].keys() and "ChangeGoal" in self.tool_results[-1].values():
-                    
-                    new_goal = self.tool_results[-1].get("new_goal")
-                    workflow.logger.warning(f"Booya new goal!: {new_goal}")
-                    self.change_goal(new_goal)
+                if len(self.tool_results) > 0:
+                    if "ChangeGoal" in self.tool_results[-1].values() and "new_goal" in self.tool_results[-1].keys():
+                        new_goal = self.tool_results[-1].get("new_goal")
+                        workflow.logger.warning(f"Booya new goal!: {new_goal}")
+                        self.change_goal(new_goal)
+                    elif "ListAgents" in self.tool_results[-1].values() and self.goal.id != "goal_choose_agent_type":
+                        workflow.logger.warning("setting goal to goal_choose_agent_type")
+                        self.change_goal("goal_choose_agent_type")
                 continue
 
             if self.prompt_queue:
@@ -252,6 +256,9 @@ class AgentGoalWorkflow:
         }
 
         if goal is not None:
+        #    for listed_goal in goals.goal_list:
+        #        if listed_goal.id == goal:
+         #           self.goal = listed_goal
             self.goal = goals.get(goal)
             workflow.logger.warning("Changed goal to " + goal)
         #todo reset goal or tools if this doesn't work or whatever

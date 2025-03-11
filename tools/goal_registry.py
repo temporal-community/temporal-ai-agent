@@ -1,3 +1,4 @@
+from typing import List
 from models.tool_definitions import AgentGoal
 from tools.tool_registry import (
     search_fixtures_tool,
@@ -13,9 +14,12 @@ from tools.tool_registry import (
 starter_prompt_generic = "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job"
 
 goal_choose_agent_type = AgentGoal(
+    id = "goal_choose_agent_type",
+    agent_name="Choose Agent",
+    agent_friendly_description="Choose the type of agent to assist you today.",
     tools=[
         list_agents_tool, 
-        change_goal_tool
+        change_goal_tool,
     ],
     description="The user wants to choose which type of agent they will interact with. "
         "Help the user gather args for these tools, in order: "
@@ -38,6 +42,9 @@ goal_choose_agent_type = AgentGoal(
 )
 
 goal_match_train_invoice = AgentGoal(
+    id = "goal_match_train_invoice",
+    agent_name="UK Premier League Match Trip Booking",
+    agent_friendly_description="Book a trip to a city in the UK around the dates of a premier league match.",
     tools=[
         search_fixtures_tool,
         search_trains_tool,
@@ -81,10 +88,14 @@ goal_match_train_invoice = AgentGoal(
 )
 
 goal_event_flight_invoice = AgentGoal(
+    id = "goal_event_flight_invoice",
+    agent_name="Australia and New Zealand Event Flight Booking",
+    agent_friendly_description="Book a trip to a city in Australia or New Zealand around the dates of events in that city.",    
     tools=[
         find_events_tool,
         search_flights_tool,
         create_invoice_tool,
+        list_agents_tool,
     ],
     description="Help the user gather args for these tools in order: "
     "1. FindEvents: Find an event to travel to "
@@ -113,3 +124,9 @@ goal_event_flight_invoice = AgentGoal(
         ]
     ),
 )
+
+#Add the goals to a list for more generic processing, like listing available agents
+goal_list: List[AgentGoal] = []
+goal_list.append(goal_choose_agent_type)
+goal_list.append(goal_event_flight_invoice)
+goal_list.append(goal_match_train_invoice)
