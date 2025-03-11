@@ -237,7 +237,7 @@ class ToolActivities:
         )
 
         response_content = chat_completion.choices[0].message.content
-        print(f"ChatGPT response: {response_content}")
+        activity.logger.info(f"ChatGPT response: {response_content}")
 
         # Use the new sanitize function
         response_content = self.sanitize_json_response(response_content)
@@ -449,6 +449,7 @@ def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     # Delegate to the relevant function
     handler = get_handler(tool_name)
     result = handler(tool_args)
+    print(f"in dynamic tool activity, result: {result}")
 
     # Optionally log or augment the result
     activity.logger.info(f"Tool '{tool_name}' result: {result}")

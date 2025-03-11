@@ -115,9 +115,24 @@ class AgentGoalWorkflow:
                     self.add_message,
                     self.prompt_queue
                 )
-               # workflow.logger.warning("last tool_data tool: ", self.tool_data[-1].tool)
-                #workflow.logger.warning("last tool_data args: ", self.tool_data[-1].args)
-               # workflow.logger.warning("last tool_results [args]: ", self.tool_results[-1]["args"])
+                if len(self.tool_results) > 0:
+                    #workflow.logger.warning("last tool_results keys: ", self.tool_results[-1].keys())
+                    workflow.logger.warning(f"last tool_results keys: {self.tool_results[-1].keys()}")
+                    workflow.logger.warning(f"last tool_results values:{ self.tool_results[-1].values()}")
+                    if "new_goal" in self.tool_results[-1].keys() and "ChangeGoal" in self.tool_results[-1].values():
+                        new_goal = self.tool_results[-1].get("new_goal")
+                        workflow.logger.warning(f"Booya new goal!: {new_goal}")
+                        goals = {
+                            "goal_match_train_invoice": goal_match_train_invoice,
+                            "goal_event_flight_invoice": goal_event_flight_invoice,
+                            "goal_choose_agent_type": goal_choose_agent_type,
+                        }
+
+                        if new_goal is not None:
+                            self.goal = goals.get(new_goal)
+                        #todo reset goal or tools if this doesn't work or whatever
+                else:
+                    workflow.logger.warning("no tool results yet")
                 continue
 
             if self.prompt_queue:
