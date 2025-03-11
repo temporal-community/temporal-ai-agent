@@ -1,4 +1,12 @@
 # todo list
+[ ] multi-goal <br />
+    [ ] set goal to list agents when done <br />
+
+[ ] document *why* temporal for ai agents - scalability, durability in the readme <br />
+[ ] fix readme: move setup to its own page, demo to its own page, add the why /|\ section <br />
+[ ] add architecture to readme <br />
+[ ] create tests<br />
+
 [ ] create people management scenario <br />
   -- check pay status
   -- book work travel
@@ -18,7 +26,6 @@
 
 [ ] customize prompts in [workflow to manage scenario](./workflows/tool_workflow.py)<br />
 [ ] add in new tools? <br />
-[ ] create tests<br />
+
 [ ] non-retry the api key error - "Invalid API Key provided: sk_test_**J..." and "AuthenticationError"
 
-[ ] document *why* temporal for ai agents - scalability, durability in the readme
