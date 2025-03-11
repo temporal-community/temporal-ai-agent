@@ -20,3 +20,5 @@
 [ ] add in new tools? <br />
 [ ] create tests<br />
 [ ] non-retry the api key error - "Invalid API Key provided: sk_test_**J..." and "AuthenticationError"
+
+[ ] document *why* temporal for ai agents - scalability, durability in the readme
