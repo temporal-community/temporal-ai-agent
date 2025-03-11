@@ -81,9 +81,8 @@ def generate_genai_prompt(
         "1) If any required argument is missing, set next='question' and ask the user.\n"
         "2) If all required arguments are known, set next='confirm' and specify the tool.\n"
         "   The user will confirm before the tool is run.\n"
-        "3) If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=null.\n"
+        "3) If no more tools are needed (user_confirmed_tool_run has been run for all), set next='confirm' and tool='ListAgents'.\n"
         "4) response should be short and user-friendly.\n"
-        "5) Don't set next='done' until the final tool has returned user_confirmed_tool_run.\n"
     )
 
     # Validation Task (If raw_json is provided)
@@ -126,9 +125,7 @@ def generate_tool_completion_prompt(current_tool: str, dynamic_result: dict) -> 
         "You will need to use the tool_results to auto-fill arguments for subsequent tools and also to figure out if all tools have been run."
         '{"next": "<question|confirm|done>", "tool": "<tool_name or null>", "args": {"<arg1>": "<value1 or null>", "<arg2>": "<value2 or null>}, "response": "<plain text (can include \\n line breaks)>"}'
         "ONLY return those json keys (next, tool, args, response), nothing else."
-        'Next should only be "done" if all tools have been run (use the system prompt to figure that out).'
-        'Next should be "question" if the tool is not the last one in the sequence.'
-        'Next should NOT be "confirm" at this point.'
+        'Next should be "question".'
     )
 
 def generate_missing_args_prompt(current_tool: str, tool_data: dict, missing_args: list[str]) -> str:
