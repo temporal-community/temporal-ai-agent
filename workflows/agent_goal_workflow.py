@@ -53,7 +53,7 @@ class AgentGoalWorkflow:
         #set initial goal of "pick an agent" here??
         self.goal: AgentGoal = {"tools": []}
 
-    # see ../api/main.py#temporal_client.start_workflow() for how these parameters are set
+    # see ../api/main.py#temporal_client.start_workflow() for how the input parameters are set
     @workflow.run
     async def run(self, combined_input: CombinedInput) -> str:
         """Main workflow execution method."""
@@ -69,24 +69,27 @@ class AgentGoalWorkflow:
         if params and params.prompt_queue:
             self.prompt_queue.extend(params.prompt_queue)
 
-        waiting_for_confirm = False # controls if we confirm with the user
+        waiting_for_confirm = False 
         current_tool = None
 
-        # interactive loop
+        # This is the main interactive loop. Main responsibilities:
+        #   - Selecting and changing goals as directed by the user
+        #   - reacting to user input (from signals) 
+        #   - calling activities to determine next steps and prompts
+        #   - executing the selected tools 
         while True:
-            # wait for signals - user_prompt, end_chat, or confirm as defined below
+            # wait indefinitely for input from signals - user_prompt, end_chat, or confirm as defined below
             await workflow.wait_condition(
                 lambda: bool(self.prompt_queue) or self.chat_ended or self.confirm
             )
 
-            #process signals of various kinds
-
-            #chat-end signal
+            # handle chat-end signal
             if self.chat_ended:
                 workflow.logger.info("Chat ended.")
+                
                 return f"{self.conversation_history}"
 
-            # tool execution if selected and confirmed
+            # execute tool 
             if self.confirm and waiting_for_confirm and current_tool and self.tool_data:
                 self.confirm = False
                 waiting_for_confirm = False
@@ -120,6 +123,7 @@ class AgentGoalWorkflow:
                     #todo reset goal or tools if this doesn't work or whatever
                 continue
 
+            # push messages to UI if there are any
             if self.prompt_queue:
                 prompt = self.prompt_queue.popleft()
                 if not prompt.startswith("###"):
@@ -161,7 +165,7 @@ class AgentGoalWorkflow:
                     context_instructions=context_instructions,
                 )
 
-                # connect to LLM and get...its feedback? which tool to run? ??
+                # connect to LLM and get it to create a prompt for the user about the tool
                 tool_data = await workflow.execute_activity(
                     ToolActivities.agent_toolPlanner,
                     prompt_input,
@@ -186,6 +190,7 @@ class AgentGoalWorkflow:
                     self.confirm = False
                     workflow.logger.info("Waiting for user confirm signal...")
 
+                # todo probably here we can set the next step to be change-goal 
                 elif next_step == "done":
                     workflow.logger.info("All steps completed. Exiting workflow.")
                     self.add_message("agent", tool_data)
