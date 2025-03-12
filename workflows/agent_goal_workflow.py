@@ -180,7 +180,6 @@ class AgentGoalWorkflow:
                     if await helpers.handle_missing_args(current_tool, args, tool_data, self.prompt_queue):
                         continue
 
-# Would swapping these two get rid of the confirm button step?
                     waiting_for_confirm = True
                     self.confirm = False
                     workflow.logger.info("Waiting for user confirm signal...")

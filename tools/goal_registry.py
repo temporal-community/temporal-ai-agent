@@ -50,6 +50,7 @@ goal_match_train_invoice = AgentGoal(
         search_trains_tool,
         book_trains_tool,
         create_invoice_tool,
+        list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to book a trip to a city in the UK around the dates of a premier league match. "
     "Help the user find a premier league match to attend, search and book trains for that match and offers to invoice them for the cost of train tickets. "
@@ -95,7 +96,7 @@ goal_event_flight_invoice = AgentGoal(
         find_events_tool,
         search_flights_tool,
         create_invoice_tool,
-        list_agents_tool,
+        list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="Help the user gather args for these tools in order: "
     "1. FindEvents: Find an event to travel to "

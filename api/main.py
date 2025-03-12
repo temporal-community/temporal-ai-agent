@@ -9,7 +9,7 @@ import asyncio
 
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 from models.data_types import CombinedInput, AgentGoalWorkflowParams
-from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice, goal_choose_agent_type
+from tools.goal_registry import goal_list
 from fastapi.middleware.cors import CORSMiddleware
 from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE, AGENT_GOAL
 
@@ -22,17 +22,13 @@ load_dotenv()
 
 def get_initial_agent_goal():
     """Get the agent goal from environment variables."""
-    goals = {
-        "goal_match_train_invoice": goal_match_train_invoice,
-        "goal_event_flight_invoice": goal_event_flight_invoice,
-        "goal_choose_agent_type": goal_choose_agent_type,
-    }
-
     if AGENT_GOAL is not None:
-        return goals.get(AGENT_GOAL)
+        for listed_goal in goal_list:
+            if listed_goal.id == AGENT_GOAL:
+                return listed_goal
     else:
-        #if no goal is set in the env file, default to event/flight use case
-        return goals.get("goal_event_flight_invoice", goal_event_flight_invoice)
+        #if no goal is set in the config file, default to choosing an agent
+        return goal_list.get("goal_choose_agent_type")
 
 
 @app.on_event("startup")
