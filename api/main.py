@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from typing import Optional
 from temporalio.client import Client
@@ -11,7 +12,7 @@ from workflows.agent_goal_workflow import AgentGoalWorkflow
 from models.data_types import CombinedInput, AgentGoalWorkflowParams
 from tools.goal_registry import goal_list
 from fastapi.middleware.cors import CORSMiddleware
-from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE, AGENT_GOAL
+from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
 
 app = FastAPI()
 temporal_client: Optional[Client] = None
@@ -22,13 +23,10 @@ load_dotenv()
 
 def get_initial_agent_goal():
     """Get the agent goal from environment variables."""
-    if AGENT_GOAL is not None:
-        for listed_goal in goal_list:
-            if listed_goal.id == AGENT_GOAL:
-                return listed_goal
-    else:
-        #if no goal is set in the config file, default to choosing an agent
-        return goal_list.get("goal_choose_agent_type")
+    env_goal = os.getenv("AGENT_GOAL", "goal_choose_agent_type") #if no goal is set in the env file, default to choosing an agent
+    for listed_goal in goal_list:
+        if listed_goal.id == env_goal:
+            return listed_goal
 
 
 @app.on_event("startup")
@@ -113,10 +111,14 @@ async def get_conversation_history():
                 status_code=404, detail="Workflow worker unavailable or not found."
             )
 
-        # For other Temporal errors, return a 500
-        raise HTTPException(
-            status_code=500, detail="Internal server error while querying workflow."
-        )
+        if "workflow not found" in error_message:
+            await start_workflow()
+            return []
+        else:
+            # For other Temporal errors, return a 500
+            raise HTTPException(
+                status_code=500, detail="Internal server error while querying workflow."
+            )
     
 @app.get("/agent-goal")
 async def get_agent_goal():
