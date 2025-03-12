@@ -1,7 +1,9 @@
 # todo list
-[ ] multi-goal <br />
+[x] multi-goal <br />
     [x] set goal to list agents when done <br />
-    [ ] make this better/smoother <br />
+    [x] make this better/smoother <br />
+
+[ ] clean up workflow/make functions
 
 [ ] make the debugging confirms optional <br />
 [ ] grok integration <br />
@@ -31,4 +33,4 @@
 [ ] add in new tools? <br />
 
 [ ] non-retry the api key error - "Invalid API Key provided: sk_test_**J..." and "AuthenticationError"
-
+[ ] make it so you can yeet yourself out of a goal and pick a new one
