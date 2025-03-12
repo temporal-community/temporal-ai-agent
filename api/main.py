@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from typing import Optional
 from temporalio.client import Client
@@ -6,11 +7,10 @@ from temporalio.api.enums.v1 import WorkflowExecutionStatus
 from fastapi import HTTPException
 from dotenv import load_dotenv
 import asyncio
-import os
 
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 from models.data_types import CombinedInput, AgentGoalWorkflowParams
-from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice
+from tools.goal_registry import goal_list
 from fastapi.middleware.cors import CORSMiddleware
 from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
 
@@ -21,14 +21,12 @@ temporal_client: Optional[Client] = None
 load_dotenv()
 
 
-def get_agent_goal():
+def get_initial_agent_goal():
     """Get the agent goal from environment variables."""
-    goal_name = os.getenv("AGENT_GOAL", "goal_match_train_invoice")
-    goals = {
-        "goal_match_train_invoice": goal_match_train_invoice,
-        "goal_event_flight_invoice": goal_event_flight_invoice,
-    }
-    return goals.get(goal_name, goal_event_flight_invoice)
+    env_goal = os.getenv("AGENT_GOAL", "goal_choose_agent_type") #if no goal is set in the env file, default to choosing an agent
+    for listed_goal in goal_list:
+        if listed_goal.id == env_goal:
+            return listed_goal
 
 
 @app.on_event("startup")
@@ -113,10 +111,35 @@ async def get_conversation_history():
                 status_code=404, detail="Workflow worker unavailable or not found."
             )
 
-        # For other Temporal errors, return a 500
-        raise HTTPException(
-            status_code=500, detail="Internal server error while querying workflow."
-        )
+        if "workflow not found" in error_message:
+            await start_workflow()
+            return []
+        else:
+            # For other Temporal errors, return a 500
+            raise HTTPException(
+                status_code=500, detail="Internal server error while querying workflow."
+            )
+    
+@app.get("/agent-goal")
+async def get_agent_goal():
+    """Calls the workflow's 'get_agent_goal' query."""
+    try:
+        # Get workflow handle
+        handle = temporal_client.get_workflow_handle("agent-workflow")
+
+        # Check if the workflow is completed
+        workflow_status = await handle.describe()
+        if workflow_status.status == 2:
+            # Workflow is completed; return an empty response
+            return {}
+
+        # Query the workflow
+        agent_goal = await handle.query("get_agent_goal")
+        return agent_goal
+    except TemporalError as e:
+        # Workflow not found; return an empty response
+        print(e)
+        return {}
 
 
 @app.post("/send-prompt")
@@ -124,7 +147,8 @@ async def send_prompt(prompt: str):
     # Create combined input with goal from environment
     combined_input = CombinedInput(
         tool_params=AgentGoalWorkflowParams(None, None),
-        agent_goal=get_agent_goal(),
+        agent_goal=get_initial_agent_goal(),
+        #change to get from workflow query
     )
 
     workflow_id = "agent-workflow"
@@ -168,13 +192,12 @@ async def end_chat():
 
 @app.post("/start-workflow")
 async def start_workflow():
-    # Get the configured goal
-    agent_goal = get_agent_goal()
+    initial_agent_goal = get_initial_agent_goal()
 
     # Create combined input
     combined_input = CombinedInput(
         tool_params=AgentGoalWorkflowParams(None, None),
-        agent_goal=agent_goal,
+        agent_goal=initial_agent_goal,
     )
 
     workflow_id = "agent-workflow"
@@ -186,9 +209,9 @@ async def start_workflow():
         id=workflow_id,
         task_queue=TEMPORAL_TASK_QUEUE,
         start_signal="user_prompt",
-        start_signal_args=["### " + agent_goal.starter_prompt],
+        start_signal_args=["### " + initial_agent_goal.starter_prompt],
     )
 
     return {
-        "message": f"Workflow started with goal's starter prompt: {agent_goal.starter_prompt}."
+        "message": f"Workflow started with goal's starter prompt: {initial_agent_goal.starter_prompt}."
     }

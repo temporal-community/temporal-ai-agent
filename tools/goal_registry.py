@@ -1,3 +1,4 @@
+from typing import List
 from models.tool_definitions import AgentGoal
 from tools.tool_registry import (
     search_fixtures_tool,
@@ -6,14 +7,50 @@ from tools.tool_registry import (
     book_trains_tool,
     create_invoice_tool,
     find_events_tool,
+    change_goal_tool,
+    list_agents_tool
+)
+
+starter_prompt_generic = "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job"
+
+goal_choose_agent_type = AgentGoal(
+    id = "goal_choose_agent_type",
+    agent_name="Choose Agent",
+    agent_friendly_description="Choose the type of agent to assist you today.",
+    tools=[
+        list_agents_tool, 
+        change_goal_tool,
+    ],
+    description="The user wants to choose which type of agent they will interact with. "
+        "Help the user gather args for these tools, in order: "
+        "1. ListAgents: List agents available to interact with "
+        "2. ChangeGoal: Change goal of agent "
+        "After these tools are complete, change your goal to the new goal as chosen by the user. ",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to choose an agent",
+            "agent: Sure! Would you like me to list the available agents?",
+            "user_confirmed_tool_run: <user clicks confirm on ListAgents tool>",
+            "tool_result: { 'agent_name': 'Event Flight Finder', 'goal_id': 'goal_event_flight_invoice', 'agent_description': 'Helps users find interesting events and arrange travel to them' }",
+            "agent: The available agents are: 1. Event Flight Finder. Which agent would you like to speak to?",
+            "user: 1",
+            "user_confirmed_tool_run: <user clicks confirm on ChangeGoal tool>",
+            "tool_result: { 'new_goal': 'goal_event_flight_invoice' }",
+        ]
+    ),
 )
 
 goal_match_train_invoice = AgentGoal(
+    id = "goal_match_train_invoice",
+    agent_name="UK Premier League Match Trip Booking",
+    agent_friendly_description="Book a trip to a city in the UK around the dates of a premier league match.",
     tools=[
         search_fixtures_tool,
         search_trains_tool,
         book_trains_tool,
         create_invoice_tool,
+        list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to book a trip to a city in the UK around the dates of a premier league match. "
     "Help the user find a premier league match to attend, search and book trains for that match and offers to invoice them for the cost of train tickets. "
@@ -23,7 +60,7 @@ goal_match_train_invoice = AgentGoal(
     "2. SearchTrains: Search for trains to the city of the match and list them for the customer to choose from "
     "3. BookTrains: Book the train tickets, used to invoice the user for the cost of the train tickets "
     "4. CreateInvoice: Invoices the user for the cost of train tickets, with total and details inferred from the conversation history ",
-    starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to begin your job as an agent ",
+    starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
         [
             "user: I'd like to travel to a premier league match",
@@ -51,18 +88,21 @@ goal_match_train_invoice = AgentGoal(
     ),
 )
 
-# unused
 goal_event_flight_invoice = AgentGoal(
+    id = "goal_event_flight_invoice",
+    agent_name="Australia and New Zealand Event Flight Booking",
+    agent_friendly_description="Book a trip to a city in Australia or New Zealand around the dates of events in that city.",    
     tools=[
         find_events_tool,
         search_flights_tool,
         create_invoice_tool,
+        list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="Help the user gather args for these tools in order: "
     "1. FindEvents: Find an event to travel to "
     "2. SearchFlights: search for a flight around the event dates "
     "3. CreateInvoice: Create a simple invoice for the cost of that flight ",
-    starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to do your job",
+    starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
         [
             "user: I'd like to travel to an event",
@@ -85,3 +125,9 @@ goal_event_flight_invoice = AgentGoal(
         ]
     ),
 )
+
+#Add the goals to a list for more generic processing, like listing available agents
+goal_list: List[AgentGoal] = []
+goal_list.append(goal_choose_agent_type)
+goal_list.append(goal_event_flight_invoice)
+goal_list.append(goal_match_train_invoice)

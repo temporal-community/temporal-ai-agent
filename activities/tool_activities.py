@@ -34,6 +34,7 @@ class ToolActivities:
 
         # Initialize client variables (all set to None initially)
         self.openai_client: Optional[OpenAI] = None
+        self.grok_client: Optional[OpenAI] = None
         self.anthropic_client: Optional[anthropic.Anthropic] = None
         self.genai_configured: bool = False
         self.deepseek_client: Optional[deepseek.DeepSeekAPI] = None
@@ -47,6 +48,13 @@ class ToolActivities:
                 print("Initialized OpenAI client")
             else:
                 print("Warning: OPENAI_API_KEY not set but LLM_PROVIDER is 'openai'")
+        
+        if self.llm_provider == "grok":
+            if os.environ.get("GROK_API_KEY"):
+                self.grok_client = OpenAI(api_key=os.environ.get("GROK_API_KEY"), base_url="https://api.x.ai/v1")
+                print("Initialized grok client")
+            else:
+                print("Warning: GROK_API_KEY not set but LLM_PROVIDER is 'grok'")
 
         elif self.llm_provider == "anthropic":
             if os.environ.get("ANTHROPIC_API_KEY"):
@@ -195,6 +203,8 @@ class ToolActivities:
             return self.prompt_llm_anthropic(input)
         elif self.llm_provider == "deepseek":
             return self.prompt_llm_deepseek(input)
+        elif self.llm_provider == "grok":
+            return self.prompt_llm_grok(input)
         else:
             return self.prompt_llm_openai(input)
 
@@ -237,13 +247,47 @@ class ToolActivities:
         )
 
         response_content = chat_completion.choices[0].message.content
-        print(f"ChatGPT response: {response_content}")
+        activity.logger.info(f"ChatGPT response: {response_content}")
 
         # Use the new sanitize function
         response_content = self.sanitize_json_response(response_content)
 
         return self.parse_json_response(response_content)
 
+    def prompt_llm_grok(self, input: ToolPromptInput) -> dict:
+        if not self.grok_client:
+            api_key = os.environ.get("GROK_API_KEY")
+            if not api_key:
+                raise ValueError(
+                    "GROK_API_KEY is not set in the environment variables but LLM_PROVIDER is 'grok'"
+                )
+            self.grok_client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
+            print("Initialized grok client on demand")
+
+        messages = [
+            {
+                "role": "system",
+                "content": input.context_instructions
+                + ". The current date is "
+                + datetime.now().strftime("%B %d, %Y"),
+            },
+            {
+                "role": "user",
+                "content": input.prompt,
+            },
+        ]
+
+        chat_completion = self.grok_client.chat.completions.create(
+            model="grok-2-1212", messages=messages  
+        )
+
+        response_content = chat_completion.choices[0].message.content
+        activity.logger.info(f"Grok response: {response_content}")
+
+        # Use the new sanitize function
+        response_content = self.sanitize_json_response(response_content)
+
+        return self.parse_json_response(response_content)
     def prompt_llm_ollama(self, input: ToolPromptInput) -> dict:
         # If not yet initialized, try to do so now (this is a backup if warm_up_ollama wasn't called or failed)
         if not self.ollama_initialized:
@@ -449,6 +493,7 @@ def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     # Delegate to the relevant function
     handler = get_handler(tool_name)
     result = handler(tool_args)
+    print(f"in dynamic tool activity, result: {result}")
 
     # Optionally log or augment the result
     activity.logger.info(f"Tool '{tool_name}' result: {result}")

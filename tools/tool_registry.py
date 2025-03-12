@@ -1,5 +1,23 @@
 from models.tool_definitions import ToolDefinition, ToolArgument
 
+list_agents_tool = ToolDefinition(
+    name="ListAgents",
+    description="List available agents to interact with, pulled from goal_registry. ",
+    arguments=[],
+)
+
+change_goal_tool = ToolDefinition(
+    name="ChangeGoal",
+    description="Change the goal of the active agent. ",
+    arguments=[
+        ToolArgument(
+            name="goalID",
+            type="string",
+            description="Which goal to change to",
+        ),
+    ],
+)
+
 search_flights_tool = ToolDefinition(
     name="SearchFlights",
     description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn).",
