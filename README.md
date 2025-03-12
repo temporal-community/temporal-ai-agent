@@ -11,7 +11,7 @@ It's really helpful to [watch the demo (5 minute YouTube video)](https://www.you
 ## Setup and Configuration
 See [the Setup guide](./setup.md).
 
-## Interaction
+## Customizing Interaction & Tools
 TODO
 
 ## Architecture
@@ -22,6 +22,7 @@ See [the architecture guide](./architecture.md).
 - Continue-as-new shouldn't be a big consideration for this use case (as it would take many conversational turns to trigger). Regardless, I should ensure that it's able to carry the agent state over to the new workflow execution.
 - Perhaps the UI should show when the LLM response is being retried (i.e. activity retry attempt because the LLM provided bad output)
 - Tests would be nice!
+
 See [the todo](./todo.md) for more details.
 
 See Customization for more details. <-- TODO
