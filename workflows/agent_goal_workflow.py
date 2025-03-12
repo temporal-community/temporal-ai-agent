@@ -26,7 +26,11 @@ with workflow.unsafe.imports_passed_through():
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
 
-SHOW_CONFIRM = os.getenv("SHOW_CONFIRM", True)
+SHOW_CONFIRM = True
+show_confirm_env = os.getenv("SHOW_CONFIRM")
+if show_confirm_env is not None:
+    if show_confirm_env == "Off":
+        SHOW_CONFIRM = False
 
 class ToolData(TypedDict, total=False):
     next: NextStep
@@ -51,6 +55,7 @@ class AgentGoalWorkflow:
     # see ../api/main.py#temporal_client.start_workflow() for how the input parameters are set
     @workflow.run
     async def run(self, combined_input: CombinedInput) -> str:
+
         """Main workflow execution method."""
         # setup phase, starts with blank tool_params and agent_goal prompt as defined in tools/goal_registry.py
         params = combined_input.tool_params
@@ -84,7 +89,7 @@ class AgentGoalWorkflow:
                 workflow.logger.info("Chat ended.")
                 return f"{self.conversation_history}"
 
-            # user has confirmed, now actually execute the tool 
+            # Execute the tool 
             if self.confirm and waiting_for_confirm and current_tool and self.tool_data:
                 workflow.logger.warning(f"workflow step: user has confirmed, executing the tool {current_tool}")
                 self.confirm = False
@@ -103,8 +108,6 @@ class AgentGoalWorkflow:
                     self.prompt_queue
                 )
 
-                workflow.logger.warning(f"tool_results keys: {self.tool_results[-1].keys()}")
-                workflow.logger.warning(f"tool_results values: {self.tool_results[-1].values()}")
                 #set new goal if we should
                 if len(self.tool_results) > 0:
                     if "ChangeGoal" in self.tool_results[-1].values() and "new_goal" in self.tool_results[-1].keys():
@@ -165,28 +168,30 @@ class AgentGoalWorkflow:
                 next_step = tool_data.get("next")
                 current_tool = tool_data.get("tool")
 
+                workflow.logger.warning(f"next_step: {next_step}, current tool is {current_tool}")
                 #if the next step is to confirm...
                 if next_step == "confirm" and current_tool:
-                    workflow.logger.warning(f"next_step: confirm, current tool is {current_tool}")
                     args = tool_data.get("args", {})
                     #if we're missing arguments, go back to the top of the loop
                     if await helpers.handle_missing_args(current_tool, args, tool_data, self.prompt_queue):
                         continue
 
-                    #...otherwise, set up the request for user confirmation
+                    #...otherwise, if we want to force the user to confirm, set that up
                     waiting_for_confirm = True
-                    self.confirm = False
-                    workflow.logger.info("Waiting for user confirm signal...")
+                    if SHOW_CONFIRM:
+                        self.confirm = False
+                        workflow.logger.info("Waiting for user confirm signal...")
+                    else:
+                        #theory - set self.confirm to true bc that's the signal, so we can get around the signal??
+                        self.confirm = True
 
                 # else if the next step is to pick a new goal...
                 elif next_step == "pick-new-goal":
                     workflow.logger.info("All steps completed. Resetting goal.")
-                    workflow.logger.warning("next_step = pick-new-goal, setting goal to goal_choose_agent_type")
                     self.change_goal("goal_choose_agent_type")
                 
                 # else if the next step is to be done - this should only happen if the user requests it via "end conversation"
                 elif next_step == "done":
-                    workflow.logger.warning("next_step = done")
                     self.add_message("agent", tool_data)
                     # end the workflow
                     return str(self.conversation_history)
