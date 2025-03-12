@@ -3,13 +3,7 @@ from models.tool_definitions import ToolDefinition, ToolArgument
 list_agents_tool = ToolDefinition(
     name="ListAgents",
     description="List available agents to interact with, pulled from goal_registry. ",
-    arguments=[        
-        ToolArgument(
-            name="userConfirmation",
-            type="string",
-            description="dummy variable to make thing work",
-        ),
-    ],
+    arguments=[],
 )
 
 change_goal_tool = ToolDefinition(

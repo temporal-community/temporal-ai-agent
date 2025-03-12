@@ -17,7 +17,7 @@ class CombinedInput:
 
 Message = Dict[str, Union[str, Dict[str, Any]]]
 ConversationHistory = Dict[str, List[Message]]
-NextStep = Literal["confirm", "question", "done"]
+NextStep = Literal["confirm", "question", "pick-new-goal", "done"]
 
 
 @dataclass
