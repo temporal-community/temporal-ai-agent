@@ -32,11 +32,13 @@ if show_confirm_env is not None:
     if show_confirm_env == "False":
         SHOW_CONFIRM = False
 
+#ToolData as part of the workflow is what's accessible to the UI - see LLMResponse.jsx for example
 class ToolData(TypedDict, total=False):
     next: NextStep
     tool: str
     args: Dict[str, Any]
     response: str
+    force_confirm: bool = True
 
 @workflow.defn
 class AgentGoalWorkflow:
@@ -162,6 +164,7 @@ class AgentGoalWorkflow:
                         initial_interval=timedelta(seconds=5), backoff_coefficient=1
                     ),
                 )
+                tool_data["force_confirm"] = SHOW_CONFIRM
                 self.tool_data = tool_data
 
                 # process the tool as dictated by the prompt response - what to do next, and with which tool
