@@ -29,7 +29,7 @@ MAX_TURNS_BEFORE_CONTINUE = 250
 SHOW_CONFIRM = True
 show_confirm_env = os.getenv("SHOW_CONFIRM")
 if show_confirm_env is not None:
-    if show_confirm_env == "Off":
+    if show_confirm_env == "False":
         SHOW_CONFIRM = False
 
 class ToolData(TypedDict, total=False):
