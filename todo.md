@@ -34,3 +34,5 @@
 
 [ ] non-retry the api key error - "Invalid API Key provided: sk_test_**J..." and "AuthenticationError"
 [ ] make it so you can yeet yourself out of a goal and pick a new one
+
+[ ] add visual feedback when workflow starting

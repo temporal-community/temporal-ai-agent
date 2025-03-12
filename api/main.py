@@ -113,10 +113,14 @@ async def get_conversation_history():
                 status_code=404, detail="Workflow worker unavailable or not found."
             )
 
-        # For other Temporal errors, return a 500
-        raise HTTPException(
-            status_code=500, detail="Internal server error while querying workflow."
-        )
+        if "workflow not found" in error_message:
+            await start_workflow()
+            return []
+        else:
+            # For other Temporal errors, return a 500
+            raise HTTPException(
+                status_code=500, detail="Internal server error while querying workflow."
+            )
     
 @app.get("/agent-goal")
 async def get_agent_goal():
