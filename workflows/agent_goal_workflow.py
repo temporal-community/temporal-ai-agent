@@ -20,7 +20,7 @@ with workflow.unsafe.imports_passed_through():
         CombinedInput,
         ToolPromptInput,
     )
-    from tools.goal_registry import goal_match_train_invoice, goal_event_flight_invoice, goal_choose_agent_type
+    from tools.goal_registry import goal_list
 
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
@@ -175,11 +175,12 @@ class AgentGoalWorkflow:
                     workflow.logger.warning("ran the toolplanner, next step not set!")
 
                 if next_step == "confirm" and current_tool:
-                    workflow.logger.warning("ran the toolplanner, trying to confirm")
+                    workflow.logger.warning("next_step: confirm, ran the toolplanner, trying to confirm")
                     args = tool_data.get("args", {})
                     if await helpers.handle_missing_args(current_tool, args, tool_data, self.prompt_queue):
                         continue
 
+# Would swapping these two get rid of the confirm button step?
                     waiting_for_confirm = True
                     self.confirm = False
                     workflow.logger.info("Waiting for user confirm signal...")
@@ -187,10 +188,13 @@ class AgentGoalWorkflow:
                 # todo probably here we can set the next step to be change-goal 
                 elif next_step == "pick-new-goal":
                     workflow.logger.info("All steps completed. Resetting goal.")
-                    #self.add_message("agent", tool_data)
-                    workflow.logger.warning("pick-new-goal time, setting goal to goal_choose_agent_type")
+                    workflow.logger.warning("next_step = pick-new-goal, setting goal to goal_choose_agent_type")
                     self.change_goal("goal_choose_agent_type")
-                    #return str(self.conversation_history)
+                    
+                elif next_step == "done":
+                    workflow.logger.warning("next_step = done")
+                    self.add_message("agent", tool_data)
+                    return str(self.conversation_history)
 
                 self.add_message("agent", tool_data)
                 await helpers.continue_as_new_if_needed(
@@ -262,16 +266,16 @@ class AgentGoalWorkflow:
         )
 
     def change_goal(self, goal: str) -> None:
-        goals = {
+        '''goalsLocal = {
             "goal_match_train_invoice": goal_match_train_invoice,
             "goal_event_flight_invoice": goal_event_flight_invoice,
             "goal_choose_agent_type": goal_choose_agent_type,
-        }
+        }'''
 
         if goal is not None:
-        #    for listed_goal in goals.goal_list:
-        #        if listed_goal.id == goal:
-         #           self.goal = listed_goal
-            self.goal = goals.get(goal)
-            workflow.logger.warning("Changed goal to " + goal)
+            for listed_goal in goal_list:
+                if listed_goal.id == goal:
+                    self.goal = listed_goal
+        #    self.goal = goals.get(goal)
+                    workflow.logger.warning("Changed goal to " + goal)
         #todo reset goal or tools if this doesn't work or whatever
