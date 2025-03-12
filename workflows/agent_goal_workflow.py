@@ -1,5 +1,6 @@
 from collections import deque
 from datetime import timedelta
+import os
 from typing import Dict, Any, Union, List, Optional, Deque, TypedDict
 
 from temporalio.common import RetryPolicy
@@ -24,6 +25,8 @@ with workflow.unsafe.imports_passed_through():
 
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
+
+SHOW_CONFIRM = os.getenv("SHOW_CONFIRM", True)
 
 class ToolData(TypedDict, total=False):
     next: NextStep
@@ -77,12 +80,13 @@ class AgentGoalWorkflow:
 
             # handle chat-end signal
             if self.chat_ended:
+                workflow.logger.warning(f"workflow step: chat-end signal received, ending")
                 workflow.logger.info("Chat ended.")
-                
                 return f"{self.conversation_history}"
 
-            # execute tool 
+            # user has confirmed, now actually execute the tool 
             if self.confirm and waiting_for_confirm and current_tool and self.tool_data:
+                workflow.logger.warning(f"workflow step: user has confirmed, executing the tool {current_tool}")
                 self.confirm = False
                 waiting_for_confirm = False
 
@@ -112,10 +116,11 @@ class AgentGoalWorkflow:
                         self.change_goal("goal_choose_agent_type")
                 continue
 
-            # push messages to UI if there are any
+            # if we've received messages to be processed on the prompt queue...
             if self.prompt_queue:
                 prompt = self.prompt_queue.popleft()
-                if not prompt.startswith("###"):
+                workflow.logger.warning(f"workflow step: processing message on the prompt queue, message is {prompt}")
+                if not prompt.startswith("###"): #if the message isn't from the LLM but is instead from the user
                     self.add_message("user", prompt)
 
                     # Validate the prompt before proceeding
@@ -134,27 +139,17 @@ class AgentGoalWorkflow:
                         ),
                     )
 
-                    #If validation fails, provide that feedback to the user - i.e., "your words make no sense, human"
+                    #If validation fails, provide that feedback to the user - i.e., "your words make no sense, puny human" end this iteration of processing
                     if not validation_result.validationResult:
-                        workflow.logger.warning(
-                            f"Prompt validation failed: {validation_result.validationFailedReason}"
-                        )
-                        self.add_message(
-                            "agent", validation_result.validationFailedReason
-                        )
+                        workflow.logger.warning(f"Prompt validation failed: {validation_result.validationFailedReason}")
+                        self.add_message("agent", validation_result.validationFailedReason)
                         continue
 
-                # Proceed with generating the context and prompt
-                context_instructions = generate_genai_prompt(
-                    self.goal, self.conversation_history, self.tool_data
-                )
+                # If valid, proceed with generating the context and prompt
+                context_instructions = generate_genai_prompt(self.goal, self.conversation_history, self.tool_data)
+                prompt_input = ToolPromptInput(prompt=prompt, context_instructions=context_instructions)
 
-                prompt_input = ToolPromptInput(
-                    prompt=prompt,
-                    context_instructions=context_instructions,
-                )
-
-                # connect to LLM and get it to create a prompt for the user about the tool
+                # connect to LLM and execute to get next steps
                 tool_data = await workflow.execute_activity(
                     ToolActivities.agent_toolPlanner,
                     prompt_input,
@@ -166,33 +161,34 @@ class AgentGoalWorkflow:
                 )
                 self.tool_data = tool_data
 
-                # move forward in the tool chain
+                # process the tool as dictated by the prompt response - what to do next, and with which tool
                 next_step = tool_data.get("next")
                 current_tool = tool_data.get("tool")
-                if "next" in self.tool_data.keys():
-                    workflow.logger.warning(f"ran the toolplanner, next step: {next_step}")
-                else: 
-                    workflow.logger.warning("ran the toolplanner, next step not set!")
 
+                #if the next step is to confirm...
                 if next_step == "confirm" and current_tool:
-                    workflow.logger.warning("next_step: confirm, ran the toolplanner, trying to confirm")
+                    workflow.logger.warning(f"next_step: confirm, current tool is {current_tool}")
                     args = tool_data.get("args", {})
+                    #if we're missing arguments, go back to the top of the loop
                     if await helpers.handle_missing_args(current_tool, args, tool_data, self.prompt_queue):
                         continue
 
+                    #...otherwise, set up the request for user confirmation
                     waiting_for_confirm = True
                     self.confirm = False
                     workflow.logger.info("Waiting for user confirm signal...")
 
-                # todo probably here we can set the next step to be change-goal 
+                # else if the next step is to pick a new goal...
                 elif next_step == "pick-new-goal":
                     workflow.logger.info("All steps completed. Resetting goal.")
                     workflow.logger.warning("next_step = pick-new-goal, setting goal to goal_choose_agent_type")
                     self.change_goal("goal_choose_agent_type")
-                    
+                
+                # else if the next step is to be done - this should only happen if the user requests it via "end conversation"
                 elif next_step == "done":
                     workflow.logger.warning("next_step = done")
                     self.add_message("agent", tool_data)
+                    # end the workflow
                     return str(self.conversation_history)
 
                 self.add_message("agent", tool_data)
@@ -208,8 +204,9 @@ class AgentGoalWorkflow:
     @workflow.signal
     async def user_prompt(self, prompt: str) -> None:
         """Signal handler for receiving user prompts."""
+        workflow.logger.warning(f"signal received: user_prompt, prompt is {prompt}")
         if self.chat_ended:
-            workflow.logger.warn(f"Message dropped due to chat closed: {prompt}")
+            workflow.logger.warning(f"Message dropped due to chat closed: {prompt}")
             return
         self.prompt_queue.append(prompt)
 
@@ -218,12 +215,14 @@ class AgentGoalWorkflow:
     async def confirm(self) -> None:
         """Signal handler for user confirmation of tool execution."""
         workflow.logger.info("Received user confirmation")
+        workflow.logger.warning(f"signal recieved: confirm")
         self.confirm = True
 
     #Signal that comes from api/main.py via a post to /end-chat
     @workflow.signal
     async def end_chat(self) -> None:
         """Signal handler for ending the chat session."""
+        workflow.logger.warning("signal received: end_chat")
         self.chat_ended = True
 
     @workflow.query
