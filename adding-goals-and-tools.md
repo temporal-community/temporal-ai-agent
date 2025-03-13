@@ -9,7 +9,7 @@ The agent is set up to allow for multiple goals and to switch back to choosing a
 - `agent_name`: user-facing name for the agent/chatbot
 - `agent_friendly_description`: user-facing description of what the agent/chatbot does
 - `tools`: the list of tools the goal will walk the user through. 
-- Important! The last tool listed must be `list_agents_tool`
+- Important! The last tool listed must be `list_agents_tool`. This allows the AI to let the user go back to choosing from the list of available goals.
 - `description`:
 - `starter-prompt`:
 - `example_conversation_history`:

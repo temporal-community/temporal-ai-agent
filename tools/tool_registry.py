@@ -151,15 +151,15 @@ current_pto_tool = ToolDefinition(
         ToolArgument(
             name="email",
             type="string",
-            description="name of user, used to look up current PTO",
+            description="email address of user",
         ),
     ],
 )
 
 future_pto_calc_tool = ToolDefinition(
     name="FuturePTOCalc",
-    description="Calculate if the user will have enough PTO as of their proposed date to accommodate the request. Returns a boolean enough_pto and "
-    "how many hours of PTO they will have if they take the proposed dates. ",
+    description="Calculate if the user will have enough PTO as of their proposed date to accommodate the request. The proposed start and end dates should be in the future. "
+    "Returns a boolean enough_pto and how many hours of PTO they will have remaining if they take the proposed dates. ",
     arguments=[
         ToolArgument(
             name="start_date",
@@ -170,6 +170,11 @@ future_pto_calc_tool = ToolDefinition(
             name="end_date",
             type="string",
             description="End date of proposed PTO",
+        ),
+        ToolArgument(
+            name="email",
+            type="string",
+            description="email address of user",
         ),
     ],
 )
@@ -210,6 +215,11 @@ book_pto_tool = ToolDefinition(
             name="email",
             type="string",
             description="Email address of user, used to look up current PTO",
+        ),
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="Indication of user's desire to book PTO",
         ),
     ],
 )
