@@ -6,6 +6,7 @@ starter_prompt_generic = "Welcome me, give me a description of what you can do, 
 
 goal_choose_agent_type = AgentGoal(
     id = "goal_choose_agent_type",
+    category_tag="system",
     agent_name="Choose Agent",
     agent_friendly_description="Choose the type of agent to assist you today.",
     tools=[
@@ -33,6 +34,7 @@ goal_choose_agent_type = AgentGoal(
 
 goal_match_train_invoice = AgentGoal(
     id = "goal_match_train_invoice",
+    category_tag="travel",
     agent_name="UK Premier League Match Trip Booking",
     agent_friendly_description="Book a trip to a city in the UK around the dates of a premier league match.",
     tools=[
@@ -80,6 +82,7 @@ goal_match_train_invoice = AgentGoal(
 
 goal_event_flight_invoice = AgentGoal(
     id = "goal_event_flight_invoice",
+    category_tag="travel",
     agent_name="Australia and New Zealand Event Flight Booking",
     agent_friendly_description="Book a trip to a city in Australia or New Zealand around the dates of events in that city.",    
     tools=[
@@ -119,6 +122,7 @@ goal_event_flight_invoice = AgentGoal(
 # This goal uses the data/employee_pto_data.json file as dummy data.
 goal_hr_schedule_pto = AgentGoal(
     id = "goal_hr_schedule_pto",
+    category_tag="hr",
     agent_name="Schedule PTO",
     agent_friendly_description="Schedule PTO based on your available PTO.",   
     tools=[

@@ -18,6 +18,7 @@ class ToolDefinition:
 @dataclass
 class AgentGoal:
     id: str
+    category_tag: str
     agent_name: str
     agent_friendly_description: str
     tools: List[ToolDefinition]
