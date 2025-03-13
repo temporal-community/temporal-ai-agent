@@ -14,19 +14,22 @@
 
 [ ] setup readme, why readme, architecture readme, what this is in main readme with temporal value props and pictures <br />
 [ ] how to add more scenarios, tools <br />
- <br />
- <br />
+
 [ ] create tests<br />
 
-[ ] create people management scenario <br />
-- check pay status <br />
-- book work travel <br />
-- check PTO levels <br />
-- check insurance coverages <br />
-- book PTO around a date (https://developers.google.com/calendar/api/guides/overview)?  <br />
-- scenario should use multiple tools <br />
-- expense management <br />
-- check in on the health of the team <br />
+[ ] create people management scenarios <br />
+[ ] 1. Book PTO
+-- check current PTO level <br />
+-- determine PTO available as of date <br />
+-- check for personal calendar conflicts <br />
+-- check for team calendar conflicts <br />
+-- book PTO around a date (send calendar invite?) (https://developers.google.com/calendar/api/guides/overview)? <br />
+[ ] 2. Others:
+-- check pay status <br />
+-- book work travel <br />
+-- check insurance coverages <br />
+-- expense management <br />
+-- check in on the health of the team <br />
 
 [ ] demo the reasons why: <br />
 - Orchestrate interactions across distributed data stores and tools <br />

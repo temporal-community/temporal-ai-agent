@@ -8,6 +8,11 @@ from .list_agents import list_agents
 from .change_goal import change_goal
 from .transfer_control import transfer_control
 
+from .current_pto import current_pto
+from .book_pto import book_pto
+from .calendar_conflict import calendar_conflict
+from .future_pto import future_pto
+
 
 def get_handler(tool_name: str):
     if tool_name == "SearchFixtures":
@@ -28,5 +33,13 @@ def get_handler(tool_name: str):
         return change_goal
     if tool_name == "TransferControl":
         return transfer_control
+    if tool_name == "CurrentPTO":
+        return current_pto
+    if tool_name == "BookPTO":
+        return book_pto
+    if tool_name == "CalendarConflict":
+        return calendar_conflict
+    if tool_name == "FuturePTO":
+        return future_pto
 
     raise ValueError(f"Unknown tool: {tool_name}")

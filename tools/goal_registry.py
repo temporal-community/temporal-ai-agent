@@ -1,6 +1,7 @@
 from typing import List
 from models.tool_definitions import AgentGoal
-from tools.tool_registry import (
+import tools.tool_registry as tool_registry
+'''from tools.tool_registry import (
     search_fixtures_tool,
     search_flights_tool,
     search_trains_tool,
@@ -8,8 +9,12 @@ from tools.tool_registry import (
     create_invoice_tool,
     find_events_tool,
     change_goal_tool,
-    list_agents_tool
-)
+    list_agents_tool,
+    current_pto_tool,
+    future_pto_calc_tool,
+    calendar_conflict_tool,
+    book_pto_tool,
+)'''
 
 starter_prompt_generic = "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job"
 
@@ -18,8 +23,8 @@ goal_choose_agent_type = AgentGoal(
     agent_name="Choose Agent",
     agent_friendly_description="Choose the type of agent to assist you today.",
     tools=[
-        list_agents_tool, 
-        change_goal_tool,
+        tool_registry.list_agents_tool, 
+        tool_registry.change_goal_tool,
     ],
     description="The user wants to choose which type of agent they will interact with. "
         "Help the user gather args for these tools, in order: "
@@ -46,11 +51,11 @@ goal_match_train_invoice = AgentGoal(
     agent_name="UK Premier League Match Trip Booking",
     agent_friendly_description="Book a trip to a city in the UK around the dates of a premier league match.",
     tools=[
-        search_fixtures_tool,
-        search_trains_tool,
-        book_trains_tool,
-        create_invoice_tool,
-        list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
+        tool_registry.search_fixtures_tool,
+        tool_registry.search_trains_tool,
+        tool_registry.book_trains_tool,
+        tool_registry.create_invoice_tool,
+        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to book a trip to a city in the UK around the dates of a premier league match. "
     "Help the user find a premier league match to attend, search and book trains for that match and offers to invoice them for the cost of train tickets. "
@@ -93,10 +98,10 @@ goal_event_flight_invoice = AgentGoal(
     agent_name="Australia and New Zealand Event Flight Booking",
     agent_friendly_description="Book a trip to a city in Australia or New Zealand around the dates of events in that city.",    
     tools=[
-        find_events_tool,
-        search_flights_tool,
-        create_invoice_tool,
-        list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
+        tool_registry.find_events_tool,
+        tool_registry.search_flights_tool,
+        tool_registry.create_invoice_tool,
+        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="Help the user gather args for these tools in order: "
     "1. FindEvents: Find an event to travel to "
@@ -126,8 +131,53 @@ goal_event_flight_invoice = AgentGoal(
     ),
 )
 
+goal_hr_schedule_pto = AgentGoal(
+    id = "goal_hr_schedule_pto",
+    agent_name="Schedule PTO",
+    agent_friendly_description="Schedule PTO based on your available time, personal calendar, and team calendar.",   
+    tools=[
+        tool_registry.current_pto_tool,
+        tool_registry.future_pto_calc_tool,
+        tool_registry.calendar_conflict_tool,
+        tool_registry.book_pto_tool,
+        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
+    ],
+    description="Help the user gather args for these tools in order: "
+    "1. CurrentPTO: Tell the user how much PTO they currently have "
+    "2. FuturePTO: Tell the user how much PTO they will have as of the prospective date "
+    "3. CalendarConflict: Tell the user what conflicts if any exist around the prospective date on a list of calendars "
+    "4. BookPTO: Book PTO ",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to schedule some time off",
+            "agent: Sure! Let's start by determining how much PTO you currently have. May I have your email address?",
+            "user: bob.johnson@emailzzz.com",
+            "agent: Great! I can tell you how much PTO you currently have accrued.",
+            "user_confirmed_tool_run: <user clicks confirm on CurrentPTO tool>",
+            "tool_result: { 'num_hours': 400, 'num_days': 50 }",
+            "agent: You have 400 hours, or 50 days, of PTO available. What dates would you like to take your time off? ",
+            "user: Dec 1 2025 through Dec 5 2025",
+            "agent: Let's check if you'll have enough PTO accrued by Dec 1 to accomodate that.",
+            "user_confirmed_tool_run: <user clicks confirm on FuturePTO tool>"
+            'tool_result: {"enough_pto": True, "pto_hrs_remaining_after": 410}',
+            "agent: You do in fact have enough PTO to accommodate that, and will have 410 hours remaining after you come back. Do you want to check calendars for conflicts? If so, please provide one of the following: self, team, or both "
+            "user: both ",
+            "agent: Okay, checking both calendars for conflicts ",
+            "user_confirmed_tool_run: <user clicks confirm on CheckCalendarConflict tool>",
+            'tool_result: { "calendar": "self", "title": "Meeting with Karen", "date": "2025-12-02", "time": "10:00AM"}',
+            "agent: On your calendar, you have a conflict: Meeting with Karen at 10AM Dec 2, 2025. Do you want to book the PTO?"
+            "user: yes "
+            "user_confirmed_tool_run: <user clicks confirm on BookPTO tool>",
+            'tool_result: { "status": "success" }',
+            "agent: PTO successfully booked! Would you like to speak to another agent? ",
+        ]
+    ),
+)
+
 #Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
 goal_list.append(goal_event_flight_invoice)
 goal_list.append(goal_match_train_invoice)
+goal_list.append(goal_hr_schedule_pto)
