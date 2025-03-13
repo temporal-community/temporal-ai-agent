@@ -11,7 +11,7 @@ from .transfer_control import transfer_control
 from .current_pto import current_pto
 from .book_pto import book_pto
 from .calendar_conflict import calendar_conflict
-from .future_pto import future_pto
+from .future_pto_calc import future_pto_calc
 
 
 def get_handler(tool_name: str):
@@ -39,7 +39,7 @@ def get_handler(tool_name: str):
         return book_pto
     if tool_name == "CalendarConflict":
         return calendar_conflict
-    if tool_name == "FuturePTO":
-        return future_pto
+    if tool_name == "FuturePTOCalc":
+        return future_pto_calc
 
     raise ValueError(f"Unknown tool: {tool_name}")

@@ -131,6 +131,7 @@ goal_event_flight_invoice = AgentGoal(
     ),
 )
 
+# This goal uses the data/employee_pto_data.json file as dummy data.
 goal_hr_schedule_pto = AgentGoal(
     id = "goal_hr_schedule_pto",
     agent_name="Schedule PTO",
@@ -144,8 +145,8 @@ goal_hr_schedule_pto = AgentGoal(
     ],
     description="Help the user gather args for these tools in order: "
     "1. CurrentPTO: Tell the user how much PTO they currently have "
-    "2. FuturePTO: Tell the user how much PTO they will have as of the prospective date "
-    "3. CalendarConflict: Tell the user what conflicts if any exist around the prospective date on a list of calendars "
+    "2. FuturePTOCalc: Tell the user how much PTO they will have as of the prospective date "
+    "3. CalendarConflict: Tell the user what conflicts if any exist around the prospective date on a list of calendars. This step is optional and can be skipped by moving to the next tool. "
     "4. BookPTO: Book PTO ",
     starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
@@ -170,7 +171,7 @@ goal_hr_schedule_pto = AgentGoal(
             "user: yes "
             "user_confirmed_tool_run: <user clicks confirm on BookPTO tool>",
             'tool_result: { "status": "success" }',
-            "agent: PTO successfully booked! Would you like to speak to another agent? ",
+            "agent: PTO successfully booked! ",
         ]
     ),
 )

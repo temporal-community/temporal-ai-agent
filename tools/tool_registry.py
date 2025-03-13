@@ -157,7 +157,7 @@ current_pto_tool = ToolDefinition(
 )
 
 future_pto_calc_tool = ToolDefinition(
-    name="FuturePTO",
+    name="FuturePTOCalc",
     description="Calculate if the user will have enough PTO as of their proposed date to accommodate the request. Returns a boolean enough_pto and "
     "how many hours of PTO they will have if they take the proposed dates. ",
     arguments=[

@@ -17,6 +17,17 @@ The agent is set up to allow for multiple goals and to switch back to choosing a
 
 ### Adding Tools
 
+#### Notes
+Tools can be optional - you can indicate this in the tool listing of goal description (see above section re: goal registry) by adding something like, "This step is optional and can be skipped by moving to the next tool." Here is an example from the CalendarConflict tool/step of the [goal_hr_schedule_pto](tools/goal_registry.py#L134) goal:
+
+```
+description="Help the user gather args for these tools in order: "
+    "1. CurrentPTO: Tell the user how much PTO they currently have "
+    "2. FuturePTO: Tell the user how much PTO they will have as of the prospective date "
+    "3. CalendarConflict: Tell the user what conflicts if any exist around the prospective date on a list of calendars. This step is optional and can be skipped by moving to the next tool. "
+    "4. BookPTO: Book PTO "
+```
+
 #### Add to Tool Registry
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
 - `name`:

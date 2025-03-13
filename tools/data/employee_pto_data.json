@@ -1,0 +1,18 @@
+{
+  "theCompany": {
+    "weLove": "theCompany", 
+    "accrualPer": "month",
+    "employees": [
+      {
+        "email": "josh.smith@temporal.io",
+        "currentPTOHrs": 400,
+        "accrualHrsRate": 8
+      },
+      {
+        "email": "laine.smith@awesome.com",
+        "currentPTOHrs": 40,
+        "accrualHrsRate": 12
+      }
+    ]
+  }
+}

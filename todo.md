@@ -17,12 +17,11 @@
 [ ] create tests<br />
 
 [ ] create people management scenarios <br />
-[ ] 1. Book PTO
--- check current PTO level <br />
--- determine PTO available as of date <br />
--- check for personal calendar conflicts <br />
--- check for team calendar conflicts <br />
--- book PTO around a date (send calendar invite?) (https://developers.google.com/calendar/api/guides/overview)? <br />
+[x] 1. Schedule PTO goal
+-- [ ] check current PTO level <br />
+-- [ ] determine PTO available as of date <br />
+-- [ ] check for personal, team, or both calendar conflicts <br />
+-- [ ] book PTO around a date (send calendar invite?) (https://developers.google.com/calendar/api/guides/overview)? <br />
 [ ] 2. Others:
 -- check pay status <br />
 -- book work travel <br />
@@ -45,4 +44,5 @@
 [ ] non-retry the api key error - "Invalid API Key provided: sk_test_**J..." and "AuthenticationError" <br />
 [ ] make it so you can yeet yourself out of a goal and pick a new one <br />
 
-[ ] add visual feedback when workflow starting
+[ ] add visual feedback when workflow starting <br />
+[ ] figure out how to allow user to list agents at any time - like end conversation <br />
