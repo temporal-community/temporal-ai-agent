@@ -1,6 +1,8 @@
 ## Customizing the Agent
 The agent is set up to allow for multiple goals and to switch back to choosing a new goal at the end of every successful goal. A goal is made up of a list of tools that the agent will guide the user through. 
 
+It may be helpful to review the [architecture](./architecture.md) for a guide and definition of goals, tools, etc.
+
 ### Adding a Goal
 1.  Open [/tools/goal_registry.py](tools/goal_registry.py) - this file contains descriptions of goals and the tools used to achieve them
 2. Pick a name for your goal!
