@@ -12,21 +12,21 @@ It's really helpful to [watch the demo (5 minute YouTube video)](https://www.you
 See [the Setup guide](./setup.md).
 
 ## Customizing Interaction & Tools
-TODO
+See [the guide to adding goals and tools](./adding-goals-and-tools.md).
 
 ## Architecture
 See [the architecture guide](./architecture.md).
 
 ## Productionalization & Adding Features
 - In a prod setting, I would need to ensure that payload data is stored separately (e.g. in S3 or a noSQL db - the claim-check pattern), or otherwise 'garbage collected'. Without these techniques, long conversations will fill up the workflow's conversation history, and start to breach Temporal event history payload limits.
-- A single worker can easily support many workflows - setting workflow ID differently would enable this
-- Continue-as-new shouldn't be a big consideration for this use case (as it would take many conversational turns to trigger). Regardless, I should ensure that it's able to carry the agent state over to the new workflow execution.
+- A single worker can easily support many workflows - setting workflow ID differently would enable this.
+- Continue-as-new shouldn't be a big consideration for this use case (as it would take many conversational turns to trigger). Regardless, we should verify that it's able to carry the agent state over to the new workflow execution.
 - Perhaps the UI should show when the LLM response is being retried (i.e. activity retry attempt because the LLM provided bad output)
-- Tests would be nice!
+- Tests would be nice! [See tests](./tests/).
 
 See [the todo](./todo.md) for more details.
 
-See Customization for more details. <-- TODO
+See [the guide to adding goals and tools](./adding-goals-and-tools.md) for more ways you can add features.
 
 ## For Temporal SAs
 Check out the [slides](https://docs.google.com/presentation/d/1wUFY4v17vrtv8llreKEBDPLRtZte3FixxBUn0uWy5NU/edit#slide=id.g3333e5deaa9_0_0) here and the enablement guide here (TODO).
