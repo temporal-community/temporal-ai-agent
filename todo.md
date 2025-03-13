@@ -4,7 +4,7 @@
 [x] make the debugging confirms optional <br />
 [ ] add confirmation env setting to setup guide <br />
  <br />
-[ ] document *why* temporal for ai agents - scalability, durability, visibility in the readme <br />
+[x] document *why* temporal for ai agents - scalability, durability, visibility in the readme <br />
 [ ] fix readme: move setup to its own page, demo to its own page, add the why /|\ section <br />
 [ ] add architecture to readme <br />
 - elements of app <br />
