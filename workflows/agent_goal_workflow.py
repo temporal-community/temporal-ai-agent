@@ -99,9 +99,7 @@ class AgentGoalWorkflow:
             if self.prompt_queue:
                 # get most recent prompt
                 prompt = self.prompt_queue.popleft()
-                workflow.logger.warning(f"workflow step: processing message on the prompt queue, message is {prompt}")
-
-                
+                workflow.logger.info(f"workflow step: processing message on the prompt queue, message is {prompt}")
                 
                 # Validate user-provided prompts
                 if self.is_user_prompt(prompt): 
@@ -150,7 +148,7 @@ class AgentGoalWorkflow:
                 next_step = tool_data.get("next")
                 current_tool = tool_data.get("tool")
 
-                workflow.logger.warning(f"next_step: {next_step}, current tool is {current_tool}")
+                workflow.logger.info(f"next_step: {next_step}, current tool is {current_tool}")
 
                 #if the next step is to confirm...
                 if next_step == "confirm" and current_tool:
@@ -192,9 +190,9 @@ class AgentGoalWorkflow:
     @workflow.signal
     async def user_prompt(self, prompt: str) -> None:
         """Signal handler for receiving user prompts."""
-        workflow.logger.warning(f"signal received: user_prompt, prompt is {prompt}")
+        workflow.logger.info(f"signal received: user_prompt, prompt is {prompt}")
         if self.chat_ended:
-            workflow.logger.warning(f"Message dropped due to chat closed: {prompt}")
+            workflow.logger.info(f"Message dropped due to chat closed: {prompt}")
             return
         self.prompt_queue.append(prompt)
 
@@ -202,15 +200,14 @@ class AgentGoalWorkflow:
     @workflow.signal
     async def confirm(self) -> None:
         """Signal handler for user confirmation of tool execution."""
-        workflow.logger.info("Received user confirmation")
-        workflow.logger.warning(f"signal recieved: confirm")
+        workflow.logger.info("Received user signal: confirmation")
         self.confirm = True
 
     #Signal that comes from api/main.py via a post to /end-chat
     @workflow.signal
     async def end_chat(self) -> None:
         """Signal handler for ending the chat session."""
-        workflow.logger.warning("signal received: end_chat")
+        workflow.logger.info("signal received: end_chat")
         self.chat_ended = True
 
     @workflow.query
@@ -263,14 +260,13 @@ class AgentGoalWorkflow:
                 if listed_goal.id == goal:
                     self.goal = listed_goal
         #    self.goal = goals.get(goal)
-                    workflow.logger.warning("Changed goal to " + goal)
+                    workflow.logger.info("Changed goal to " + goal)
         #todo reset goal or tools if this doesn't work or whatever
 
     # workflow function that defines if chat should end
     def chat_should_end(self) -> bool:
         if self.chat_ended:
-            workflow.logger.warning(f"workflow step: chat-end signal received, ending")
-            workflow.logger.info("Chat ended.")
+            workflow.logger.info("Chat-end signal received. Chat ending.")
             return True
         else:
             return False
@@ -293,7 +289,7 @@ class AgentGoalWorkflow:
     # execute the tool - return False if we're not waiting for confirm anymore (always the case if it works successfully)
     # 
     async def execute_tool(self, current_tool: str)->bool:
-        workflow.logger.warning(f"workflow step: user has confirmed, executing the tool {current_tool}")
+        workflow.logger.info(f"workflow step: user has confirmed, executing the tool {current_tool}")
         self.confirm = False
         waiting_for_confirm = False
         confirmed_tool_data = self.tool_data.copy()
@@ -313,10 +309,10 @@ class AgentGoalWorkflow:
         if len(self.tool_results) > 0:
             if "ChangeGoal" in self.tool_results[-1].values() and "new_goal" in self.tool_results[-1].keys():
                 new_goal = self.tool_results[-1].get("new_goal")
-                workflow.logger.warning(f"Booya new goal!: {new_goal}")
+                workflow.logger.info(f"Booya new goal!: {new_goal}")
                 self.change_goal(new_goal)
             elif "ListAgents" in self.tool_results[-1].values() and self.goal.id != "goal_choose_agent_type":
-                workflow.logger.warning("setting goal to goal_choose_agent_type")
+                workflow.logger.info("setting goal to goal_choose_agent_type")
                 self.change_goal("goal_choose_agent_type")
         return waiting_for_confirm
         
