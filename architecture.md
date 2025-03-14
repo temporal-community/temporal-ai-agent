@@ -8,5 +8,7 @@ talk through the pieces
 
 explain elements
 
+tools do determinism
+
 # Adding features
 link to how to LLM interactions/how to change

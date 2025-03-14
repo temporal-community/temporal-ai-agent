@@ -41,6 +41,7 @@ description="Help the user gather args for these tools in order: "
 - The file name and function name will be the same as each other and should also be the same as the name of the tool, without "tool" - so future_pto_tool would be future_pto.py with a function named future_pto within it.
 - The function should have `args: dict` as the input and also return a `dict`
 - The return dict should match the output format you specified in the goal's `example_conversation_history`
+- tools are where the user input+model output becomes deterministic. Add validation here to make sure what the system is doing is valid and acceptable
 
 #### Add to `tools/__init__.py`
 - In `tools/__init__.py`, add an import statement for each new tool as well as an applicable return statement in `get_handler`. The tool name here should match the tool name as described in the goal's `description` field.

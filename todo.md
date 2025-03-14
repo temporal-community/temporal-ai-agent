@@ -16,6 +16,7 @@
 [ ] how to add more scenarios, tools <br />
 
 [ ] create tests<br />
+[ ] fix logging statements not to be all warn, maybe set logging level to info
 
 [ ] create people management scenarios <br />
 [x] 1. Schedule PTO goal
