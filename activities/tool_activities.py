@@ -493,7 +493,6 @@ def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     # Delegate to the relevant function
     handler = get_handler(tool_name)
     result = handler(tool_args)
-    print(f"in dynamic tool activity, result: {result}")
 
     # Optionally log or augment the result
     activity.logger.info(f"Tool '{tool_name}' result: {result}")
