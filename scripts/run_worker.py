@@ -49,7 +49,7 @@ async def main():
             print("===========================================================\n")
 
     print("Worker ready to process tasks!")
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARN)
 
 
 
