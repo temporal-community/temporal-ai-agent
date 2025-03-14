@@ -6,7 +6,7 @@ def current_pto(args: dict) -> dict:
     
     email = args.get("email")
 
-    file_path = Path(__file__).resolve().parent / "data" / "employee_pto_data.json"
+    file_path = Path(__file__).resolve().parent.parent / "data" / "employee_pto_data.json"
     if not file_path.exists():
         return {"error": "Data file not found."}
     

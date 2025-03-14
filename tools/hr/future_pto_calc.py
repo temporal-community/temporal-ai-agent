@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 
 def future_pto_calc(args: dict) -> dict:
     
-    file_path = Path(__file__).resolve().parent / "data" / "employee_pto_data.json"
+    file_path = Path(__file__).resolve().parent.parent / "data" / "employee_pto_data.json"
     if not file_path.exists():
         return {"error": "Data file not found."}
     
@@ -28,6 +28,9 @@ def future_pto_calc(args: dict) -> dict:
     
     #Get the number of business days, and then business hours (assume 8 hr biz day), included in the PTO request
     biz_days_of_request = len(pandas.bdate_range(start=start_date, end=end_date, inclusive="both"))
+    if biz_days_of_request == 0:
+        return_msg = "There are no business days between " + args.get("start_date") + " and " + args.get("end_date")
+        return {"error": return_msg}
     biz_hours_of_request = biz_days_of_request * 8
     
     #Assume PTO is added on the first of every month - month math compares rolling dates, so compare the PTO request with the first day of the current month.

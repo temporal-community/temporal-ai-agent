@@ -8,9 +8,9 @@ from .list_agents import list_agents
 from .change_goal import change_goal
 from .transfer_control import transfer_control
 
-from .current_pto import current_pto
-from .book_pto import book_pto
-from .future_pto_calc import future_pto_calc
+from .hr.current_pto import current_pto
+from .hr.book_pto import book_pto
+from .hr.future_pto_calc import future_pto_calc
 
 
 def get_handler(tool_name: str):

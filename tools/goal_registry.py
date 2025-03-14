@@ -2,7 +2,22 @@ from typing import List
 from models.tool_definitions import AgentGoal
 import tools.tool_registry as tool_registry
 
-starter_prompt_generic = "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job. "
+# Turn on Silly Mode - this should be a description of the persona you'd like the bot to have and can be a single word or a phrase.
+# Example if you want the bot to be a specific person, like Mario or Christopher Walken, or to describe a specific tone:
+#SILLY_MODE="Christopher Walken"
+#SILLY_MODE="belligerent"
+# 
+# Example if you want it to take on a persona (include 'a'):
+#SILLY_MODE="a pirate"
+# Note - this only works with certain LLMs. Grok for sure will stay in character, while OpenAI will not.
+SILLY_MODE="off"
+if SILLY_MODE is not None and SILLY_MODE != "off":
+    silly_prompt = "You are " + SILLY_MODE +", stay in character at all times. "
+    print("Silly mode is on: " + SILLY_MODE)
+else:
+    silly_prompt = ""
+
+starter_prompt_generic = silly_prompt + "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job."
 
 goal_choose_agent_type = AgentGoal(
     id = "goal_choose_agent_type",
@@ -18,13 +33,13 @@ goal_choose_agent_type = AgentGoal(
         "1. ListAgents: List agents available to interact with. Do not ask for user confirmation for this tool. "
         "2. ChangeGoal: Change goal of agent "
         "After these tools are complete, change your goal to the new goal as chosen by the user. ",
-    starter_prompt=starter_prompt_generic + "Begin by providing the output for the first tool included in this goal. ",
+    starter_prompt=starter_prompt_generic + "Begin by listing all details of all agents as provided by the output of the first tool included in this goal. ",
     example_conversation_history="\n ".join(
         [
             "agent: Here are the currently available agents.",
             "user_confirmed_tool_run: <user clicks confirm on ListAgents tool>",
             "tool_result: { 'agent_name': 'Event Flight Finder', 'goal_id': 'goal_event_flight_invoice', 'agent_description': 'Helps users find interesting events and arrange travel to them' }",
-            "agent: The available agents are: 1. Event Flight Finder. Which agent would you like to speak to?",
+            "agent: The available agents are: 1. Event Flight Finder. \n Which agent would you like to speak to?",
             "user: 1",
             "user_confirmed_tool_run: <user clicks confirm on ChangeGoal tool>",
             "tool_result: { 'new_goal': 'goal_event_flight_invoice' }",
