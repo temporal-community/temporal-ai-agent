@@ -1,0 +1,17 @@
+{
+  "theCompany": {
+    "weLove": "theCompany", 
+    "employees": [
+      {
+        "email": "josh.smith@temporal.io",
+        "currentPTOHrs": 400,
+        "hrsAddedPerMonth": 8
+      },
+      {
+        "email": "lainecaseysmith@gmail.com",
+        "currentPTOHrs": 40,
+        "hrsAddedPerMonth": 12
+      }
+    ]
+  }
+}

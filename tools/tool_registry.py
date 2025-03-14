@@ -142,3 +142,84 @@ find_events_tool = ToolDefinition(
         ),
     ],
 )
+
+current_pto_tool = ToolDefinition(
+    name="CurrentPTO",
+    description="Find how much PTO a user currently has accrued. "
+    "Returns the number of hours and (calculated) number of days of PTO. ",
+    arguments=[
+        ToolArgument(
+            name="email",
+            type="string",
+            description="email address of user",
+        ),
+    ],
+)
+
+future_pto_calc_tool = ToolDefinition(
+    name="FuturePTOCalc",
+    description="Calculate if the user will have enough PTO as of their proposed date to accommodate the request. The proposed start and end dates should be in the future. "
+    "Returns a boolean enough_pto and how many hours of PTO they will have remaining if they take the proposed dates. ",
+    arguments=[
+        ToolArgument(
+            name="start_date",
+            type="string",
+            description="Start date of proposed PTO",
+        ),
+        ToolArgument(
+            name="end_date",
+            type="string",
+            description="End date of proposed PTO",
+        ),
+        ToolArgument(
+            name="email",
+            type="string",
+            description="email address of user",
+        ),
+    ],
+)
+
+calendar_conflict_tool = ToolDefinition(
+    name="CalendarConflict",
+    description="Determine if the proposed PTO date(s) have conflicts. Returns list of conflicts. ",
+    arguments=[
+        ToolArgument(
+            name="check_self_calendar",
+            type="boolean",
+            description="Check self calendar for conflicts?",
+        ),
+        ToolArgument(
+            name="check_team_calendar",
+            type="boolean",
+            description="Check team calendar for conflicts?",
+        ),
+    ],
+)
+
+book_pto_tool = ToolDefinition(
+    name="BookPTO",
+    description="Book PTO start and end date. Either 1) makes calendar item, or 2) sends calendar invite to self and boss? "
+    "Returns a success indicator. ",
+    arguments=[
+        ToolArgument(
+            name="start_date",
+            type="string",
+            description="Start date of proposed PTO",
+        ),
+        ToolArgument(
+            name="end_date",
+            type="string",
+            description="End date of proposed PTO",
+        ),
+        ToolArgument(
+            name="email",
+            type="string",
+            description="Email address of user, used to look up current PTO",
+        ),
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="Indication of user's desire to book PTO",
+        ),
+    ],
+)
