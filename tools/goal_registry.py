@@ -1,25 +1,12 @@
 from typing import List
 from models.tool_definitions import AgentGoal
 import tools.tool_registry as tool_registry
-'''from tools.tool_registry import (
-    search_fixtures_tool,
-    search_flights_tool,
-    search_trains_tool,
-    book_trains_tool,
-    create_invoice_tool,
-    find_events_tool,
-    change_goal_tool,
-    list_agents_tool,
-    current_pto_tool,
-    future_pto_calc_tool,
-    calendar_conflict_tool,
-    book_pto_tool,
-)'''
 
-starter_prompt_generic = "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job"
+starter_prompt_generic = "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job. "
 
 goal_choose_agent_type = AgentGoal(
     id = "goal_choose_agent_type",
+    category_tag="system",
     agent_name="Choose Agent",
     agent_friendly_description="Choose the type of agent to assist you today.",
     tools=[
@@ -28,14 +15,13 @@ goal_choose_agent_type = AgentGoal(
     ],
     description="The user wants to choose which type of agent they will interact with. "
         "Help the user gather args for these tools, in order: "
-        "1. ListAgents: List agents available to interact with "
+        "1. ListAgents: List agents available to interact with. Do not ask for user confirmation for this tool. "
         "2. ChangeGoal: Change goal of agent "
         "After these tools are complete, change your goal to the new goal as chosen by the user. ",
-    starter_prompt=starter_prompt_generic,
+    starter_prompt=starter_prompt_generic + "Begin by providing the output for the first tool included in this goal. ",
     example_conversation_history="\n ".join(
         [
-            "user: I'd like to choose an agent",
-            "agent: Sure! Would you like me to list the available agents?",
+            "agent: Here are the currently available agents.",
             "user_confirmed_tool_run: <user clicks confirm on ListAgents tool>",
             "tool_result: { 'agent_name': 'Event Flight Finder', 'goal_id': 'goal_event_flight_invoice', 'agent_description': 'Helps users find interesting events and arrange travel to them' }",
             "agent: The available agents are: 1. Event Flight Finder. Which agent would you like to speak to?",
@@ -48,6 +34,7 @@ goal_choose_agent_type = AgentGoal(
 
 goal_match_train_invoice = AgentGoal(
     id = "goal_match_train_invoice",
+    category_tag="travel",
     agent_name="UK Premier League Match Trip Booking",
     agent_friendly_description="Book a trip to a city in the UK around the dates of a premier league match.",
     tools=[
@@ -95,6 +82,7 @@ goal_match_train_invoice = AgentGoal(
 
 goal_event_flight_invoice = AgentGoal(
     id = "goal_event_flight_invoice",
+    category_tag="travel",
     agent_name="Australia and New Zealand Event Flight Booking",
     agent_friendly_description="Book a trip to a city in Australia or New Zealand around the dates of events in that city.",    
     tools=[
@@ -134,20 +122,19 @@ goal_event_flight_invoice = AgentGoal(
 # This goal uses the data/employee_pto_data.json file as dummy data.
 goal_hr_schedule_pto = AgentGoal(
     id = "goal_hr_schedule_pto",
+    category_tag="hr",
     agent_name="Schedule PTO",
-    agent_friendly_description="Schedule PTO based on your available time, personal calendar, and team calendar.",   
+    agent_friendly_description="Schedule PTO based on your available PTO.",   
     tools=[
         tool_registry.current_pto_tool,
         tool_registry.future_pto_calc_tool,
-        tool_registry.calendar_conflict_tool,
         tool_registry.book_pto_tool,
         tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
-    description="Help the user gather args for these tools in order: "
+    description="The user wants to schedule paid time off (PTO) after today's date. To assist with that goal, help the user gather args for these tools in order: "
     "1. CurrentPTO: Tell the user how much PTO they currently have "
-    "2. FuturePTOCalc: Tell the user how much PTO they will have as of the prospective date "
-    "3. CalendarConflict: Tell the user what conflicts if any exist around the prospective date on a list of calendars. This step is optional and can be skipped by moving to the next tool. "
-    "4. BookPTO: Book PTO ",
+    "2. FuturePTOCalc: Tell the user how much PTO they will have as of the prospective future date "
+    "3. BookPTO: Book PTO after user types 'yes'",
     starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
         [
@@ -158,8 +145,8 @@ goal_hr_schedule_pto = AgentGoal(
             "user_confirmed_tool_run: <user clicks confirm on CurrentPTO tool>",
             "tool_result: { 'num_hours': 400, 'num_days': 50 }",
             "agent: You have 400 hours, or 50 days, of PTO available. What dates would you like to take your time off? ",
-            "user: Dec 1 2025 through Dec 5 2025",
-            "agent: Let's check if you'll have enough PTO accrued by Dec 1 to accomodate that.",
+            "user: Dec 1 through Dec 5",
+            "agent: Let's check if you'll have enough PTO accrued by Dec 1 of this year to accomodate that.",
             "user_confirmed_tool_run: <user clicks confirm on FuturePTO tool>"
             'tool_result: {"enough_pto": True, "pto_hrs_remaining_after": 410}',
             "agent: You do in fact have enough PTO to accommodate that, and will have 410 hours remaining after you come back. Do you want to check calendars for conflicts? If so, please provide one of the following: self, team, or both "
