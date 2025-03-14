@@ -1,18 +1,18 @@
 # todo list
-[ ] clean up workflow/make functions
+[x] clean up workflow/make functions
 
 [x] make the debugging confirms optional <br />
 [ ] add confirmation env setting to setup guide <br />
  <br />
 [x] document *why* temporal for ai agents - scalability, durability, visibility in the readme <br />
-[ ] fix readme: move setup to its own page, demo to its own page, add the why /|\ section <br />
-[ ] add architecture to readme <br />
+[x] fix readme: move setup to its own page, demo to its own page, add the why /|\ section <br />
+[x] add architecture to readme <br />
 - elements of app <br />
 - dive into llm interaction <br />
 - workflow breakdown - interactive loop <br />
 - why temporal <br />
 
-[ ] setup readme, why readme, architecture readme, what this is in main readme with temporal value props and pictures <br />
+[x] setup readme, why readme, architecture readme, what this is in main readme with temporal value props and pictures <br />
 [ ] how to add more scenarios, tools <br />
 
 [ ] create tests<br />
