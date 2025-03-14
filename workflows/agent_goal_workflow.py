@@ -77,55 +77,34 @@ class AgentGoalWorkflow:
         # This is the main interactive loop. Main responsibilities:
         #   - Selecting and changing goals as directed by the user
         #   - reacting to user input (from signals) 
-        #   - calling activities to determine next steps and prompts
-        #   - executing the selected tools 
+        #   - validating user input to make sure it makes sense with the current goal and tools
+        #   - calling the LLM through activities to determine next steps and prompts
+        #   - executing the selected tools via activities
         while True:
             # wait indefinitely for input from signals - user_prompt, end_chat, or confirm as defined below
             await workflow.wait_condition(
                 lambda: bool(self.prompt_queue) or self.chat_ended or self.confirm
             )
 
-            # handle chat-end signal
-            if self.chat_ended:
-                workflow.logger.warning(f"workflow step: chat-end signal received, ending")
-                workflow.logger.info("Chat ended.")
+            # handle chat should end. When chat ends, push conversation history to workflow results.
+            if self.chat_should_end():
                 return f"{self.conversation_history}"
 
             # Execute the tool 
-            if self.confirm and waiting_for_confirm and current_tool and self.tool_data:
-                workflow.logger.warning(f"workflow step: user has confirmed, executing the tool {current_tool}")
-                self.confirm = False
-                waiting_for_confirm = False
-
-                confirmed_tool_data = self.tool_data.copy()
-                confirmed_tool_data["next"] = "user_confirmed_tool_run"
-                self.add_message("user_confirmed_tool_run", confirmed_tool_data)
-
-                # execute the tool by key as defined in tools/__init__.py
-                await helpers.handle_tool_execution(
-                    current_tool,
-                    self.tool_data,
-                    self.tool_results,
-                    self.add_message,
-                    self.prompt_queue
-                )
-
-                #set new goal if we should
-                if len(self.tool_results) > 0:
-                    if "ChangeGoal" in self.tool_results[-1].values() and "new_goal" in self.tool_results[-1].keys():
-                        new_goal = self.tool_results[-1].get("new_goal")
-                        workflow.logger.warning(f"Booya new goal!: {new_goal}")
-                        self.change_goal(new_goal)
-                    elif "ListAgents" in self.tool_results[-1].values() and self.goal.id != "goal_choose_agent_type":
-                        workflow.logger.warning("setting goal to goal_choose_agent_type")
-                        self.change_goal("goal_choose_agent_type")
+            if self.ready_for_tool_execution(waiting_for_confirm, current_tool):
+                waiting_for_confirm = await self.execute_tool(current_tool)
                 continue
 
-            # if we've received messages to be processed on the prompt queue...
+            # process forward on the prompt queue if any
             if self.prompt_queue:
+                # get most recent prompt
                 prompt = self.prompt_queue.popleft()
                 workflow.logger.warning(f"workflow step: processing message on the prompt queue, message is {prompt}")
-                if not prompt.startswith("###"): #if the message isn't from the LLM but is instead from the user
+
+                
+                
+                # Validate user-provided prompts
+                if self.is_user_prompt(prompt): 
                     self.add_message("user", prompt)
 
                     # Validate the prompt before proceeding
@@ -144,7 +123,7 @@ class AgentGoalWorkflow:
                         ),
                     )
 
-                    #If validation fails, provide that feedback to the user - i.e., "your words make no sense, puny human" end this iteration of processing
+                    # If validation fails, provide that feedback to the user - i.e., "your words make no sense, puny human" end this iteration of processing
                     if not validation_result.validationResult:
                         workflow.logger.warning(f"Prompt validation failed: {validation_result.validationFailedReason}")
                         self.add_message("agent", validation_result.validationFailedReason)
@@ -172,6 +151,7 @@ class AgentGoalWorkflow:
                 current_tool = tool_data.get("tool")
 
                 workflow.logger.warning(f"next_step: {next_step}, current tool is {current_tool}")
+
                 #if the next step is to confirm...
                 if next_step == "confirm" and current_tool:
                     args = tool_data.get("args", {})
@@ -285,3 +265,60 @@ class AgentGoalWorkflow:
         #    self.goal = goals.get(goal)
                     workflow.logger.warning("Changed goal to " + goal)
         #todo reset goal or tools if this doesn't work or whatever
+
+    # workflow function that defines if chat should end
+    def chat_should_end(self) -> bool:
+        if self.chat_ended:
+            workflow.logger.warning(f"workflow step: chat-end signal received, ending")
+            workflow.logger.info("Chat ended.")
+            return True
+        else:
+            return False
+    
+    # define if we're ready for tool execution
+    def ready_for_tool_execution(self, waiting_for_confirm: bool, current_tool: Any) -> bool:
+        if self.confirm and waiting_for_confirm and current_tool and self.tool_data:
+            return True
+        else:
+            return False
+
+    # LLM-tagged prompts start with "###"
+    # all others are from the user
+    def is_user_prompt(self, prompt) -> bool:
+         if prompt.startswith("###"):
+             return False
+         else:
+             return True
+        
+    # execute the tool - return False if we're not waiting for confirm anymore (always the case if it works successfully)
+    # 
+    async def execute_tool(self, current_tool: str)->bool:
+        workflow.logger.warning(f"workflow step: user has confirmed, executing the tool {current_tool}")
+        self.confirm = False
+        waiting_for_confirm = False
+        confirmed_tool_data = self.tool_data.copy()
+        confirmed_tool_data["next"] = "user_confirmed_tool_run"
+        self.add_message("user_confirmed_tool_run", confirmed_tool_data)
+
+        # execute the tool by key as defined in tools/__init__.py
+        await helpers.handle_tool_execution(
+            current_tool,
+            self.tool_data,
+            self.tool_results,
+            self.add_message,
+            self.prompt_queue
+        )
+
+        #set new goal if we should
+        if len(self.tool_results) > 0:
+            if "ChangeGoal" in self.tool_results[-1].values() and "new_goal" in self.tool_results[-1].keys():
+                new_goal = self.tool_results[-1].get("new_goal")
+                workflow.logger.warning(f"Booya new goal!: {new_goal}")
+                self.change_goal(new_goal)
+            elif "ListAgents" in self.tool_results[-1].values() and self.goal.id != "goal_choose_agent_type":
+                workflow.logger.warning("setting goal to goal_choose_agent_type")
+                self.change_goal("goal_choose_agent_type")
+        return waiting_for_confirm
+        
+
+    
