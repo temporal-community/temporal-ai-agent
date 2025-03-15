@@ -26,7 +26,7 @@ The agent can be configured to pursue different goals using the `AGENT_GOAL` env
 
 #### Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost
 - `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
-    - This is a new goal that is part of an upcoming conference talk
+    - This goal was part of [Temporal's Replay 2025 conference keynote demo](https://www.youtube.com/watch?v=YDxAWrIBQNE)
 
 If not specified, the agent defaults to `goal_event_flight_invoice`. Each goal comes with its own set of tools and conversation flows designed for specific use cases. You can examine `tools/goal_registry.py` to see the detailed configuration of each goal.
 
