@@ -1,5 +1,5 @@
 from models.tool_definitions import ToolDefinition, ToolArgument
-
+# ----- System tools -----
 list_agents_tool = ToolDefinition(
     name="ListAgents",
     description="List available agents to interact with, pulled from goal_registry. ",
@@ -18,6 +18,39 @@ change_goal_tool = ToolDefinition(
     ],
 )
 
+give_hint_tool = ToolDefinition(
+    name="GiveHint",
+    description="Give a hint to the user regarding the location of the pirate treasure. Use previous conversation to determine the hint_total, it should initially be 0 ",
+    arguments=[        
+        ToolArgument(
+            name="hint_total",
+            type="number",
+            description="How many hints have been given",
+        ),],
+)
+
+guess_location_tool = ToolDefinition(
+    name="GuessLocation",
+    description="Allow the user to guess the location (in the form of an address) of the pirate treasure. ",
+    arguments=[
+        ToolArgument(
+            name="address",
+            type="string",
+            description="Address at which the user is guessing the treasure is located",
+        ),
+        ToolArgument(
+            name="city",
+            type="string",
+            description="City at which the user is guessing the treasure is located",
+        ),
+        ToolArgument(
+            name="state",
+            type="string",
+            description="State at which the user is guessing the treasure is located",
+        ),
+    ],
+)
+# ----- Travel use cases tools -----
 search_flights_tool = ToolDefinition(
     name="SearchFlights",
     description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn).",
@@ -143,6 +176,7 @@ find_events_tool = ToolDefinition(
     ],
 )
 
+# ----- HR use cases tools -----
 current_pto_tool = ToolDefinition(
     name="CurrentPTO",
     description="Find how much PTO a user currently has accrued. "
@@ -175,23 +209,6 @@ future_pto_calc_tool = ToolDefinition(
             name="email",
             type="string",
             description="email address of user",
-        ),
-    ],
-)
-
-calendar_conflict_tool = ToolDefinition(
-    name="CalendarConflict",
-    description="Determine if the proposed PTO date(s) have conflicts. Returns list of conflicts. ",
-    arguments=[
-        ToolArgument(
-            name="check_self_calendar",
-            type="boolean",
-            description="Check self calendar for conflicts?",
-        ),
-        ToolArgument(
-            name="check_team_calendar",
-            type="boolean",
-            description="Check team calendar for conflicts?",
         ),
     ],
 )
