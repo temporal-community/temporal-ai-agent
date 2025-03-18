@@ -222,6 +222,58 @@ goal_hr_schedule_pto = AgentGoal(
     ),
 )
 
+# This goal uses the data/employee_pto_data.json file as dummy data.
+goal_hr_check_pto = AgentGoal(
+    id = "goal_hr_check_pto",
+    category_tag="hr",
+    agent_name="Check PTO Amount",
+    agent_friendly_description="Check your available PTO.",   
+    tools=[
+        tool_registry.current_pto_tool,
+        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
+    ],
+    description="The user wants to check their paid time off (PTO) after today's date. To assist with that goal, help the user gather args for these tools in order: "
+    "1. CurrentPTO: Tell the user how much PTO they currently have ",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to check my time off amounts at the current time",
+            "agent: Sure! I can help you out with that. May I have your email address?",
+            "user: bob.johnson@emailzzz.com",
+            "agent: Great! I can tell you how much PTO you currently have accrued.",
+            "user_confirmed_tool_run: <user clicks confirm on CurrentPTO tool>",
+            "tool_result: { 'num_hours': 400, 'num_days': 50 }",
+            "agent: You have 400 hours, or 50 days, of PTO available.",
+        ]
+    ),
+)
+
+# This goal uses the data/employee_pto_data.json file as dummy data.
+goal_hr_check_paycheck_bank_integration_status = AgentGoal(
+    id = "goal_hr_check_paycheck_bank_integration_status",
+    category_tag="hr",
+    agent_name="Check paycheck bank integration status",
+    agent_friendly_description="Check your available PTO.",   
+    tools=[
+        tool_registry.paycheck_bank_integration_status_check,
+        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
+    ],
+    description="The user wants to check their bank integration used to deposit their paycheck. To assist with that goal, help the user gather args for these tools in order: "
+    "1. CheckPayBankStatus: Tell the user the status of their paycheck bank integration ",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to check paycheck bank integration",
+            "agent: Sure! I can help you out with that. May I have your email address?",
+            "user: bob.johnson@emailzzz.com",
+            "agent: Great! I can tell you what the status is for your paycheck bank integration.",
+            "user_confirmed_tool_run: <user clicks confirm on CheckPayBankStatus tool>",
+            "tool_result: { 'status': connected }",
+            "agent: Your paycheck bank deposit integration is properly connected.",
+        ]
+    ),
+)
+
 #Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
@@ -229,3 +281,6 @@ goal_list.append(goal_pirate_treasure)
 goal_list.append(goal_event_flight_invoice)
 goal_list.append(goal_match_train_invoice)
 goal_list.append(goal_hr_schedule_pto)
+goal_list.append(goal_hr_check_pto)
+goal_list.append(goal_hr_check_paycheck_bank_integration_status)
+

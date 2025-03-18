@@ -240,3 +240,16 @@ book_pto_tool = ToolDefinition(
         ),
     ],
 )
+
+paycheck_bank_integration_status_check = ToolDefinition(
+    name="CheckPayBankStatus",
+    description="Check status of Bank Integration for Paychecks. "
+    "Returns the status of the bank integration, connected or disconnected. ",
+    arguments=[
+        ToolArgument(
+            name="email",
+            type="string",
+            description="email address of user",
+        ),
+    ],
+)

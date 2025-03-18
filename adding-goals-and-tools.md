@@ -5,7 +5,7 @@ It may be helpful to review the [architecture](./architecture.md) for a guide an
 
 ### Adding a Goal
 1.  Open [/tools/goal_registry.py](tools/goal_registry.py) - this file contains descriptions of goals and the tools used to achieve them
-2. Pick a name for your goal!
+2. Pick a name for your goal! (such as "goal_hr_schedule_pto")
 3. Fill out the required elements:
 -  `id`: needs to be the same as the name
 - `agent_name`: user-facing name for the agent/chatbot
@@ -61,6 +61,7 @@ if tool_name == "CurrentPTO":
     return current_pto
 ```
 
+TODO probably update this it's out of date :point_down:
 ### Configuring the Starting Goal
 
 The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file.

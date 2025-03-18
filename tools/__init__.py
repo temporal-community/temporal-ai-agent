@@ -11,6 +11,7 @@ from .transfer_control import transfer_control
 from .hr.current_pto import current_pto
 from .hr.book_pto import book_pto
 from .hr.future_pto_calc import future_pto_calc
+from .hr.checkpaybankstatus import checkpaybankstatus
 
 from .give_hint import give_hint
 from .guess_location import guess_location
@@ -41,6 +42,8 @@ def get_handler(tool_name: str):
         return book_pto
     if tool_name == "FuturePTOCalc":
         return future_pto_calc
+    if tool_name == "CheckPayBankStatus":
+        return checkpaybankstatus
     if tool_name == "GiveHint":
         return give_hint
     if tool_name == "GuessLocation":
