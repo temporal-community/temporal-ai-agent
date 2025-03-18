@@ -213,13 +213,8 @@ goal_hr_schedule_pto = AgentGoal(
             "agent: Let's check if you'll have enough PTO accrued by Dec 1 of this year to accomodate that.",
             "user_confirmed_tool_run: <user clicks confirm on FuturePTO tool>"
             'tool_result: {"enough_pto": True, "pto_hrs_remaining_after": 410}',
-            "agent: You do in fact have enough PTO to accommodate that, and will have 410 hours remaining after you come back. Do you want to check calendars for conflicts? If so, please provide one of the following: self, team, or both "
-            "user: both ",
-            "agent: Okay, checking both calendars for conflicts ",
-            "user_confirmed_tool_run: <user clicks confirm on CheckCalendarConflict tool>",
-            'tool_result: { "calendar": "self", "title": "Meeting with Karen", "date": "2025-12-02", "time": "10:00AM"}',
-            "agent: On your calendar, you have a conflict: Meeting with Karen at 10AM Dec 2, 2025. Do you want to book the PTO?"
-            "user: yes "
+            "agent: You do in fact have enough PTO to accommodate that, and will have 410 hours remaining after you come back. Do you want to book the PTO? ",
+            "user: yes ",
             "user_confirmed_tool_run: <user clicks confirm on BookPTO tool>",
             'tool_result: { "status": "success" }',
             "agent: PTO successfully booked! ",
