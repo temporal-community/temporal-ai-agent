@@ -47,6 +47,55 @@ goal_choose_agent_type = AgentGoal(
     ),
 )
 
+# Easter egg - if silly mode = a pirate, include goal_pirate_treasure as a "system" goal so it always shows up.
+# Can also turn make this goal available by setting the GOAL_CATEGORIES in the env file to include 'pirate', but if SILLY_MODE
+#   is not 'a pirate', the interaction as a whole will be less pirate-y.
+pirate_category_tag = "pirate"
+if SILLY_MODE == "a pirate":
+    pirate_category_tag = "system"
+goal_pirate_treasure = AgentGoal(
+    id = "goal_pirate_treasure",
+    category_tag=pirate_category_tag,
+    agent_name="Arrr, Find Me Treasure!",
+    agent_friendly_description="Sail the high seas and find me pirate treasure, ye land lubber!",
+    tools=[
+        tool_registry.give_hint_tool,
+        tool_registry.guess_location_tool,
+        tool_registry.list_agents_tool, 
+    ],
+    description="The user wants to find a pirate treasure. "
+        "Help the user gather args for these tools, in a loop, until treasure_found is True or the user requests to be done: "
+        "1. GiveHint: If the user wants a hint regarding the location of the treasure, give them a hint. If they do not want a hint, this tool is optional."
+        "2. GuessLocation: The user guesses where the treasure is, by giving an address. ",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to try to find the treasure",
+            "agent: Sure! Do you want a hint?",
+            "user: yes",
+            "agent: Here is hint number 1!",
+            "user_confirmed_tool_run: <user clicks confirm on GiveHint tool>",
+            "tool_result: { 'hint_number': 1, 'hint': 'The treasure is in the state of Arizona.' }",
+            "agent: The treasure is in the state of Arizona. Would you like to guess the address of the treasure? ",
+            "user: Yes, address is 123 Main St Phoenix, AZ",
+            "agent: Let's see if you found the treasure...",
+            "user_confirmed_tool_run: <user clicks confirm on GuessLocation tool>"
+            "tool_result: {'treasure_found':False}",
+            "agent: Nope, that's not the right location! Do you want another hint?",
+            "user: yes",
+            "agent: Here is hint number 2.",
+            "user_confirmed_tool_run: <user clicks confirm on GiveHint tool>",
+            "tool_result: { 'hint_number': 2, 'hint': 'The treasure is in the city of Tucson, AZ.' }",
+            "agent: The treasure is in the city of Tucson, AZ. Would you like to guess the address of the treasure? ",
+            "user: Yes, address is 456 Main St Tucson, AZ",
+            "agent: Let's see if you found the treasure...",
+            "user_confirmed_tool_run: <user clicks confirm on GuessLocation tool>",
+            "tool_result: {'treasure_found':True}",
+            "agent: Congratulations, Land Lubber, you've found the pirate treasure!",
+        ]
+    ),
+)
+
 goal_match_train_invoice = AgentGoal(
     id = "goal_match_train_invoice",
     category_tag="travel",
@@ -164,13 +213,8 @@ goal_hr_schedule_pto = AgentGoal(
             "agent: Let's check if you'll have enough PTO accrued by Dec 1 of this year to accomodate that.",
             "user_confirmed_tool_run: <user clicks confirm on FuturePTO tool>"
             'tool_result: {"enough_pto": True, "pto_hrs_remaining_after": 410}',
-            "agent: You do in fact have enough PTO to accommodate that, and will have 410 hours remaining after you come back. Do you want to check calendars for conflicts? If so, please provide one of the following: self, team, or both "
-            "user: both ",
-            "agent: Okay, checking both calendars for conflicts ",
-            "user_confirmed_tool_run: <user clicks confirm on CheckCalendarConflict tool>",
-            'tool_result: { "calendar": "self", "title": "Meeting with Karen", "date": "2025-12-02", "time": "10:00AM"}',
-            "agent: On your calendar, you have a conflict: Meeting with Karen at 10AM Dec 2, 2025. Do you want to book the PTO?"
-            "user: yes "
+            "agent: You do in fact have enough PTO to accommodate that, and will have 410 hours remaining after you come back. Do you want to book the PTO? ",
+            "user: yes ",
             "user_confirmed_tool_run: <user clicks confirm on BookPTO tool>",
             'tool_result: { "status": "success" }',
             "agent: PTO successfully booked! ",
@@ -181,6 +225,7 @@ goal_hr_schedule_pto = AgentGoal(
 #Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
+goal_list.append(goal_pirate_treasure)
 goal_list.append(goal_event_flight_invoice)
 goal_list.append(goal_match_train_invoice)
 goal_list.append(goal_hr_schedule_pto)
