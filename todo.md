@@ -1,20 +1,20 @@
 # todo list
 [ ] add confirmation env setting to setup guide <br />
  <br />
-[ ] how to add more scenarios, tools <br />
-
+[x] how to add more scenarios, tools <br />
+[ ] make agent respond to name of goals and not just numbers
+[ ] L look at slides
+[ ] josh to do fintech scenarios
 [ ] create tests<br />
 [ ] fix logging statements not to be all warn, maybe set logging level to info
 
 [ ] create people management scenarios <br />
 
-[ ] 2. Others:
--- check pay status <br />
+[ ] 2. Others HR goals:
 -- book work travel <br />
 -- check insurance coverages <br />
 -- expense management <br />
 -- check in on the health of the team <br />
--- check pto
 
 [x] demo the reasons why: <br />
 - Orchestrate interactions across distributed data stores and tools <br />

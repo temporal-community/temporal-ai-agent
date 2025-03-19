@@ -3,12 +3,20 @@ The agent is set up to allow for multiple goals and to switch back to choosing a
 
 It may be helpful to review the [architecture](./architecture.md) for a guide and definition of goals, tools, etc.
 
+### Adding a New Goal Category
+Goal Categories lets you pick which groups of goals to show. Set via an .env setting, GOAL_CATEGORIES.
+1. Pick a unique one that has some business meaning
+2. Use it in your .env file
+3. Add to [.env.example](./.env.example)
+4. Use it in your Goal definition, see below.
+
 ### Adding a Goal
 1.  Open [/tools/goal_registry.py](tools/goal_registry.py) - this file contains descriptions of goals and the tools used to achieve them
 2. Pick a name for your goal! (such as "goal_hr_schedule_pto")
 3. Fill out the required elements:
 -  `id`: needs to be the same as the name
 - `agent_name`: user-facing name for the agent/chatbot
+- `category_tag`: category for the goal
 - `agent_friendly_description`: user-facing description of what the agent/chatbot does
 - `tools`: the list of tools the goal will walk the user through. These will be defined in the [tools/tool_registry.py](tools/tool_registry.py) and should be defined in list form as tool_registry.[name of tool]
 - Important! The last tool listed must be `list_agents_tool`. This allows the chatbot to guide the user back to choosing from the list of available goals once a goal is complete.<br />
