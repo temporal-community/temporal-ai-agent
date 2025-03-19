@@ -69,26 +69,25 @@ if tool_name == "CurrentPTO":
     return current_pto
 ```
 
-TODO probably update this it's out of date :point_down:
-### Configuring the Starting Goal
+### Existing Travel Goals
 
 The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file.
 
 #### Goal: Find an event in Australia / New Zealand, book flights to it and invoice the user for the cost
 - `AGENT_GOAL=goal_event_flight_invoice` (default) - Helps users find events, book flights, and arrange train travel with invoice generation
-    - This is the scenario in the video above
+    - This is the scenario in the [original video](https://www.youtube.com/watch?v=GEXllEH2XiQ)
 
 #### Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost
 - `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
-    - This is a new goal that is part of an upcoming conference talk
+    - This is a new goal that is part of the [Replay 2025 talk](https://www.youtube.com/watch?v=YDxAWrIBQNE).
 
-If not specified, the agent defaults to `goal_event_flight_invoice`. Each goal comes with its own set of tools and conversation flows designed for specific use cases. You can examine `tools/goal_registry.py` to see the detailed configuration of each goal.
+If not specified, the agent defaults to all goals. Each goal, including these, comes with its own set of tools and conversation flows designed for specific use cases. You can examine `tools/goal_registry.py` to see the detailed configuration of each goal.
 
-See the next section for tool configuration for each goal.
+See the next section for tool configuration for these goals.
 
-### Configuring Existing Tools
+#### Configuring Travel Goal Tools
 
-#### Agent Goal: goal_event_flight_invoice (default)
+##### Agent Goal: goal_event_flight_invoice (default)
 * The agent uses a mock function to search for events. This has zero configuration.
 * By default the agent uses a mock function to search for flights.
     * If you want to use the real flights API, go to `tools/search_flights.py` and replace the `search_flights` function with `search_flights_real_api` that exists in the same file.
@@ -98,7 +97,7 @@ See the next section for tool configuration for each goal.
     * It's free to sign up and get a key at [Stripe](https://stripe.com/)
     * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
 
-#### Agent Goal: goal_match_train_invoice
+##### Agent Goal: goal_match_train_invoice
 
 * Finding a match requires a key from [Football Data](https://www.football-data.org). Sign up for a free account, then see the 'My Account' page to get your API token. Set `FOOTBALL_DATA_API_KEY` to this value.
     * If you're lazy go to `tools/search_fixtures.py` and replace the `search_fixtures` function with the mock `search_fixtures_example` that exists in the same file.

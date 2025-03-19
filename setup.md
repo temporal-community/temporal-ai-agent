@@ -1,9 +1,16 @@
-## Configuration
+# Setup Guide
+## Initial Configuration
 
 This application uses `.env` files for configuration. Copy the [.env.example](.env.example) file to `.env` and update the values:
 
 ```bash
 cp .env.example .env
+```
+
+Then add API keys, configuration, as desired.
+If you want to show confirmations/enable the debugging UI, set
+```bash
+SHOW_CONFIRM=True
 ```
 
 ### Agent Goal Configuration
@@ -174,3 +181,5 @@ If you're running your train API above on a different host/port then change the 
 - `goal_registry.py` contains descriptions of goals and the tools used to achieve them
 - The tools themselves are defined in their own files in `/tools`
 - Note the mapping in `tools/__init__.py` to each tool
+
+For more details, check out [adding goals and tools guide](./adding-goals-and-tools.md).

@@ -259,9 +259,10 @@ class AgentGoalWorkflow:
             for listed_goal in goal_list:
                 if listed_goal.id == goal:
                     self.goal = listed_goal
-        #    self.goal = goals.get(goal)
                     workflow.logger.info("Changed goal to " + goal)
-        #todo reset goal or tools if this doesn't work or whatever
+            if goal is None:
+                workflow.logger.warning("Goal not set after goal reset, probably bad.") # if this happens, there's probably a problem with the goal list
+        
 
     # workflow function that defines if chat should end
     def chat_should_end(self) -> bool:
