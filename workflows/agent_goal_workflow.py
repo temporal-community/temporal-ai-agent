@@ -26,11 +26,11 @@ with workflow.unsafe.imports_passed_through():
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
 
-SHOW_CONFIRM = True
 show_confirm_env = os.getenv("SHOW_CONFIRM")
-if show_confirm_env is not None:
-    if show_confirm_env == "False":
-        SHOW_CONFIRM = False
+if show_confirm_env is not None and show_confirm_env.lower() == "false":
+    SHOW_CONFIRM = False
+else:
+    SHOW_CONFIRM = True
 
 #ToolData as part of the workflow is what's accessible to the UI - see LLMResponse.jsx for example
 class ToolData(TypedDict, total=False):
@@ -259,9 +259,10 @@ class AgentGoalWorkflow:
             for listed_goal in goal_list:
                 if listed_goal.id == goal:
                     self.goal = listed_goal
-        #    self.goal = goals.get(goal)
                     workflow.logger.info("Changed goal to " + goal)
-        #todo reset goal or tools if this doesn't work or whatever
+            if goal is None:
+                workflow.logger.warning("Goal not set after goal reset, probably bad.") # if this happens, there's probably a problem with the goal list
+        
 
     # workflow function that defines if chat should end
     def chat_should_end(self) -> bool:

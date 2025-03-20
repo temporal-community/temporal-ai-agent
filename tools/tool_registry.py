@@ -50,6 +50,7 @@ guess_location_tool = ToolDefinition(
         ),
     ],
 )
+
 # ----- Travel use cases tools -----
 search_flights_tool = ToolDefinition(
     name="SearchFlights",
@@ -198,12 +199,12 @@ future_pto_calc_tool = ToolDefinition(
         ToolArgument(
             name="start_date",
             type="string",
-            description="Start date of proposed PTO",
+            description="Start date of proposed PTO, sent in the form yyyy-mm-dd",
         ),
         ToolArgument(
             name="end_date",
             type="string",
-            description="End date of proposed PTO",
+            description="End date of proposed PTO, sent in the form yyyy-mm-dd",
         ),
         ToolArgument(
             name="email",
@@ -221,12 +222,12 @@ book_pto_tool = ToolDefinition(
         ToolArgument(
             name="start_date",
             type="string",
-            description="Start date of proposed PTO",
+            description="Start date of proposed PTO, sent in the form yyyy-mm-dd",
         ),
         ToolArgument(
             name="end_date",
             type="string",
-            description="End date of proposed PTO",
+            description="End date of proposed PTO, sent in the form yyyy-mm-dd",
         ),
         ToolArgument(
             name="email",
@@ -237,6 +238,51 @@ book_pto_tool = ToolDefinition(
             name="userConfirmation",
             type="string",
             description="Indication of user's desire to book PTO",
+        ),
+    ],
+)
+
+paycheck_bank_integration_status_check = ToolDefinition(
+    name="CheckPayBankStatus",
+    description="Check status of Bank Integration for Paychecks. "
+    "Returns the status of the bank integration, connected or disconnected. ",
+    arguments=[
+        ToolArgument(
+            name="email",
+            type="string",
+            description="email address of user",
+        ),
+    ],
+)
+
+financial_check_account_is_valid = ToolDefinition(
+    name="FinCheckAccountIsValid",
+    description="Check if an account is valid by email address or account ID. "
+    "Returns the account status, valid or invalid. ",
+    arguments=[
+        ToolArgument(
+            name="email",
+            type="string",
+            description="email address of user",
+        ),
+        ToolArgument(
+            name="account_id",
+            type="string",
+            description="account ID of user",
+        ),
+    ],
+)
+
+financial_get_account_balances = ToolDefinition(
+    name="FinCheckAccountBalance",
+    description="Get account balance for your accounts. "
+    "Returns the account balances of your accounts. ",
+    
+    arguments=[
+        ToolArgument(
+            name="accountkey",
+            type="string",
+            description="email address or account ID of user",
         ),
     ],
 )
