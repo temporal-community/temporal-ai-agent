@@ -50,6 +50,7 @@ guess_location_tool = ToolDefinition(
         ),
     ],
 )
+
 # ----- Travel use cases tools -----
 search_flights_tool = ToolDefinition(
     name="SearchFlights",
@@ -198,12 +199,12 @@ future_pto_calc_tool = ToolDefinition(
         ToolArgument(
             name="start_date",
             type="string",
-            description="Start date of proposed PTO",
+            description="Start date of proposed PTO, sent in the form yyyy-mm-dd",
         ),
         ToolArgument(
             name="end_date",
             type="string",
-            description="End date of proposed PTO",
+            description="End date of proposed PTO, sent in the form yyyy-mm-dd",
         ),
         ToolArgument(
             name="email",
@@ -221,12 +222,12 @@ book_pto_tool = ToolDefinition(
         ToolArgument(
             name="start_date",
             type="string",
-            description="Start date of proposed PTO",
+            description="Start date of proposed PTO, sent in the form yyyy-mm-dd",
         ),
         ToolArgument(
             name="end_date",
             type="string",
-            description="End date of proposed PTO",
+            description="End date of proposed PTO, sent in the form yyyy-mm-dd",
         ),
         ToolArgument(
             name="email",

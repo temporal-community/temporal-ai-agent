@@ -26,11 +26,11 @@ with workflow.unsafe.imports_passed_through():
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
 
-SHOW_CONFIRM = True
 show_confirm_env = os.getenv("SHOW_CONFIRM")
-if show_confirm_env is not None:
-    if show_confirm_env == "False":
-        SHOW_CONFIRM = False
+if show_confirm_env is not None and show_confirm_env.lower() == "false":
+    SHOW_CONFIRM = False
+else:
+    SHOW_CONFIRM = True
 
 #ToolData as part of the workflow is what's accessible to the UI - see LLMResponse.jsx for example
 class ToolData(TypedDict, total=False):
