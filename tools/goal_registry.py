@@ -248,12 +248,12 @@ goal_hr_check_pto = AgentGoal(
     ),
 )
 
-# This goal uses the data/employee_pto_data.json file as dummy data.
+# check integration with bank
 goal_hr_check_paycheck_bank_integration_status = AgentGoal(
     id = "goal_hr_check_paycheck_bank_integration_status",
     category_tag="hr",
     agent_name="Check paycheck bank integration status",
-    agent_friendly_description="Check your available PTO.",   
+    agent_friendly_description="Check your integration between paycheck payer and your financial institution.",   
     tools=[
         tool_registry.paycheck_bank_integration_status_check,
         tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
@@ -274,6 +274,41 @@ goal_hr_check_paycheck_bank_integration_status = AgentGoal(
     ),
 )
 
+# this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
+goal_fin_check_account_balances = AgentGoal(
+    id = "goal_fin_check_account_balances",
+    category_tag="fin",
+    agent_name="Check balances",
+    agent_friendly_description="Check your account balances in Checking, Savings, etc.",   
+    tools=[
+        tool_registry.financial_check_account_is_valid,
+        tool_registry.financial_get_account_balances,
+        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
+    ],
+    description="The user wants to check their account balances at the bank or financial institution. To assist with that goal, help the user gather args for these tools in order: "
+    "1. FinCheckAccountIsValid: validate the user's account is valid"
+    "2. FinCheckAccountBalance: Tell the user their account balance at the bank or financial institution",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to check my account balances",
+            "agent: Sure! I can help you out with that. May I have your email address or account number?",
+            "user: email is bob.johnson@emailzzz.com ",
+            "user_confirmed_tool_run: <user clicks confirm on FincheckAccountIsValid tool>",
+            "tool_result: { 'status': account valid }",
+            "agent: Great! I can tell you what the your account balances are.",
+            "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountBalance tool>",
+            "tool_result: { 'name': Matt Murdock, 'email': matt.murdock@nelsonmurdock.com, 'account_id': 11235, 'checking_balance': 875.40, 'savings_balance': 3200.15, 'bitcoin_balance': 0.1378, 'account_creation_date': 2014-03-10 }",
+            "agent: Your account balances are as follows: \n "
+                "Checking: $875.40. \n "
+                "Savings: $3200.15. \n "
+                "Bitcoint: 0.1378 \n "
+                "Thanks for being a customer since 2014!",
+        ]
+    ),
+)
+
+#todo add money movement, fraud check (update with start)
 #Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
@@ -283,4 +318,6 @@ goal_list.append(goal_match_train_invoice)
 goal_list.append(goal_hr_schedule_pto)
 goal_list.append(goal_hr_check_pto)
 goal_list.append(goal_hr_check_paycheck_bank_integration_status)
+goal_list.append(goal_fin_check_account_balances)
+
 

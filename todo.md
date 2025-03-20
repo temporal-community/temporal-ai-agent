@@ -11,13 +11,20 @@
 [x] create people management scenarios <br />
 
 [ ] 2. Others HR goals:  <br />
--- book work travel <br />
--- check insurance coverages <br />
--- expense management <br />
--- check in on the health of the team <br />
+- book work travel <br />
+- check insurance coverages <br />
+- expense management <br />
+- check in on the health of the team <br />
+
+[ ] fintech goals <br />
+- Fraud Detection and Prevention - The AI monitors transactions across accounts, flagging suspicious activities (e.g., unusual spending patterns or login attempts) and autonomously freezing accounts or notifying customers and compliance teams.<br />
+- Personalized Financial Advice - An AI agent analyzes a customer’s financial data (e.g., income, spending habits, savings, investments) and provides tailored advice, such as budgeting tips, investment options, or debt repayment strategies.<br />
+- Portfolio Management and Rebalancing - The AI monitors a customer’s investment portfolio, rebalancing it automatically based on market trends, risk tolerance, and financial goals (e.g., shifting assets between stocks, bonds, or crypto).<br />
+- money movement - start money transfer <br />
+- [x] account balance - <br />
 
 
-[ ] ask the ai agent how it did at the end of the conversation, was it efficient? successful? insert a search attribute to document that before return
+[ ] ask the ai agent how it did at the end of the conversation, was it efficient? successful? insert a search attribute to document that before return <br />
 - Insight into the agent’s performance <br />
 
 [ ] non-retry the api key error - "Invalid API Key provided: sk_test_**J..." and "AuthenticationError" <br />

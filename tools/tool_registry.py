@@ -253,3 +253,35 @@ paycheck_bank_integration_status_check = ToolDefinition(
         ),
     ],
 )
+
+financial_check_account_is_valid = ToolDefinition(
+    name="FinCheckAccountIsValid",
+    description="Check if an account is valid by email address or account ID. "
+    "Returns the account status, valid or invalid. ",
+    arguments=[
+        ToolArgument(
+            name="email",
+            type="string",
+            description="email address of user",
+        ),
+        ToolArgument(
+            name="account_id",
+            type="string",
+            description="account ID of user",
+        ),
+    ],
+)
+
+financial_get_account_balances = ToolDefinition(
+    name="FinCheckAccountBalance",
+    description="Get account balance for your accounts. "
+    "Returns the account balances of your accounts. ",
+    
+    arguments=[
+        ToolArgument(
+            name="accountkey",
+            type="string",
+            description="email address or account ID of user",
+        ),
+    ],
+)

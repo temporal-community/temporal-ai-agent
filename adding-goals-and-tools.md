@@ -52,7 +52,7 @@ description="Help the user gather args for these tools in order: "
 2. Define the tool
 - `name`: name of the tool - this is the name as defined in the goal description list of tools. The name should be (sort of) the same as the tool name given in the goal description. So, if the description lists "CurrentPTO" as a tool, the name here should be `current_pto_tool`.
 - `description`: LLM-facing description of tool
-- `arguments`: These are the _input_ arguments to the tool. Each input argument should be defined as a [/models/tool_definitions.py](ToolArgument). Tools don't have to have arguments but the arguments list has to be declared. If the tool you're creating doesn't have inputs, define arguments as `arguments=[]`
+- `arguments`: These are the _input_ arguments to the tool. Each input argument should be defined as a [ToolArgument](./models/tool_definitions.py). Tools don't have to have arguments but the arguments list has to be declared. If the tool you're creating doesn't have inputs, define arguments as `arguments=[]`
 
 #### Create Each Tool
 - The tools themselves are defined in their own files in `/tools` - you can add a subfolder to organize them, see the hr tools for an example.
@@ -61,8 +61,8 @@ description="Help the user gather args for these tools in order: "
 - The return dict should match the output format you specified in the goal's `example_conversation_history`
 - tools are where the user input+model output becomes deterministic. Add validation here to make sure what the system is doing is valid and acceptable
 
-#### Add to `tools/__init__.py`
-- In `tools/__init__.py`, add an import statement for each new tool as well as an applicable return statement in `get_handler`. The tool name here should match the tool name as described in the goal's `description` field.
+#### Add to `tools/__init__.py` and the tool get_handler()
+- In [tools/__init__.py](./tools/__init__.py), add an import statement for each new tool as well as an applicable return statement in `get_handler`. The tool name here should match the tool name as described in the goal's `description` field.
 Example:
 ```
 if tool_name == "CurrentPTO":
