@@ -308,6 +308,46 @@ goal_fin_check_account_balances = AgentGoal(
     ),
 )
 
+# this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
+goal_fin_move_money = AgentGoal(
+    id = "goal_fin_move_money",
+    category_tag="fin",
+    agent_name="Money Order",
+    agent_friendly_description="Initiate a money movement order.",   
+    tools=[
+        tool_registry.financial_check_account_is_valid,
+        tool_registry.financial_get_account_balances,
+        tool_registry.financial_move_money,
+        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
+    ],
+    description="The user wants to transfer money in their account at the bank or financial institution. To assist with that goal, help the user gather args for these tools in order: "
+    "1. FinCheckAccountIsValid: validate the user's account is valid"
+    "2. FinCheckAccountBalance: Tell the user their account balance at the bank or financial institution"
+    "3. FinMoveMoney: Initiate a money movement order",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like transfer some money",
+            "agent: Sure! I can help you out with that. May I have account number and email address?",
+            "user: account number is 11235813",
+            "user_confirmed_tool_run: <user clicks confirm on FincheckAccountIsValid tool>",
+            "tool_result: { 'status': account valid }",
+            "agent: Great! Here are your account balances:",
+            "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountBalance tool>", #todo is this needed?
+            "tool_result: { 'name': Matt Murdock, 'email': matt.murdock@nelsonmurdock.com, 'account_id': 11235, 'checking_balance': 875.40, 'savings_balance': 3200.15, 'bitcoin_balance': 0.1378, 'account_creation_date': 2014-03-10 }",
+            "agent: Your account balances are as follows: \n "
+                "Checking: $875.40. \n "
+                "Savings: $3200.15. \n "
+                "Bitcoint: 0.1378 \n "
+            "agent: how much would you like to move, from which account type, and to which account number?",
+            "user: I'd like to move $500 from savings to account number #56789",
+            "user_confirmed_tool_run: <user clicks confirm on FinMoveMoney tool>",
+            "tool_result: { 'status': money movement complete, 'confirmation id': 333421, 'new_balance': $2700.15 }",
+            "agent: Money movement order completed! New account balance: $2700.15. Your confirmation id is 333421. "
+        ]
+    ),
+)
+
 #todo add money movement, fraud check (update with start)
 #Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
@@ -319,5 +359,7 @@ goal_list.append(goal_hr_schedule_pto)
 goal_list.append(goal_hr_check_pto)
 goal_list.append(goal_hr_check_paycheck_bank_integration_status)
 goal_list.append(goal_fin_check_account_balances)
+goal_list.append(goal_fin_move_money)
+
 
 

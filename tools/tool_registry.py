@@ -286,3 +286,33 @@ financial_get_account_balances = ToolDefinition(
         ),
     ],
 )
+
+financial_move_money = ToolDefinition(
+    name="FinMoveMoneyOrder",
+    description="Execute a money movement order. "
+    "Returns the status of the order and the account balance of the account money was moved from. ",
+    
+    arguments=[
+        ToolArgument(
+            name="accountkey",
+            type="string",
+            description="email address or account ID of user",
+        ),
+         ToolArgument(
+            name="accounttype",
+            type="string",
+            description="account type, such as checking or savings",
+        ),        
+         ToolArgument(
+            name="amount",
+            type="string",
+            description="amount to move in the order",
+        ),
+                
+         ToolArgument(
+            name="destinationaccount",
+            type="string",
+            description="account number to move the money to",
+        ),
+    ],
+)

@@ -1,3 +1,4 @@
+import inspect
 from temporalio import activity
 from ollama import chat, ChatResponse
 from openai import OpenAI
@@ -483,16 +484,21 @@ def get_current_date_human_readable():
 
 
 @activity.defn(dynamic=True)
-def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
+async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     from tools import get_handler
 
+    #  if current_tool == "move_money":
+    #     workflow.logger.warning(f"trying for move_money direct")
     tool_name = activity.info().activity_type  # e.g. "FindEvents"
     tool_args = activity.payload_converter().from_payload(args[0].payload, dict)
     activity.logger.info(f"Running dynamic tool '{tool_name}' with args: {tool_args}")
 
     # Delegate to the relevant function
     handler = get_handler(tool_name)
-    result = handler(tool_args)
+    if inspect.iscoroutinefunction(handler):
+        result = await handler(tool_args)
+    else:
+        result = handler(tool_args)
 
     # Optionally log or augment the result
     activity.logger.info(f"Tool '{tool_name}' result: {result}")
