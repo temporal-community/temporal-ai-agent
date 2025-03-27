@@ -176,6 +176,13 @@ dotnet run
 ```
 If you're running your train API above on a different host/port then change the API URL in `Program.cs`. Otherwise, be sure to run it using `python thirdparty/train_api.py`.
 
+### Money Movement Scenario
+This scenario _can_ initiate a secondary workflow to move money. Check out [this repo](https://github.com/temporal-sa/temporal-money-transfer-java) - you'll need to get the worker running and connected to the same account as the agentic worker. 
+By default it will _not_ make a real workflow, it'll just fake it. If you get the worker running and want to start a workflow, in your [.env](./.env):
+```bash
+FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
+```
+
 ## Customizing the Agent
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
 - `goal_registry.py` contains descriptions of goals and the tools used to achieve them
