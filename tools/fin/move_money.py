@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import json
 from temporalio.client import Client
@@ -5,6 +6,8 @@ from dataclasses import dataclass
 from typing import Optional
 import asyncio
 from temporalio.exceptions import WorkflowAlreadyStartedError
+from shared.config import get_temporal_client
+
 
 from enum import Enum, auto
 
@@ -45,9 +48,10 @@ async def move_money(args: dict) -> dict:
 
     for account in account_list:
         if account["email"] == account_key or account["account_id"] == account_key:
-            amount_str: str = str(amount) 
+            amount_str: str = str(amount)  # LLM+python gets sassy about types but we need it to be str
+            from_account_combo = account_key + account_type
 
-            transfer_workflow_id = await start_workflow(amount_cents=str_dollars_to_cents(amount_str),from_account_name=account_key, to_account_name=destinationaccount)
+            transfer_workflow_id = await start_workflow(amount_cents=str_dollars_to_cents(amount_str),from_account_name=from_account_combo, to_account_name=destinationaccount)
             
             account_type_key = 'checking_balance'
             if(account_type.casefold() == "checking" ):
@@ -66,7 +70,7 @@ async def move_money(args: dict) -> dict:
             with open(file_path, 'w') as file:
                 json.dump(data, file, indent=4)            
 
-            return {'status': "money movement complete", 'confirmation id': transfer_workflow_id, 'new_balance': account["checking_balance"]}                                
+            return {'status': "money movement complete", 'confirmation id': transfer_workflow_id, 'new_balance': account[account_type_key]}                                
         
     return_msg = "Account not found with for " + account_key
     return {"error": return_msg}
@@ -74,33 +78,40 @@ async def move_money(args: dict) -> dict:
 # Async function to start workflow
 async def start_workflow(amount_cents: int, from_account_name: str, to_account_name: str)-> str:
  
- 
+
     # Connect to Temporal 
-    # todo use env vars to do connect to local or non-local
-    client:Client = await Client.connect("localhost:7233")
     
-    # Create the parameter object
-    params = MoneyMovementWorkflowParameterObj(
-        amount=amount_cents*100,  
-        scenario="HAPPY_PATH"
-    )
 
-    workflow_id="TRANSFER-ACCT-" + from_account_name +  "-TO-" + to_account_name  # business-relevant workflow ID
-
-    try: 
-        handle = await client.start_workflow(
-            "moneyTransferWorkflow",  # Workflow name
-            params,          # Workflow parameters
-            id=workflow_id,
-            task_queue="MoneyTransferJava"  # Task queue name
+    client = await get_temporal_client()
+    start_real_workflow = os.getenv("FIN_START_REAL_WORKFLOW")
+    if start_real_workflow is not None and start_real_workflow.lower() == "false":
+        START_REAL_WORKFLOW = False
+    else:
+        START_REAL_WORKFLOW = True
+    
+    if START_REAL_WORKFLOW:
+        # Create the parameter object
+        params = MoneyMovementWorkflowParameterObj(
+            amount=amount_cents,  
+            scenario="HAPPY_PATH"
         )
-        return handle.id
-    except WorkflowAlreadyStartedError as e:
-        existing_handle = client.get_workflow_handle(workflow_id=workflow_id)
-        return existing_handle.id
 
-    
-    
+        workflow_id="TRANSFER-ACCT-" + from_account_name +  "-TO-" + to_account_name  # business-relevant workflow ID
+
+        try: 
+            handle = await client.start_workflow(
+                "moneyTransferWorkflow",  # Workflow name
+                params,          # Workflow parameters
+                id=workflow_id,
+                task_queue="MoneyTransferJava"  # Task queue name
+            )
+            return handle.id
+        except WorkflowAlreadyStartedError as e:
+            existing_handle = client.get_workflow_handle(workflow_id=workflow_id)
+            return existing_handle.id
+    else: 
+        return "TRANSFER-ACCT-" + from_account_name +  "-TO-" + to_account_name + "not-real"
+
     
 #cleans a string dollar amount description to cents value
 def str_dollars_to_cents(dollar_str: str) -> int:
