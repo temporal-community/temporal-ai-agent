@@ -17,8 +17,7 @@ def get_account_balance(args: dict) -> dict:
 
     for account in account_list:
         if account["email"] == account_key or account["account_id"] == account_key:
-            #return{"status": "account valid"}
             return{ "name": account["name"], "email": account["email"], "account_id": account["account_id"], "checking_balance": account["checking_balance"], "savings_balance": account["savings_balance"], "bitcoin_balance": account["bitcoin_balance"], "account_creation_date": account["account_creation_date"] }
         
-    return_msg = "Account not found with email address " + email + " or account ID: " + account_id
+    return_msg = "Account not found with for " + account_key
     return {"error": return_msg}
