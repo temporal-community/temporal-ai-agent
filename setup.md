@@ -17,41 +17,7 @@ SHOW_CONFIRM=True
 
 The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file.
 
-#### Goal: Find an event in Australia / New Zealand, book flights to it and invoice the user for the cost
-- `AGENT_GOAL=goal_event_flight_invoice` (default) - Helps users find events, book flights, and arrange train travel with invoice generation
-    - This is the scenario in the video above
-
-#### Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost
-- `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
-    - This goal was part of [Temporal's Replay 2025 conference keynote demo](https://www.youtube.com/watch?v=YDxAWrIBQNE)
-    - Note, there is failure built in to this demo (the train booking step) to show how the agent can handle failures and retry. See Tool Configuration below for details.
-
-If not specified, the agent defaults to `goal_event_flight_invoice`. Each goal comes with its own set of tools and conversation flows designed for specific use cases. You can examine `tools/goal_registry.py` to see the detailed configuration of each goal.
-
-See the next section for tool configuration for each goal.
-
-### Tool Configuration
-
-#### Agent Goal: goal_event_flight_invoice (default)
-* The agent uses a mock function to search for events. This has zero configuration.
-* By default the agent uses a mock function to search for flights.
-    * If you want to use the real flights API, go to `tools/search_flights.py` and replace the `search_flights` function with `search_flights_real_api` that exists in the same file.
-    * It's free to sign up at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
-    * This api might be slow to respond, so you may want to increase the start to close timeout, `TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT` in `workflows/workflow_helpers.py`
-* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
-    * It's free to sign up and get a key at [Stripe](https://stripe.com/)
-        * Set permissions for read-write on: `Credit Notes, Invoices, Customers and Customer Sessions`
-    * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
-
-#### Agent Goal: goal_match_train_invoice
-NOTE: This goal was developed for an on-stage demo and has failure (and its resolution) built in to show how the agent can handle failures and retry.
-* Finding a match requires a key from [Football Data](https://www.football-data.org). Sign up for a free account, then see the 'My Account' page to get your API token. Set `FOOTBALL_DATA_API_KEY` to this value.
-    * If you're lazy go to `tools/search_fixtures.py` and replace the `search_fixtures` function with the mock `search_fixtures_example` that exists in the same file.
-* We use a mock function to search for trains. Start the train API server to use the real API: `python thirdparty/train_api.py`
-* * The train activity is 'enterprise' so it's written in C# and requires a .NET runtime. See the [.NET backend](#net-(enterprise)-backend) section for details on running it.
-* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
-    * It's free to sign up and get a key at [Stripe](https://stripe.com/)
-    * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
+See the section Goal-Specific Tool Configuration below for tool configuration for specific goals.
 
 ### LLM Provider Configuration
 
@@ -156,7 +122,40 @@ npx vite
 ```
 Access the UI at `http://localhost:5173`
 
-### Python Search Trains API
+
+
+## Goal-Specific Tool Configuration
+Here is configuration guidance for specific goals. `travel,fin` goals have configuration & setup as below.
+### Goal: Find an event in Australia / New Zealand, book flights to it and invoice the user for the cost
+- `AGENT_GOAL=goal_event_flight_invoice` - Helps users find events, book flights, and arrange train travel with invoice generation
+    - This is the scenario in the [original video](https://www.youtube.com/watch?v=GEXllEH2XiQ)
+
+#### Configuring Agent Goal: goal_event_flight_invoice 
+* The agent uses a mock function to search for events. This has zero configuration.
+* By default the agent uses a mock function to search for flights.
+    * If you want to use the real flights API, go to `tools/search_flights.py` and replace the `search_flights` function with `search_flights_real_api` that exists in the same file.
+    * It's free to sign up at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
+    * This api might be slow to respond, so you may want to increase the start to close timeout, `TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT` in `workflows/workflow_helpers.py`
+* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
+    * It's free to sign up and get a key at [Stripe](https://stripe.com/)
+        * Set permissions for read-write on: `Credit Notes, Invoices, Customers and Customer Sessions`
+    * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
+
+### Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost (Replay 2025 Keynote)
+- `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
+    - This goal was part of [Temporal's Replay 2025 conference keynote demo](https://www.youtube.com/watch?v=YDxAWrIBQNE)
+    - Note, there is failure built in to this demo (the train booking step) to show how the agent can handle failures and retry. See Tool Configuration below for details.
+#### Configuring Agent Goal: goal_match_train_invoice 
+NOTE: This goal was developed for an on-stage demo and has failure (and its resolution) built in to show how the agent can handle failures and retry.
+* Finding a match requires a key from [Football Data](https://www.football-data.org). Sign up for a free account, then see the 'My Account' page to get your API token. Set `FOOTBALL_DATA_API_KEY` to this value.
+    * If you're lazy go to `tools/search_fixtures.py` and replace the `search_fixtures` function with the mock `search_fixtures_example` that exists in the same file.
+* We use a mock function to search for trains. Start the train API server to use the real API: `python thirdparty/train_api.py`
+* * The train activity is 'enterprise' so it's written in C# and requires a .NET runtime. See the [.NET backend](#net-(enterprise)-backend) section for details on running it.
+* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
+    * It's free to sign up and get a key at [Stripe](https://stripe.com/)
+    * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
+
+##### Python Search Trains API
 > Agent Goal: goal_match_train_invoice only
 
 Required to search and book trains!
@@ -167,7 +166,7 @@ poetry run python thirdparty/train_api.py
 # http://localhost:8080/api/search?from=london&to=liverpool&outbound_time=2025-04-18T09:00:00&inbound_time=2025-04-20T09:00:00
 ```
 
- ### Python Train Legacy Worker
+ ##### Python Train Legacy Worker
  > Agent Goal: goal_match_train_invoice only
  
  These are Python activities that fail (raise NotImplemented) to show how Temporal handles a failure. You can run these activities with.
@@ -178,7 +177,7 @@ poetry run python thirdparty/train_api.py
  
  The activity will fail and be retried infinitely. To rescue the activity (and its corresponding workflows), kill the worker and run the .NET one in the section below.
  
- ### .NET (enterprise) Worker ;)
+ ##### .NET (enterprise) Worker ;)
 We have activities written in C# to call the train APIs.
 ```bash
 cd enterprise
@@ -187,14 +186,14 @@ dotnet run
 ```
 If you're running your train API above on a different host/port then change the API URL in `Program.cs`. Otherwise, be sure to run it using `python thirdparty/train_api.py`.
 
-### Money Movement Scenario
-This scenario _can_ initiate a secondary workflow to move money. Check out [this repo](https://github.com/temporal-sa/temporal-money-transfer-java) - you'll need to get the worker running and connected to the same account as the agentic worker. 
+#### Goals: Money Movement
+- `AGENT_GOAL=goal_fin_move_money` - This scenario _can_ initiate a secondary workflow to move money. Check out [this repo](https://github.com/temporal-sa/temporal-money-transfer-java) - you'll need to get the worker running and connected to the same account as the agentic worker. 
 By default it will _not_ make a real workflow, it'll just fake it. If you get the worker running and want to start a workflow, in your [.env](./.env):
 ```bash
 FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
 ```
 
-## Customizing the Agent
+## Customizing the Agent Further
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
 - `goal_registry.py` contains descriptions of goals and the tools used to achieve them
 - The tools themselves are defined in their own files in `/tools`
