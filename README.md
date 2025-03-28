@@ -28,6 +28,7 @@ See [the architecture guide](./architecture.md).
 - Perhaps the UI should show when the LLM response is being retried (i.e. activity retry attempt because the LLM provided bad output)
 - Tests would be nice! [See tests](./tests/).
 
+
 See [the todo](./todo.md) for more details.
 
 See [the guide to adding goals and tools](./adding-goals-and-tools.md) for more ways you can add features.
