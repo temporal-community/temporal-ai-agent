@@ -23,7 +23,8 @@ The agent can be configured to pursue different goals using the `AGENT_GOAL` env
 
 #### Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost
 - `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
-    - This is a new goal that is part of an upcoming conference talk
+    - This goal was part of [Temporal's Replay 2025 conference keynote demo](https://www.youtube.com/watch?v=YDxAWrIBQNE)
+    - Note, there is failure built in to this demo (the train booking step) to show how the agent can handle failures and retry. See Tool Configuration below for details.
 
 If not specified, the agent defaults to `goal_event_flight_invoice`. Each goal comes with its own set of tools and conversation flows designed for specific use cases. You can examine `tools/goal_registry.py` to see the detailed configuration of each goal.
 
@@ -39,10 +40,11 @@ See the next section for tool configuration for each goal.
     * This api might be slow to respond, so you may want to increase the start to close timeout, `TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT` in `workflows/workflow_helpers.py`
 * Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
     * It's free to sign up and get a key at [Stripe](https://stripe.com/)
+        * Set permissions for read-write on: `Credit Notes, Invoices, Customers and Customer Sessions`
     * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
 
 #### Agent Goal: goal_match_train_invoice
-
+NOTE: This goal was developed for an on-stage demo and has failure (and its resolution) built in to show how the agent can handle failures and retry.
 * Finding a match requires a key from [Football Data](https://www.football-data.org). Sign up for a free account, then see the 'My Account' page to get your API token. Set `FOOTBALL_DATA_API_KEY` to this value.
     * If you're lazy go to `tools/search_fixtures.py` and replace the `search_fixtures` function with the mock `search_fixtures_example` that exists in the same file.
 * We use a mock function to search for trains. Start the train API server to use the real API: `python thirdparty/train_api.py`
@@ -165,9 +167,18 @@ poetry run python thirdparty/train_api.py
 # http://localhost:8080/api/search?from=london&to=liverpool&outbound_time=2025-04-18T09:00:00&inbound_time=2025-04-20T09:00:00
 ```
 
-### .NET (enterprise) Backend ;)
-> Agent Goal: goal_match_train_invoice only
-
+ ### Python Train Legacy Worker
+ > Agent Goal: goal_match_train_invoice only
+ 
+ These are Python activities that fail (raise NotImplemented) to show how Temporal handles a failure. You can run these activities with.
+ 
+ ```bash
+ poetry run python scripts/run_legacy_worker.py 
+ ```
+ 
+ The activity will fail and be retried infinitely. To rescue the activity (and its corresponding workflows), kill the worker and run the .NET one in the section below.
+ 
+ ### .NET (enterprise) Worker ;)
 We have activities written in C# to call the train APIs.
 ```bash
 cd enterprise
