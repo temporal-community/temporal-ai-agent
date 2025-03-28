@@ -98,7 +98,7 @@ goal_pirate_treasure = AgentGoal(
 
 goal_match_train_invoice = AgentGoal(
     id = "goal_match_train_invoice",
-    category_tag="travel",
+    category_tag="travel-trains",
     agent_name="UK Premier League Match Trip Booking",
     agent_friendly_description="Book a trip to a city in the UK around the dates of a premier league match.",
     tools=[
@@ -146,7 +146,7 @@ goal_match_train_invoice = AgentGoal(
 
 goal_event_flight_invoice = AgentGoal(
     id = "goal_event_flight_invoice",
-    category_tag="travel",
+    category_tag="travel-flights",
     agent_name="Australia and New Zealand Event Flight Booking",
     agent_friendly_description="Book a trip to a city in Australia or New Zealand around the dates of events in that city.",    
     tools=[

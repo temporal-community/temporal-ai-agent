@@ -17,6 +17,8 @@ SHOW_CONFIRM=True
 
 The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file.
 
+The agent can support multiple goals using goal categories using `GOAL_CATEGORIES` in your .env file. If unset, default is all.
+
 See the section Goal-Specific Tool Configuration below for tool configuration for specific goals.
 
 ### LLM Provider Configuration
@@ -125,7 +127,7 @@ Access the UI at `http://localhost:5173`
 
 
 ## Goal-Specific Tool Configuration
-Here is configuration guidance for specific goals. `travel,fin` goals have configuration & setup as below.
+Here is configuration guidance for specific goals. Travel and financial goals have configuration & setup as below.
 ### Goal: Find an event in Australia / New Zealand, book flights to it and invoice the user for the cost
 - `AGENT_GOAL=goal_event_flight_invoice` - Helps users find events, book flights, and arrange train travel with invoice generation
     - This is the scenario in the [original video](https://www.youtube.com/watch?v=GEXllEH2XiQ)

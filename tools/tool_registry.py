@@ -255,6 +255,7 @@ paycheck_bank_integration_status_check = ToolDefinition(
     ],
 )
 
+# ----- Financial use cases tools -----
 financial_check_account_is_valid = ToolDefinition(
     name="FinCheckAccountIsValid",
     description="Check if an account is valid by email address or account ID. "

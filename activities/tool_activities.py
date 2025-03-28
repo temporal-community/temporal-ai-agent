@@ -50,7 +50,7 @@ class ToolActivities:
             else:
                 print("Warning: OPENAI_API_KEY not set but LLM_PROVIDER is 'openai'")
         
-        if self.llm_provider == "grok":
+        elif self.llm_provider == "grok":
             if os.environ.get("GROK_API_KEY"):
                 self.grok_client = OpenAI(api_key=os.environ.get("GROK_API_KEY"), base_url="https://api.x.ai/v1")
                 print("Initialized grok client")
