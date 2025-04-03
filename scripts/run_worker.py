@@ -62,6 +62,7 @@ async def main():
             activities=[
                 activities.agent_validatePrompt,
                 activities.agent_toolPlanner,
+                activities.get_env_bool,
                 dynamic_tool_activity,
             ],
             activity_executor=activity_executor,

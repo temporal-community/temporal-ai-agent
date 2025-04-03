@@ -39,8 +39,8 @@ goal_choose_agent_type = AgentGoal(
             "agent: Here are the currently available agents.",
             "user_confirmed_tool_run: <user clicks confirm on ListAgents tool>",
             "tool_result: { 'agent_name': 'Event Flight Finder', 'goal_id': 'goal_event_flight_invoice', 'agent_description': 'Helps users find interesting events and arrange travel to them' }",
-            "agent: The available agents are: 1. Event Flight Finder. \n Which agent would you like to speak to?",
-            "user: 1",
+            "agent: The available agents are: 1. Event Flight Finder. \n Which agent would you like to speak to (?",
+            "user: 1, Event Flight Finder",
             "user_confirmed_tool_run: <user clicks confirm on ChangeGoal tool>",
             "tool_result: { 'new_goal': 'goal_event_flight_invoice' }",
         ]
@@ -153,7 +153,7 @@ goal_event_flight_invoice = AgentGoal(
         tool_registry.find_events_tool,
         tool_registry.search_flights_tool,
         tool_registry.create_invoice_tool,
-        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
+        #tool_registry.list_agents_tool, #last tool must be list_agents to faciliate changing back to picking an agent again at the end
     ],
     description="Help the user gather args for these tools in order: "
     "1. FindEvents: Find an event to travel to "

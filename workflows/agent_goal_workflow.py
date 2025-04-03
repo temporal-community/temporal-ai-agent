@@ -6,7 +6,7 @@ from typing import Dict, Any, Union, List, Optional, Deque, TypedDict
 from temporalio.common import RetryPolicy
 from temporalio import workflow
 
-from models.data_types import ConversationHistory, NextStep, ValidationInput
+from models.data_types import ConversationHistory, NextStep, ValidationInput, EnvLookupInput
 from models.tool_definitions import AgentGoal
 from workflows.workflow_helpers import LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT, \
     LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT
@@ -26,12 +26,6 @@ with workflow.unsafe.imports_passed_through():
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
 
-show_confirm_env = os.getenv("SHOW_CONFIRM")
-if show_confirm_env is not None and show_confirm_env.lower() == "false":
-    SHOW_CONFIRM = False
-else:
-    SHOW_CONFIRM = True
-
 #ToolData as part of the workflow is what's accessible to the UI - see LLMResponse.jsx for example
 class ToolData(TypedDict, total=False):
     next: NextStep
@@ -50,9 +44,10 @@ class AgentGoalWorkflow:
         self.conversation_summary: Optional[str] = None
         self.chat_ended: bool = False
         self.tool_data: Optional[ToolData] = None
-        self.confirm: bool = False
+        self.confirmed: bool = False # indicates that we have confirmation to proceed to run tool
         self.tool_results: List[Dict[str, Any]] = []
         self.goal: AgentGoal = {"tools": []}
+        self.show_tool_args_confirmation: bool = True
 
     # see ../api/main.py#temporal_client.start_workflow() for how the input parameters are set
     @workflow.run
@@ -62,6 +57,8 @@ class AgentGoalWorkflow:
         # setup phase, starts with blank tool_params and agent_goal prompt as defined in tools/goal_registry.py
         params = combined_input.tool_params
         self.goal = combined_input.agent_goal
+
+        await self.lookup_wf_env_settings(combined_input)
 
         # add message from sample conversation provided in tools/goal_registry.py, if it exists
         if params and params.conversation_summary:
@@ -83,7 +80,7 @@ class AgentGoalWorkflow:
         while True:
             # wait indefinitely for input from signals - user_prompt, end_chat, or confirm as defined below
             await workflow.wait_condition(
-                lambda: bool(self.prompt_queue) or self.chat_ended or self.confirm
+                lambda: bool(self.prompt_queue) or self.chat_ended or self.confirmed
             )
 
             # handle chat should end. When chat ends, push conversation history to workflow results.
@@ -141,7 +138,8 @@ class AgentGoalWorkflow:
                         initial_interval=timedelta(seconds=5), backoff_coefficient=1
                     ),
                 )
-                tool_data["force_confirm"] = SHOW_CONFIRM
+
+                tool_data["force_confirm"] = self.show_tool_args_confirmation
                 self.tool_data = tool_data
 
                 # process the tool as dictated by the prompt response - what to do next, and with which tool
@@ -150,30 +148,35 @@ class AgentGoalWorkflow:
 
                 workflow.logger.info(f"next_step: {next_step}, current tool is {current_tool}")
 
-                #if the next step is to confirm...
+                # make sure we're ready to run the tool & have everything we need
                 if next_step == "confirm" and current_tool:
                     args = tool_data.get("args", {})
-                    #if we're missing arguments, go back to the top of the loop
+                    # if we're missing arguments, ask for them 
                     if await helpers.handle_missing_args(current_tool, args, tool_data, self.prompt_queue):
                         continue
 
-                    #...otherwise, if we want to force the user to confirm, set that up
                     waiting_for_confirm = True
-                    if SHOW_CONFIRM:
-                        self.confirm = False
+
+                    # We have needed arguments, if we want to force the user to confirm, set that up                    
+                    if self.show_tool_args_confirmation:
+                        self.confirmed = False # set that we're not confirmed 
                         workflow.logger.info("Waiting for user confirm signal...")
+                    # if we have all needed arguments (handled above) and not holding for a debugging confirm, proceed:
                     else:
-                        #theory - set self.confirm to true bc that's the signal, so we can get around the signal??
-                        self.confirm = True
+                        self.confirmed = True
 
                 # else if the next step is to pick a new goal...
                 elif next_step == "pick-new-goal":
                     workflow.logger.info("All steps completed. Resetting goal.")
                     self.change_goal("goal_choose_agent_type")
                 
-                # else if the next step is to be done - this should only happen if the user requests it via "end conversation"
+                # else if the next step is to be done with the conversation such as if the user requests it via asking to "end conversation"
                 elif next_step == "done":
+                    
                     self.add_message("agent", tool_data)
+
+                    #todo send conversation to AI for analysis
+
                     # end the workflow
                     return str(self.conversation_history)
 
@@ -198,10 +201,10 @@ class AgentGoalWorkflow:
 
     #Signal that comes from api/main.py via a post to /confirm
     @workflow.signal
-    async def confirm(self) -> None:
+    async def confirmed(self) -> None:
         """Signal handler for user confirmation of tool execution."""
         workflow.logger.info("Received user signal: confirmation")
-        self.confirm = True
+        self.confirmed = True
 
     #Signal that comes from api/main.py via a post to /end-chat
     @workflow.signal
@@ -209,6 +212,20 @@ class AgentGoalWorkflow:
         """Signal handler for ending the chat session."""
         workflow.logger.info("signal received: end_chat")
         self.chat_ended = True
+
+    #Signal that can be sent from Temporal Workflow UI to enable debugging confirm and override .env setting
+    @workflow.signal
+    async def enable_debugging_confirm(self) -> None:
+        """Signal handler for enabling debugging confirm UI & associated logic."""
+        workflow.logger.info("signal received: enable_debugging_confirm")
+        self.enable_debugging_confirm = True
+
+    #Signal that can be sent from Temporal Workflow UI to disable debugging confirm and override .env setting
+    @workflow.signal
+    async def disable_debugging_confirm(self) -> None:
+        """Signal handler for disabling debugging confirm UI & associated logic."""
+        workflow.logger.info("signal received: disable_debugging_confirm")
+        self.enable_debugging_confirm = False
 
     @workflow.query
     def get_conversation_history(self) -> ConversationHistory:
@@ -274,7 +291,7 @@ class AgentGoalWorkflow:
     
     # define if we're ready for tool execution
     def ready_for_tool_execution(self, waiting_for_confirm: bool, current_tool: Any) -> bool:
-        if self.confirm and waiting_for_confirm and current_tool and self.tool_data:
+        if self.confirmed and waiting_for_confirm and current_tool and self.tool_data:
             return True
         else:
             return False
@@ -286,12 +303,24 @@ class AgentGoalWorkflow:
              return False
          else:
              return True
-        
+         
+    # look up env settings as needed in activities so they're part of history
+    async def lookup_wf_env_settings(self, combined_input: CombinedInput)->None:
+        env_lookup_input = EnvLookupInput(env_var_name = "SHOW_CONFIRM", default = True)
+        self.show_tool_args_confirmation = await workflow.execute_activity(
+            ToolActivities.get_env_bool, 
+            env_lookup_input,
+            start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+            retry_policy=RetryPolicy(
+                initial_interval=timedelta(seconds=5), backoff_coefficient=1
+            ),
+        )
+    
     # execute the tool - return False if we're not waiting for confirm anymore (always the case if it works successfully)
     # 
     async def execute_tool(self, current_tool: str)->bool:
         workflow.logger.info(f"workflow step: user has confirmed, executing the tool {current_tool}")
-        self.confirm = False
+        self.confirmed = False
         waiting_for_confirm = False
         confirmed_tool_data = self.tool_data.copy()
         confirmed_tool_data["next"] = "user_confirmed_tool_run"
@@ -317,5 +346,13 @@ class AgentGoalWorkflow:
                 self.change_goal("goal_choose_agent_type")
         return waiting_for_confirm
         
-
+    # debugging helper - drop this in various places in the workflow to get status
+    # also don't forget you can look at the workflow itself and do queries if you want
+    def print_useful_workflow_vars(self, status_or_step:str) -> None:
+        print(f"***{status_or_step}:***")
+        print(f"force confirm? {self.tool_data['force_confirm']}")
+        print(f"next step: {self.tool_data.get('next')}")
+        print(f"current_tool: {self.tool_data.get('tool')}")
+        print(f"self.confirm: {self.confirmed}")
+        print(f"waiting_for_confirm (about to be set to true): {self.waiting_for_confirm}")
     

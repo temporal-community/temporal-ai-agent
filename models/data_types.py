@@ -42,3 +42,8 @@ class ValidationResult:
         # Initialize empty dict if None
         if self.validationFailedReason is None:
             self.validationFailedReason = {}
+
+@dataclass
+class EnvLookupInput:
+    env_var_name: str
+    default: bool

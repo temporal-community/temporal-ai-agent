@@ -126,7 +126,9 @@ def generate_tool_completion_prompt(current_tool: str, dynamic_result: dict) -> 
         '{"next": "<question|confirm|pick-new-goal|done>", "tool": "<tool_name or null>", "args": {"<arg1>": "<value1 or null>", "<arg2>": "<value2 or null>}, "response": "<plain text (can include \\n line breaks)>"}'
         "ONLY return those json keys (next, tool, args, response), nothing else. "
         'Next should be "question" if the tool is not the last one in the sequence. '
+        'Next should be "done" if the user is asking to be done with the chat. '
         'Next should only be "pick-new-goal" if all tools have been run (use the system prompt to figure that out).'
+        #'If all tools have been run (use the system prompt to figure that out) then clear tool history.' todo maybe fix this
     )
 
 def generate_missing_args_prompt(current_tool: str, tool_data: dict, missing_args: list[str]) -> str:

@@ -11,7 +11,7 @@ import google.generativeai as genai
 import anthropic
 import deepseek
 from dotenv import load_dotenv
-from models.data_types import ValidationInput, ValidationResult, ToolPromptInput
+from models.data_types import ValidationInput, ValidationResult, ToolPromptInput, EnvLookupInput
 
 load_dotenv(override=True)
 print(
@@ -471,6 +471,20 @@ class ToolActivities:
             print(f"Full response: {response_content}")
             raise
 
+    # get env vars for workflow
+    @activity.defn
+    async def get_env_bool(self, input: EnvLookupInput) -> bool:
+        """ gets boolean env vars for workflow as an activity result so it's deterministic
+            handles default/None
+        """
+        value = os.getenv(input.env_var_name)
+        if value is None:
+            return input.default
+        if value is not None and value.lower() == "false":
+            return False
+        else:
+            return True
+
 
 def get_current_date_human_readable():
     """
@@ -487,8 +501,6 @@ def get_current_date_human_readable():
 async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     from tools import get_handler
 
-    #  if current_tool == "move_money":
-    #     workflow.logger.warning(f"trying for move_money direct")
     tool_name = activity.info().activity_type  # e.g. "FindEvents"
     tool_args = activity.payload_converter().from_payload(args[0].payload, dict)
     activity.logger.info(f"Running dynamic tool '{tool_name}' with args: {tool_args}")
@@ -503,3 +515,5 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     # Optionally log or augment the result
     activity.logger.info(f"Tool '{tool_name}' result: {result}")
     return result
+
+

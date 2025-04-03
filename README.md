@@ -12,6 +12,18 @@ It's really helpful to [watch the demo (5 minute YouTube video)](https://www.you
 There are a lot of AI and Agentic AI tools out there, and more on the way. But why Temporal? Temporal gives this system reliablity, state management, a code-first approach that we really like, built-in observability and easy error handling.
 For more, check out [architecture-decisions](./architecture-decisions.md).
 
+## What is "Agentic AI"?
+These are the key elements of an agentic framework:
+1. Goals a human can get done, made up of tools that can execute individual steps
+2. The "agent loop" - call LLM, either call tools or prompt human, repeat until goal(s) are done
+3. Support for tool calls that require human input and approval
+4. Use of an LLM to check human input for relevance before calling the 'real' LLM
+5. use of an LLM to summarize and compact the conversation history
+6. Prompt construction (made of system prompts, conversation history, and tool metadata - sent to the LLM to create user prompts)
+7. Bonus: durable tool execution via Temporal Activities
+
+For a deeper dive into this, check out the [architecture guide](./architecture.md).
+
 ## Setup and Configuration
 See [the Setup guide](./setup.md).
 

@@ -8,7 +8,8 @@ cp .env.example .env
 ```
 
 Then add API keys, configuration, as desired.
-If you want to show confirmations/enable the debugging UI, set
+
+If you want to show confirmations/enable the debugging UI that shows tool args, set
 ```bash
 SHOW_CONFIRM=True
 ```
@@ -188,12 +189,18 @@ dotnet run
 ```
 If you're running your train API above on a different host/port then change the API URL in `Program.cs`. Otherwise, be sure to run it using `python thirdparty/train_api.py`.
 
-#### Goals: Money Movement
+#### Goals: FIN/Money Movement
+Make sure you have the mock users you want (such as yourself) in [the account mock data file](./tools/data/customer_account_data.json).
+
 - `AGENT_GOAL=goal_fin_move_money` - This scenario _can_ initiate a secondary workflow to move money. Check out [this repo](https://github.com/temporal-sa/temporal-money-transfer-java) - you'll need to get the worker running and connected to the same account as the agentic worker. 
 By default it will _not_ make a real workflow, it'll just fake it. If you get the worker running and want to start a workflow, in your [.env](./.env):
 ```bash
 FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
 ```
+
+#### Goals: HR/PTO
+Make sure you have the mock users you want in (such as yourself) in [the PTO mock data file](./tools/data/employee_pto_data.json).
+
 
 ## Customizing the Agent Further
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
