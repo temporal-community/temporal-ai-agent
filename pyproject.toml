@@ -34,6 +34,9 @@ deepseek = "^1.0.0"
 requests = "^2.32.3"
 pandas = "^2.2.3"
 gtfs-kit = "^10.1.1"
+pinecone-client = {extras = ["asyncio"], version = "^6.0.0"}
+pinecone = {version = "^6.0.2", extras = ["asyncio"]}
+tqdm = "^4.67.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3"

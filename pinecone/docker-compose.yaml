@@ -1,0 +1,37 @@
+services:
+  store-safeway:
+    image: ghcr.io/pinecone-io/pinecone-index:latest
+    container_name: store-safeway
+    environment:
+      PORT: 5081
+      INDEX_TYPE: serverless
+      VECTOR_TYPE: dense
+      DIMENSION: 768
+      METRIC: cosine
+    ports:
+      - "5081:5081"
+    platform: linux/amd64
+  store-trader-joes:
+    image: ghcr.io/pinecone-io/pinecone-index:latest
+    container_name: store-trader-joes
+    environment:
+      PORT: 5082
+      INDEX_TYPE: serverless
+      VECTOR_TYPE: dense
+      DIMENSION: 768
+      METRIC: cosine
+    ports:
+      - "5082:5082"
+    platform: linux/amd64
+  store-whole-foods:
+    image: ghcr.io/pinecone-io/pinecone-index:latest
+    container_name: store-whole-foods
+    environment:
+      PORT: 5083
+      INDEX_TYPE: serverless
+      VECTOR_TYPE: dense
+      DIMENSION: 768
+      METRIC: cosine
+    ports:
+      - "5083:5083"
+    platform: linux/amd64
