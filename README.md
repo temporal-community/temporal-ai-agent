@@ -100,14 +100,15 @@ poetry run python scripts/run_deal_finder_workflow.py
 
 ## TODO
 Things I'm doing next
-* Replace Ollama calls with OpenAI calls in workflow
-* Ensure old Chroma DB activities are now working Pinecone ones
+- [ ] Replace Ollama calls with OpenAI calls in workflow
+- [ ] Ensure old Chroma DB activities are now working Pinecone ones
 These will enable the Python port of the workflow to run.
 
 Then I'll add the following:
-* Combine grocery store vector data into a single vector index
-* Schedule for updating vector data
-* Notification workflow when a deal is found
-* Web UI (port of Anthony's existing one + chat functionality?)
-* Other (currently under discussion!)
-* And (of course) clean up the old agent code and make this its own repo!
+- [x] Combine grocery store vector data into a single vector index
+- [x] Reduce cardinality of vector data
+- [ ] Schedule for updating vector data
+- [ ] Notification workflow when a deal is found
+- [ ] Web UI (port of Anthony's existing one + chat functionality?)
+- [ ] Other (currently under discussion!)
+- [ ] And (of course) clean up the old agent code and make this its own repo!
