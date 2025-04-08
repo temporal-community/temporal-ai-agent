@@ -1,11 +1,15 @@
 # todo list
 [ ] goal change management tweaks <br />
-  - [ ] maybe make the choose_Agent_goal tag not be system/not always included? <br />
-  - [ ] try taking out list-agents as a tool because agent_prompt_generators may do it for you <br />
-  - [ ] make goal selection not be a system tool but be an option in .env, see how that works, includes taking it out of the goal/toolset for all goals <br />
+  - [x] maybe make the choose_Agent_goal tag not be system/not always included? <br />
+  - [x] try taking out list-agents as a tool because agent_prompt_generators may do it for you <br />
+  - [x] make goal selection not be a system tool but be an option in .env, see how that works, includes taking it out of the goal/toolset for all goals <br />
+  - [x] test single-goal <br />
+  - [x] test claude and grok<br />
+  - [x] document in sample env and docs how to control <br />
 
 [ ] expand [tests](./tests/agent_goal_workflow_test.py)<br />
-[ ] try claude-3-7-sonnet-20250219, see [tool_activities.py](./activities/tool_activities.py) <br />
+[x] try claude-3-7-sonnet-20250219, see [tool_activities.py](./activities/tool_activities.py) <br />
+[x] test Grok with changes
 
 [ ] adding fintech goals <br />
 - Fraud Detection and Prevention - The AI monitors transactions across accounts, flagging suspicious activities (e.g., unusual spending patterns or login attempts) and autonomously freezing accounts or notifying customers and compliance teams.<br />

@@ -11,7 +11,7 @@ import google.generativeai as genai
 import anthropic
 import deepseek
 from dotenv import load_dotenv
-from models.data_types import ValidationInput, ValidationResult, ToolPromptInput, EnvLookupInput
+from models.data_types import EnvLookupOutput, ValidationInput, ValidationResult, ToolPromptInput, EnvLookupInput
 
 load_dotenv(override=True)
 print(
@@ -370,7 +370,8 @@ class ToolActivities:
             print("Initialized Anthropic client on demand")
 
         response = self.anthropic_client.messages.create(
-            model="claude-3-5-sonnet-20241022",  # todo try claude-3-7-sonnet-20250219
+            #model="claude-3-5-sonnet-20241022",  # todo try claude-3-7-sonnet-20250219
+            model="claude-3-7-sonnet-20250219",  # todo try claude-3-7-sonnet-20250219
             max_tokens=1024,
             system=input.context_instructions
             + ". The current date is "
@@ -473,17 +474,29 @@ class ToolActivities:
 
     # get env vars for workflow
     @activity.defn
-    async def get_env_bool(self, input: EnvLookupInput) -> bool:
-        """ gets boolean env vars for workflow as an activity result so it's deterministic
+    async def get_wf_env_vars(self, input: EnvLookupInput) -> EnvLookupOutput:
+        """ gets env vars for workflow as an activity result so it's deterministic
             handles default/None
         """
-        value = os.getenv(input.env_var_name)
-        if value is None:
-            return input.default
-        if value is not None and value.lower() == "false":
-            return False
+        output: EnvLookupOutput = EnvLookupOutput(show_confirm=input.show_confirm_default, 
+                                                  multi_goal_mode=True)
+        show_confirm_value = os.getenv(input.show_confirm_env_var_name)
+        if show_confirm_value is None:
+            output.show_confirm = input.show_confirm_default
+        elif show_confirm_value is not None and show_confirm_value.lower() == "false":
+            output.show_confirm = False
         else:
-            return True
+            output.show_confirm = True
+        
+        first_goal_value = os.getenv("AGENT_GOAL")
+        if first_goal_value is None:
+            output.multi_goal_mode = True # default if unset
+        elif first_goal_value is not None and first_goal_value.lower() != "goal_choose_agent_type":
+            output.multi_goal_mode = False
+        else:
+            output.multi_goal_mode = True
+
+        return output
 
 
 def get_current_date_human_readable():

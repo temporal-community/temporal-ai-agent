@@ -21,7 +21,7 @@ starter_prompt_generic = silly_prompt + "Welcome me, give me a description of wh
 
 goal_choose_agent_type = AgentGoal(
     id = "goal_choose_agent_type",
-    category_tag="system",
+    category_tag="agent_selection",
     agent_name="Choose Agent",
     agent_friendly_description="Choose the type of agent to assist you today.",
     tools=[
@@ -33,13 +33,13 @@ goal_choose_agent_type = AgentGoal(
         "1. ListAgents: List agents available to interact with. Do not ask for user confirmation for this tool. "
         "2. ChangeGoal: Change goal of agent "
         "After these tools are complete, change your goal to the new goal as chosen by the user. ",
-    starter_prompt=starter_prompt_generic + "Begin by listing all details of all agents as provided by the output of the first tool included in this goal. ",
+    starter_prompt=starter_prompt_generic + " Begin by listing all details of all agents as provided by the output of the first tool included in this goal. ",
     example_conversation_history="\n ".join(
         [
             "agent: Here are the currently available agents.",
             "user_confirmed_tool_run: <user clicks confirm on ListAgents tool>",
             "tool_result: { 'agent_name': 'Event Flight Finder', 'goal_id': 'goal_event_flight_invoice', 'agent_description': 'Helps users find interesting events and arrange travel to them' }",
-            "agent: The available agents are: 1. Event Flight Finder. \n Which agent would you like to speak to (?",
+            "agent: The available agents are: 1. Event Flight Finder. \n Which agent would you like to speak to? (You can respond with name or number.)",
             "user: 1, Event Flight Finder",
             "user_confirmed_tool_run: <user clicks confirm on ChangeGoal tool>",
             "tool_result: { 'new_goal': 'goal_event_flight_invoice' }",
@@ -61,7 +61,6 @@ goal_pirate_treasure = AgentGoal(
     tools=[
         tool_registry.give_hint_tool,
         tool_registry.guess_location_tool,
-        tool_registry.list_agents_tool, 
     ],
     description="The user wants to find a pirate treasure. "
         "Help the user gather args for these tools, in a loop, until treasure_found is True or the user requests to be done: "
@@ -106,7 +105,6 @@ goal_match_train_invoice = AgentGoal(
         tool_registry.search_trains_tool,
         tool_registry.book_trains_tool,
         tool_registry.create_invoice_tool,
-        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to book a trip to a city in the UK around the dates of a premier league match. "
     "Help the user find a premier league match to attend, search and book trains for that match and offers to invoice them for the cost of train tickets. "
@@ -153,7 +151,6 @@ goal_event_flight_invoice = AgentGoal(
         tool_registry.find_events_tool,
         tool_registry.search_flights_tool,
         tool_registry.create_invoice_tool,
-        #tool_registry.list_agents_tool, #last tool must be list_agents to faciliate changing back to picking an agent again at the end
     ],
     description="Help the user gather args for these tools in order: "
     "1. FindEvents: Find an event to travel to "
@@ -193,7 +190,6 @@ goal_hr_schedule_pto = AgentGoal(
         tool_registry.current_pto_tool,
         tool_registry.future_pto_calc_tool,
         tool_registry.book_pto_tool,
-        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to schedule paid time off (PTO) after today's date. To assist with that goal, help the user gather args for these tools in order: "
     "1. CurrentPTO: Tell the user how much PTO they currently have "
@@ -230,7 +226,6 @@ goal_hr_check_pto = AgentGoal(
     agent_friendly_description="Check your available PTO.",   
     tools=[
         tool_registry.current_pto_tool,
-        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to check their paid time off (PTO) after today's date. To assist with that goal, help the user gather args for these tools in order: "
     "1. CurrentPTO: Tell the user how much PTO they currently have ",
@@ -252,11 +247,10 @@ goal_hr_check_pto = AgentGoal(
 goal_hr_check_paycheck_bank_integration_status = AgentGoal(
     id = "goal_hr_check_paycheck_bank_integration_status",
     category_tag="hr",
-    agent_name="Check paycheck bank integration status",
-    agent_friendly_description="Check your integration between paycheck payer and your financial institution.",   
+    agent_name="Check paycheck deposit status",
+    agent_friendly_description="Check your integration between your employer and your financial institution.",   
     tools=[
         tool_registry.paycheck_bank_integration_status_check,
-        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to check their bank integration used to deposit their paycheck. To assist with that goal, help the user gather args for these tools in order: "
     "1. CheckPayBankStatus: Tell the user the status of their paycheck bank integration ",
@@ -283,7 +277,6 @@ goal_fin_check_account_balances = AgentGoal(
     tools=[
         tool_registry.financial_check_account_is_valid,
         tool_registry.financial_get_account_balances,
-        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to check their account balances at the bank or financial institution. To assist with that goal, help the user gather args for these tools in order: "
     "1. FinCheckAccountIsValid: validate the user's account is valid"
@@ -318,7 +311,6 @@ goal_fin_move_money = AgentGoal(
         tool_registry.financial_check_account_is_valid,
         tool_registry.financial_get_account_balances,
         tool_registry.financial_move_money,
-        tool_registry.list_agents_tool, #last tool must be list_agents to fasciliate changing back to picking an agent again at the end
     ],
     description="The user wants to transfer money in their account at the bank or financial institution. To assist with that goal, help the user gather args for these tools in order: "
     "1. FinCheckAccountIsValid: validate the user's account is valid"
@@ -333,7 +325,7 @@ goal_fin_move_money = AgentGoal(
             "user_confirmed_tool_run: <user clicks confirm on FincheckAccountIsValid tool>",
             "tool_result: { 'status': account valid }",
             "agent: Great! Here are your account balances:",
-            "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountBalance tool>", #todo is this needed?
+            "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountBalance tool>", 
             "tool_result: { 'name': Matt Murdock, 'email': matt.murdock@nelsonmurdock.com, 'account_id': 11235, 'checking_balance': 875.40, 'savings_balance': 3200.15, 'bitcoin_balance': 0.1378, 'account_creation_date': 2014-03-10 }",
             "agent: Your account balances are as follows: \n "
                 "Checking: $875.40. \n "
@@ -348,7 +340,6 @@ goal_fin_move_money = AgentGoal(
     ),
 )
 
-#todo add money movement, fraud check (update with start)
 #Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)

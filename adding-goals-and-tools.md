@@ -19,14 +19,13 @@ Goal Categories lets you pick which groups of goals to show. Set via an .env set
 - `category_tag`: category for the goal
 - `agent_friendly_description`: user-facing description of what the agent/chatbot does
 - `tools`: the list of tools the goal will walk the user through. These will be defined in the [tools/tool_registry.py](tools/tool_registry.py) and should be defined in list form as tool_registry.[name of tool]
-- Important! If you want to prompt the user with options for another goal, the last tool listed must be `list_agents_tool`. This allows the chatbot to guide the user back to choosing from the list of available goals once a goal is complete. This is recommended for multi-goal behavior. The `goal_choose_agent_type` is the exception as it handles the changing of goals. <br />
+
 Example:
 ```
 tools=[
     tool_registry.current_pto_tool,
     tool_registry.future_pto_calc_tool,
     tool_registry.book_pto_tool,
-    tool_registry.list_agents_tool,
 ]
 ```
 - `description`: LLM-facing description of the goal that lists the tools by name and purpose.

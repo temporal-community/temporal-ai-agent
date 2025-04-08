@@ -1,12 +1,11 @@
 from collections import deque
 from datetime import timedelta
-import os
 from typing import Dict, Any, Union, List, Optional, Deque, TypedDict
 
 from temporalio.common import RetryPolicy
 from temporalio import workflow
 
-from models.data_types import ConversationHistory, NextStep, ValidationInput, EnvLookupInput
+from models.data_types import ConversationHistory, EnvLookupOutput, NextStep, ValidationInput, EnvLookupInput
 from models.tool_definitions import AgentGoal
 from workflows.workflow_helpers import LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT, \
     LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT
@@ -47,7 +46,8 @@ class AgentGoalWorkflow:
         self.confirmed: bool = False # indicates that we have confirmation to proceed to run tool
         self.tool_results: List[Dict[str, Any]] = []
         self.goal: AgentGoal = {"tools": []}
-        self.show_tool_args_confirmation: bool = True
+        self.show_tool_args_confirmation: bool = True # set from env file in activity lookup_wf_env_settings
+        self.multi_goal_mode: bool = False # set from env file in activity lookup_wf_env_settings
 
     # see ../api/main.py#temporal_client.start_workflow() for how the input parameters are set
     @workflow.run
@@ -125,7 +125,12 @@ class AgentGoalWorkflow:
                         continue
 
                 # If valid, proceed with generating the context and prompt
-                context_instructions = generate_genai_prompt(self.goal, self.conversation_history, self.tool_data)
+                context_instructions = generate_genai_prompt(
+                    agent_goal=self.goal, 
+                    conversation_history = self.conversation_history, 
+                    multi_goal_mode=self.multi_goal_mode, 
+                    raw_json=self.tool_data)
+                
                 prompt_input = ToolPromptInput(prompt=prompt, context_instructions=context_instructions)
 
                 # connect to LLM and execute to get next steps
@@ -165,17 +170,21 @@ class AgentGoalWorkflow:
                     else:
                         self.confirmed = True
 
-                # else if the next step is to pick a new goal...
+                # else if the next step is to pick a new goal, set the goal and tool to do it
                 elif next_step == "pick-new-goal":
                     workflow.logger.info("All steps completed. Resetting goal.")
                     self.change_goal("goal_choose_agent_type")
+                    next_step = tool_data["next"] = "confirm"
+                    current_tool = tool_data["tool"] = "ListAgents"
+                    waiting_for_confirm = True
+                    self.confirmed = True
                 
                 # else if the next step is to be done with the conversation such as if the user requests it via asking to "end conversation"
                 elif next_step == "done":
                     
                     self.add_message("agent", tool_data)
 
-                    #todo send conversation to AI for analysis
+                    #here we could send conversation to AI for analysis
 
                     # end the workflow
                     return str(self.conversation_history)
@@ -266,12 +275,11 @@ class AgentGoalWorkflow:
         )
 
     def change_goal(self, goal: str) -> None:
-        '''goalsLocal = {
-            "goal_match_train_invoice": goal_match_train_invoice,
-            "goal_event_flight_invoice": goal_event_flight_invoice,
-            "goal_choose_agent_type": goal_choose_agent_type,
-        }'''
-
+        """ Change the goal (usually on request of the user).
+        
+        Args: 
+            goal: goal to change to)
+        """
         if goal is not None:
             for listed_goal in goal_list:
                 if listed_goal.id == goal:
@@ -304,17 +312,21 @@ class AgentGoalWorkflow:
          else:
              return True
          
-    # look up env settings as needed in activities so they're part of history
+    # look up env settings in an activity so they're part of history
     async def lookup_wf_env_settings(self, combined_input: CombinedInput)->None:
-        env_lookup_input = EnvLookupInput(env_var_name = "SHOW_CONFIRM", default = True)
-        self.show_tool_args_confirmation = await workflow.execute_activity(
-            ToolActivities.get_env_bool, 
+        env_lookup_input = EnvLookupInput(
+            show_confirm_env_var_name = "SHOW_CONFIRM", 
+            show_confirm_default = True)
+        env_output:EnvLookupOutput = await workflow.execute_activity(
+            ToolActivities.get_wf_env_vars, 
             env_lookup_input,
             start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
             retry_policy=RetryPolicy(
                 initial_interval=timedelta(seconds=5), backoff_coefficient=1
             ),
         )
+        self.show_tool_args_confirmation = env_output.show_confirm
+        self.multi_goal_mode = env_output.multi_goal_mode
     
     # execute the tool - return False if we're not waiting for confirm anymore (always the case if it works successfully)
     # 

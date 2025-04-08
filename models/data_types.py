@@ -45,5 +45,10 @@ class ValidationResult:
 
 @dataclass
 class EnvLookupInput:
-    env_var_name: str
-    default: bool
+    show_confirm_env_var_name: str
+    show_confirm_default: bool
+
+@dataclass
+class EnvLookupOutput:
+    show_confirm: bool
+    multi_goal_mode: bool

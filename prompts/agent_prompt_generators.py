@@ -2,15 +2,17 @@ from models.tool_definitions import AgentGoal
 from typing import Optional
 import json
 
+MULTI_GOAL_MODE:bool = None
 
 def generate_genai_prompt(
-    agent_goal: AgentGoal, conversation_history: str, raw_json: Optional[str] = None
+    agent_goal: AgentGoal, conversation_history: str, multi_goal_mode:bool, raw_json: Optional[str] = None
 ) -> str:
     """
     Generates a concise prompt for producing or validating JSON instructions
     with the provided tools and conversation history.
     """
     prompt_lines = []
+    set_multi_goal_mode_if_unset(multi_goal_mode)
 
     # Intro / Role
     prompt_lines.append(
@@ -81,7 +83,7 @@ def generate_genai_prompt(
         "1) If any required argument is missing, set next='question' and ask the user.\n"
         "2) If all required arguments are known, set next='confirm' and specify the tool.\n"
         "   The user will confirm before the tool is run.\n"
-        "3) If no more tools are needed (user_confirmed_tool_run has been run for all), set next='confirm' and tool='ListAgents'.\n"
+        f"3) {generate_toolchain_complete_guidance()}\n"
         "4) response should be short and user-friendly.\n"
     )
 
@@ -127,8 +129,7 @@ def generate_tool_completion_prompt(current_tool: str, dynamic_result: dict) -> 
         "ONLY return those json keys (next, tool, args, response), nothing else. "
         'Next should be "question" if the tool is not the last one in the sequence. '
         'Next should be "done" if the user is asking to be done with the chat. '
-        'Next should only be "pick-new-goal" if all tools have been run (use the system prompt to figure that out).'
-        #'If all tools have been run (use the system prompt to figure that out) then clear tool history.' todo maybe fix this
+        f"{generate_pick_new_goal_guidance()}"
     )
 
 def generate_missing_args_prompt(current_tool: str, tool_data: dict, missing_args: list[str]) -> str:
@@ -148,3 +149,59 @@ def generate_missing_args_prompt(current_tool: str, tool_data: dict, missing_arg
         f"and following missing arguments for tool {current_tool}: {missing_args}. "
         "Only provide a valid JSON response without any comments or metadata."
     )
+
+def set_multi_goal_mode_if_unset(mode:bool)->None:
+    """
+    Set multi-mode (used to pass workflow)
+    
+    Args:
+        None
+        
+    Returns:
+        bool: True if in multi-goal mode, false if not
+    """
+    global MULTI_GOAL_MODE
+    if MULTI_GOAL_MODE is None:
+        MULTI_GOAL_MODE = mode
+
+def is_multi_goal_mode()-> bool:
+    """
+    Centralized logic for if we're in multi-goal mode.
+    
+    Args:
+        None
+        
+    Returns:
+        bool: True if in multi-goal mode, false if not
+    """
+    return MULTI_GOAL_MODE
+
+def generate_pick_new_goal_guidance()-> str:
+    """
+    Generates a prompt for guiding the LLM to pick a new goal or be done depending on multi-goal mode.
+    
+    Args:
+        None
+        
+    Returns:
+        str: A prompt string prompting the LLM to when to go to pick-new-goal
+    """
+    if is_multi_goal_mode(): 
+        return 'Next should only be "pick-new-goal" if all tools have been run (use the system prompt to figure that out) or the user explicitly requested to pick a new goal.'
+    else: 
+        return 'Next should never be "pick-new-goal".'
+
+def generate_toolchain_complete_guidance() -> str:
+    """
+    Generates a prompt for guiding the LLM to handle the end of the toolchain.
+    
+    Args:
+        None
+        
+    Returns:
+        str: A prompt string prompting the LLM to prompt for a new goal, or be done
+    """
+    if is_multi_goal_mode(): 
+        return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='confirm' and tool='ListAgents'."
+    else :
+        return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=''."

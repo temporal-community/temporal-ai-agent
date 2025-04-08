@@ -16,9 +16,12 @@ SHOW_CONFIRM=True
 
 ### Agent Goal Configuration
 
-The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file.
+The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. If unset, default is `goal_choose_agent_type`. 
 
-The agent can support multiple goals using goal categories using `GOAL_CATEGORIES` in your .env file. If unset, default is all.
+If the first goal is `goal_choose_agent_type` the agent will support multiple goals using goal categories defined by `GOAL_CATEGORIES` in your .env file. If unset, default is all.
+```bash
+GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
+```
 
 See the section Goal-Specific Tool Configuration below for tool configuration for specific goals.
 
