@@ -11,7 +11,7 @@ import google.generativeai as genai
 import anthropic
 import deepseek
 from dotenv import load_dotenv
-from models.data_types import ValidationInput, ValidationResult, ToolPromptInput
+from models.data_types import EnvLookupOutput, ValidationInput, ValidationResult, ToolPromptInput, EnvLookupInput
 
 load_dotenv(override=True)
 print(
@@ -50,7 +50,7 @@ class ToolActivities:
             else:
                 print("Warning: OPENAI_API_KEY not set but LLM_PROVIDER is 'openai'")
         
-        if self.llm_provider == "grok":
+        elif self.llm_provider == "grok":
             if os.environ.get("GROK_API_KEY"):
                 self.grok_client = OpenAI(api_key=os.environ.get("GROK_API_KEY"), base_url="https://api.x.ai/v1")
                 print("Initialized grok client")
@@ -370,7 +370,8 @@ class ToolActivities:
             print("Initialized Anthropic client on demand")
 
         response = self.anthropic_client.messages.create(
-            model="claude-3-5-sonnet-20241022",  # todo try claude-3-7-sonnet-20250219
+            #model="claude-3-5-sonnet-20241022",  # todo try claude-3-7-sonnet-20250219
+            model="claude-3-7-sonnet-20250219",  # todo try claude-3-7-sonnet-20250219
             max_tokens=1024,
             system=input.context_instructions
             + ". The current date is "
@@ -471,6 +472,32 @@ class ToolActivities:
             print(f"Full response: {response_content}")
             raise
 
+    # get env vars for workflow
+    @activity.defn
+    async def get_wf_env_vars(self, input: EnvLookupInput) -> EnvLookupOutput:
+        """ gets env vars for workflow as an activity result so it's deterministic
+            handles default/None
+        """
+        output: EnvLookupOutput = EnvLookupOutput(show_confirm=input.show_confirm_default, 
+                                                  multi_goal_mode=True)
+        show_confirm_value = os.getenv(input.show_confirm_env_var_name)
+        if show_confirm_value is None:
+            output.show_confirm = input.show_confirm_default
+        elif show_confirm_value is not None and show_confirm_value.lower() == "false":
+            output.show_confirm = False
+        else:
+            output.show_confirm = True
+        
+        first_goal_value = os.getenv("AGENT_GOAL")
+        if first_goal_value is None:
+            output.multi_goal_mode = True # default if unset
+        elif first_goal_value is not None and first_goal_value.lower() != "goal_choose_agent_type":
+            output.multi_goal_mode = False
+        else:
+            output.multi_goal_mode = True
+
+        return output
+
 
 def get_current_date_human_readable():
     """
@@ -487,8 +514,6 @@ def get_current_date_human_readable():
 async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     from tools import get_handler
 
-    #  if current_tool == "move_money":
-    #     workflow.logger.warning(f"trying for move_money direct")
     tool_name = activity.info().activity_type  # e.g. "FindEvents"
     tool_args = activity.payload_converter().from_payload(args[0].payload, dict)
     activity.logger.info(f"Running dynamic tool '{tool_name}' with args: {tool_args}")
@@ -503,3 +528,5 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     # Optionally log or augment the result
     activity.logger.info(f"Tool '{tool_name}' result: {result}")
     return result
+
+

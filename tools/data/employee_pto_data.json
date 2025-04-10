@@ -11,7 +11,17 @@
         "email": "laine@awesome.com",
         "currentPTOHrs": 40,
         "hrsAddedPerMonth": 12
-      }
+      },
+      {
+        "email": "steve.this.is.for.you@gmail.com",
+        "currentPTOHrs": 4000,
+        "hrsAddedPerMonth": 20
+      },
+      {
+        "email": "your_email_here@yourcompany.com",
+        "currentPTOHrs": 150,
+        "hrsAddedPerMonth": 19
+      } 
     ]
   }
 }

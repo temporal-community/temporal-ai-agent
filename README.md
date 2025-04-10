@@ -12,6 +12,18 @@ It's really helpful to [watch the demo (5 minute YouTube video)](https://www.you
 There are a lot of AI and Agentic AI tools out there, and more on the way. But why Temporal? Temporal gives this system reliablity, state management, a code-first approach that we really like, built-in observability and easy error handling.
 For more, check out [architecture-decisions](./architecture-decisions.md).
 
+## What is "Agentic AI"?
+These are the key elements of an agentic framework:
+1. Goals a human can get done, made up of tools that can execute individual steps
+2. The "agent loop" - call LLM, either call tools or prompt human, repeat until goal(s) are done
+3. Support for tool calls that require human input and approval
+4. Use of an LLM to check human input for relevance before calling the 'real' LLM
+5. use of an LLM to summarize and compact the conversation history
+6. Prompt construction (made of system prompts, conversation history, and tool metadata - sent to the LLM to create user prompts)
+7. Bonus: durable tool execution via Temporal Activities
+
+For a deeper dive into this, check out the [architecture guide](./architecture.md).
+
 ## Setup and Configuration
 See [the Setup guide](./setup.md).
 
@@ -28,9 +40,21 @@ See [the architecture guide](./architecture.md).
 - Perhaps the UI should show when the LLM response is being retried (i.e. activity retry attempt because the LLM provided bad output)
 - Tests would be nice! [See tests](./tests/).
 
+
 See [the todo](./todo.md) for more details.
 
 See [the guide to adding goals and tools](./adding-goals-and-tools.md) for more ways you can add features.
 
 ## For Temporal SAs
 Check out the [slides](https://docs.google.com/presentation/d/1wUFY4v17vrtv8llreKEBDPLRtZte3FixxBUn0uWy5NU/edit#slide=id.g3333e5deaa9_0_0) here and the enablement guide here (TODO).
+
+## Tests
+
+Running the tests requires `poe` and `pytest_asyncio` to be installed.
+
+    python -m pip install poethepoet
+    python -m pip install pytest_asyncio
+
+Once you have `poe` and `pytest_asyncio` installed you can run:
+
+    poe test
