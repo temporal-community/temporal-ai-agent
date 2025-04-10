@@ -43,9 +43,16 @@ gtfs-kit = "^10.1.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.3"
+pytest-asyncio = "^0.18.3"
 black = "^23.7"
 isort = "^5.12"
 
 [build-system]
 requires = ["poetry-core>=1.4.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
