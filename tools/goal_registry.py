@@ -95,6 +95,7 @@ goal_pirate_treasure = AgentGoal(
     ),
 )
 
+# ----- Travel Goals ---
 goal_match_train_invoice = AgentGoal(
     id = "goal_match_train_invoice",
     category_tag="travel-trains",
@@ -180,6 +181,7 @@ goal_event_flight_invoice = AgentGoal(
     ),
 )
 
+# ----- HR Goals ---
 # This goal uses the data/employee_pto_data.json file as dummy data.
 goal_hr_schedule_pto = AgentGoal(
     id = "goal_hr_schedule_pto",
@@ -268,6 +270,7 @@ goal_hr_check_paycheck_bank_integration_status = AgentGoal(
     ),
 )
 
+# ----- FinServ Goals ---
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
 goal_fin_check_account_balances = AgentGoal(
     id = "goal_fin_check_account_balances",
@@ -340,6 +343,41 @@ goal_fin_move_money = AgentGoal(
     ),
 )
 
+# ----- E-Commerce Goals ---
+#todo: add goal to list all orders for last X amount of time?
+#todo: add goal to reorder?
+# this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
+goal_ecomm_order_status = AgentGoal(
+    id = "goal_ecomm_order_status",
+    category_tag="ecommerce",
+    agent_name="Check Order Status",
+    agent_friendly_description="Check the status of your order.",   
+    tools=[
+        tool_registry.ecomm_get_order_status,
+        tool_registry.ecomm_track_package,
+    ],
+    description="The user wants to learn the status of a specific order. If the status is 'shipped', they might want to get the package tracking information. To assist with that goal, help the user gather args for these tools in order: "
+    "1. GetOrderStatus: get the status of the order"
+    "2. TrackPackage: provide tracking information for the package. This tool is optional and should only be offered if the status is 'shipped' - otherwise, skip this tool and do not mention it to the user.",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to know the status of my order",
+            "agent: Sure! I can help you out with that. May I have your email address or order number?",
+            "user: email is bob.johnson@emailzzz.com ",
+            "user_confirmed_tool_run: <user clicks confirm on GetOrderStatus tool>",
+            "tool_result: { 'status': 'shipped', 'tracking_id': 'abc123' }",
+            "agent: Your order has been shipped. Would you like to see the tracking inforation?",
+            "user: Yes",
+            "user_confirmed_tool_run: <user clicks confirm on TrackPackage tool>",
+            "tool_result: { 'scheduled_delivery_date': 'April 30, 2025', 'carrier': 'USPS', 'status_summary': 'Your item has left our acceptance facility and is in transit to a sorting facility on April 10, 2025 at 7:06 am in IRON RIDGE, WI 53035.', 'tracking_link': 'https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1=12345",
+            "agent: Your package is scheduled to be delivered on April 30, 2025 via USPS. Here is the most recent status from them regarding your package: \n"
+            "Your item has left our acceptance facility and is in transit to a sorting facility on April 10, 2025 at 7:06 am in IRON RIDGE, WI 53035. \n"
+            "You can find the full tracking details here: tracking_link !",
+        ]
+    ),
+)
+
 #Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
@@ -351,6 +389,7 @@ goal_list.append(goal_hr_check_pto)
 goal_list.append(goal_hr_check_paycheck_bank_integration_status)
 goal_list.append(goal_fin_check_account_balances)
 goal_list.append(goal_fin_move_money)
+goal_list.append(goal_ecomm_order_status)
 
 
 

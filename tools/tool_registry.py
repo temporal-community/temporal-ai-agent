@@ -317,3 +317,33 @@ financial_move_money = ToolDefinition(
         ),
     ],
 )
+
+# ----- ECommerce Use Case Tools -----
+ecomm_get_order_status = ToolDefinition(
+    name="GetOrderStatus",
+    description="Get status of order by order number.",
+    arguments=[
+        ToolArgument(
+            name="order_id",
+            type="string",
+            description="ID of order to determine status of",
+        ),
+    ],
+)
+
+ecomm_track_package = ToolDefinition(
+    name="TrackPackage",
+    description="Get tracking information for a package by shipping provider and tracking ID",
+    arguments=[
+        ToolArgument(
+            name="tracking_id",
+            type="string",
+            description="ID of package to track",
+        ),
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="Indication of user's desire to get package tracking information",
+        ),
+    ],
+)
