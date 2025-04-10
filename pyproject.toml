@@ -15,6 +15,12 @@ packages = [
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/temporalio/samples-python/issues"
 
+[tool.poe.tasks]
+format = [{cmd = "black ."}, {cmd = "isort ."}]
+lint = [{cmd = "black --check ."}, {cmd = "isort --check-only ."}, {ref = "lint-types" }]
+lint-types = "mypy --check-untyped-defs --namespace-packages ."
+test = "pytest"
+
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
 temporalio = "^1.8.0"
