@@ -27,7 +27,7 @@ const LLMResponse = memo(({ data, onConfirm, isLastMessage, onHeightChange }) =>
         : data?.response;
 
     const displayText = (response || '').trim();
-    const requiresConfirm = data.next === "confirm" && isLastMessage;
+    const requiresConfirm = data.force_confirm && data.next === "confirm" && isLastMessage;
     const defaultText = requiresConfirm 
         ? `Agent is ready to run "${data.tool}". Please confirm.` 
         : '';

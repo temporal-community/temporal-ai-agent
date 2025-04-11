@@ -17,7 +17,7 @@ class CombinedInput:
 
 Message = Dict[str, Union[str, Dict[str, Any]]]
 ConversationHistory = Dict[str, List[Message]]
-NextStep = Literal["confirm", "question", "done"]
+NextStep = Literal["confirm", "question", "pick-new-goal", "done"]
 
 
 @dataclass
@@ -42,3 +42,13 @@ class ValidationResult:
         # Initialize empty dict if None
         if self.validationFailedReason is None:
             self.validationFailedReason = {}
+
+@dataclass
+class EnvLookupInput:
+    show_confirm_env_var_name: str
+    show_confirm_default: bool
+
+@dataclass
+class EnvLookupOutput:
+    show_confirm: bool
+    multi_goal_mode: bool
