@@ -319,9 +319,21 @@ financial_move_money = ToolDefinition(
 )
 
 # ----- ECommerce Use Case Tools -----
-ecomm_get_order_status = ToolDefinition(
-    name="GetOrderStatus",
-    description="Get status of order by order number.",
+ecomm_list_orders = ToolDefinition(
+    name="ListOrders",
+    description="Get all orders for a certain email address.",
+    arguments=[
+        ToolArgument(
+            name="email_address",
+            type="string",
+            description="Email address of user by which to find orders",
+        ),
+    ],
+)
+
+ecomm_get_order = ToolDefinition(
+    name="GetOrder",
+    description="Get infromation about an order by order ID.",
     arguments=[
         ToolArgument(
             name="order_id",

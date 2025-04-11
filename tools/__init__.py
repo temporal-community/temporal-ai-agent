@@ -17,8 +17,9 @@ from .fin.check_account_valid import check_account_valid
 from .fin.get_account_balances import get_account_balance
 from .fin.move_money import move_money
 
-from .ecommerce.get_order_status import get_order_status
+from .ecommerce.get_order import get_order
 from .ecommerce.track_package import track_package
+from .ecommerce.list_orders import list_orders
 
 from .give_hint import give_hint
 from .guess_location import guess_location
@@ -57,10 +58,12 @@ def get_handler(tool_name: str):
         return get_account_balance    
     if tool_name == "FinMoveMoneyOrder":
         return move_money    
-    if tool_name == "GetOrderStatus":
-        return get_order_status
+    if tool_name == "GetOrder":
+        return get_order
     if tool_name == "TrackPackage":
-        return track_package   
+        return track_package
+    if tool_name == "ListOrders":
+        return list_orders     
     if tool_name == "GiveHint":
         return give_hint
     if tool_name == "GuessLocation":

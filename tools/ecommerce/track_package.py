@@ -65,8 +65,8 @@ def track_package(args: dict) -> dict:
 
     tracking_id = args.get("tracking_id")
 
-    api_key = os.getenv("PACKAGE_RAPIDAPI_KEY")
-    api_host = os.getenv("PACKAGE_RAPIDAPI_HOST", "trackingpackage.p.rapidapi.com")
+    api_key = os.getenv("RAPIDAPI_KEY")
+    api_host = os.getenv("RAPIDAPI_HOST_PACKAGE", "trackingpackage.p.rapidapi.com")
 
     conn = http.client.HTTPSConnection(api_host)
     headers = {
@@ -91,14 +91,19 @@ def track_package(args: dict) -> dict:
     scheduled_delivery_date = json_data["ScheduledDeliveryDate"]
     carrier = json_data["Carrier"]
     status_summary = json_data["StatusSummary"]
+    tracking_details = json_data.get("TrackingDetails", [])
+    if tracking_details is not None and tracking_details[0] is not None:
+        last_tracking_update = tracking_details[0]["EventDateTimeInDateTimeFormat"]
     tracking_link = ""
     if carrier == "USPS":
         tracking_link = f"https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1={tracking_id}"
-    #tracking_details = json_data.get("TrackingDetails", [])
+    elif carrier == "UPS":
+        tracking_link = f"https://www.ups.com/track?track=yes&trackNums={tracking_id}"
 
     return {
         "scheduled_delivery_date": scheduled_delivery_date,
         "carrier": carrier,
         "status_summary": status_summary,
         "tracking_link": tracking_link,
+        "last_tracking_update": last_tracking_update
     }
