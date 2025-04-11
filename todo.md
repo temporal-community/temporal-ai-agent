@@ -7,6 +7,8 @@
 - Portfolio Management and Rebalancing - The AI monitors a customer’s investment portfolio, rebalancing it automatically based on market trends, risk tolerance, and financial goals (e.g., shifting assets between stocks, bonds, or crypto).<br />
 
 [ ] new loan/fraud check/update with start <br />
+[ ] financial advise - args being freeform customer input about their financial situation, goals
+    [ ] tool is maybe a new tool asking the LLM to advise
 [ ] LLM failure->autoswitch: <br />
     - detect failure in the activity using failurecount <br />
     - activity switches to secondary LLM defined in .env
