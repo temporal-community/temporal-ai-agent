@@ -8,6 +8,31 @@ The AI will respond with clarifications and ask for any missing information to t
 
 [![Watch the demo](./agent-youtube-screenshot.jpeg)](https://www.youtube.com/watch?v=GEXllEH2XiQ)
 
+## Quick start with nix
+
+Using [nix-shell][https://nix.dev/tutorials/first-steps/declarative-shell.html]
+
+1. Install dependencies
+
+2. See the Configuration section below
+
+3. Run these one by one in case there are any errors:
+
+```
+nix-shell
+python -m venv venv
+source venv/bin/activate
+poetry install
+cd frontend
+npm install
+```
+
+4. Run the project with [overmind][overmind]
+
+```
+overmind start
+```
+
 ## Configuration
 
 This application uses `.env` files for configuration. Copy the [.env.example](.env.example) file to `.env` and update the values:
@@ -29,7 +54,7 @@ The agent can be configured to pursue different goals using the `AGENT_GOAL` env
     - This goal was part of [Temporal's Replay 2025 conference keynote demo](https://www.youtube.com/watch?v=YDxAWrIBQNE)
     - Note, there is failure built in to this demo (the train booking step) to show how the agent can handle failures and retry. See Tool Configuration below for details.
 
-If not specified, the agent defaults to `goal_event_flight_invoice`. Each goal comes with its own set of tools and conversation flows designed for specific use cases. You can examine `tools/goal_registry.py` to see the detailed configuration of each goal.
+If not specified, the agent defaults to `goal_event_flight_invoice`. Each goal comes with its own set of tools and conversation flows designed for specific use cases. You can examine `tools/goal_registry.py` to see the detailed configuration of each goal. <!--  -->
 
 See the next section for tool configuration for each goal.
 
