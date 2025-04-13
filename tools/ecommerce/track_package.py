@@ -92,7 +92,8 @@ def track_package(args: dict) -> dict:
     carrier = json_data["Carrier"]
     status_summary = json_data["StatusSummary"]
     tracking_details = json_data.get("TrackingDetails", [])
-    if tracking_details is not None and tracking_details[0] is not None:
+    last_tracking_update = ""
+    if tracking_details and tracking_details is not None and tracking_details[0] is not None:
         last_tracking_update = tracking_details[0]["EventDateTimeInDateTimeFormat"]
     tracking_link = ""
     if carrier == "USPS":
