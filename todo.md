@@ -9,6 +9,7 @@
 [ ] new loan/fraud check/update with start <br />
 [ ] financial advise - args being freeform customer input about their financial situation, goals
     [ ] tool is maybe a new tool asking the LLM to advise
+
 [ ] LLM failure->autoswitch: <br />
     - detect failure in the activity using failurecount <br />
     - activity switches to secondary LLM defined in .env
