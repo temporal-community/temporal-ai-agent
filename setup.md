@@ -192,7 +192,7 @@ dotnet run
 ```
 If you're running your train API above on a different host/port then change the API URL in `Program.cs`. Otherwise, be sure to run it using `python thirdparty/train_api.py`.
 
-#### Goals: FIN/Money Movement
+#### Goals: FIN - Money Movement and Loan Application
 Make sure you have the mock users you want (such as yourself) in [the account mock data file](./tools/data/customer_account_data.json).
 
 - `AGENT_GOAL=goal_fin_move_money` - This scenario _can_ initiate a secondary workflow to move money. Check out [this repo](https://github.com/temporal-sa/temporal-money-transfer-java) - you'll need to get the worker running and connected to the same account as the agentic worker. 
@@ -200,6 +200,11 @@ By default it will _not_ make a real workflow, it'll just fake it. If you get th
 ```bash
 FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
 ```
+- `AGENT_GOAL=goal_fin_loan_application` - This scenario _can_ initiate a secondary workflow to apply for a loan. Check out [this repo](https://github.com/temporal-sa/temporal-latency-optimization-scenarios) - you'll need to get the worker running and connected to the same account as the agentic worker. 
+By default it will _not_ make a real workflow, it'll just fake it. If you get the worker running and want to start a workflow, in your [.env](./.env):
+```bash
+FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
+
 
 #### Goals: HR/PTO
 Make sure you have the mock users you want in (such as yourself) in [the PTO mock data file](./tools/data/employee_pto_data.json).

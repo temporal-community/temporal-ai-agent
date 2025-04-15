@@ -302,6 +302,7 @@ goal_fin_check_account_balances = AgentGoal(
 )
 
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
+# it also uses a separate workflow/tool, see ./setup.md for details
 goal_fin_move_money = AgentGoal(
     id = "goal_fin_move_money",
     category_tag="fin",
@@ -319,7 +320,7 @@ goal_fin_move_money = AgentGoal(
     starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
         [
-            "user: I'd like transfer some money",
+            "user: I'd like to transfer some money",
             "agent: Sure! I can help you out with that. May I have account number and email address?",
             "user: account number is 11235813",
             "user_confirmed_tool_run: <user clicks confirm on FincheckAccountIsValid tool>",
@@ -340,6 +341,37 @@ goal_fin_move_money = AgentGoal(
     ),
 )
 
+# this starts a loan approval process
+# it also uses a separate workflow/tool, see ./setup.md for details #todo
+goal_fin_loan_application = AgentGoal(
+    id = "goal_fin_loan_application",
+    category_tag="fin",
+    agent_name="Easy Loan Apply",
+    agent_friendly_description="Initiate loan application.",   
+    tools=[
+        tool_registry.financial_check_account_is_valid,
+        tool_registry.financial_submit_loan_approval, #todo 
+    ],
+    description="The user wants to apply for a loan at the financial institution. To assist with that goal, help the user gather args for these tools in order: "
+    "1. FinCheckAccountIsValid: validate the user's account is valid"
+    "2. FinCheckAccountSubmitLoanApproval: submit the loan for approval",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to apply for a loan",
+            "agent: Sure! I can help you out with that. May I have account number for confirmation?",
+            "user: account number is 11235813",
+            "user_confirmed_tool_run: <user clicks confirm on FincheckAccountIsValid tool>",
+            "tool_result: { 'status': account valid }",
+            "agent: Great! We've validated your account. What will the loan amount be?",
+            "user: I'd like a loan for $500",
+            "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountSubmitLoanApproval tool>",
+            "tool_result: { 'status': submitted, 'detailed_status': loan application is submitted and initial validation is complete, 'confirmation id': 333421, 'next_step': You'll receive a confirmation for final approval in three business days }",
+            "agent: I have submitted your loan application process and the initial validation is successful. Your application ID is 333421. You'll receive a notification for final approval from us in three business days. "
+        ]
+    ),
+)
+
 #Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
@@ -351,6 +383,7 @@ goal_list.append(goal_hr_check_pto)
 goal_list.append(goal_hr_check_paycheck_bank_integration_status)
 goal_list.append(goal_fin_check_account_balances)
 goal_list.append(goal_fin_move_money)
+goal_list.append(goal_fin_loan_application)
 
 
 
