@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "temporal-AI-agent"
+name = "temporal_AI_agent"
 version = "0.1.0"
 description = "Temporal AI Agent"
 license = "MIT"
@@ -13,7 +13,7 @@ packages = [
 ]
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/temporalio/samples-python/issues"
+"Bug Tracker" = "https://github.com/temporal-community/temporal-ai-agent/issues"
 
 [tool.poe.tasks]
 format = [{cmd = "black ."}, {cmd = "isort ."}]
