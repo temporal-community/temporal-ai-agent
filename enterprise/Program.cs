@@ -2,9 +2,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Temporalio.Client;
 using Temporalio.Worker;
 using TrainSearchWorker.Activities;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 
 // Set up dependency injection
 var services = new ServiceCollection();
+
+var loggerFactory = LoggerFactory.Create(builder =>
+{
+    builder
+        .AddSimpleConsole(options => options.TimestampFormat = "[HH:mm:ss] ")
+        .SetMinimumLevel(LogLevel.Information);
+});
 
 // Add HTTP client
 services.AddHttpClient("TrainApi", client =>
@@ -31,7 +40,10 @@ Console.WriteLine($"Connecting to Temporal at address: {address}");
 Console.WriteLine($"Using namespace: {ns}");
 
 // Create worker options
-var options = new TemporalWorkerOptions("agent-task-queue-legacy");
+var options = new TemporalWorkerOptions("agent-task-queue-legacy")
+{
+    LoggerFactory = loggerFactory
+};
 
 // Register activities
 var activities = serviceProvider.GetRequiredService<TrainActivities>();
