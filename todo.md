@@ -18,6 +18,11 @@
 
 [ ] new loan/fraud check/update with start <br />
 
+[ ] for demo simulate failure  - add utilities/simulated failures from pipeline demo <br />
+
+[ ] ecommerce goals <br />
+- [ ] add to docs <br />
+- [ ] decide about api key names with Laine <br />
 
 [ ] ask the ai agent how it did at the end of the conversation, was it efficient? successful? insert a search attribute to document that before return <br />
 - Insight into the agent’s performance <br />
