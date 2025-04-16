@@ -42,9 +42,10 @@ pandas = "^2.2.3"
 gtfs-kit = "^10.1.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.3"
+pytest = ">=8.2"
 black = "^23.7"
 isort = "^5.12"
+pytest-asyncio = "^0.26.0"
 
 [build-system]
 requires = ["poetry-core>=1.4.0"]

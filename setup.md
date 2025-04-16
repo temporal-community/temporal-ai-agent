@@ -104,7 +104,7 @@ Requires [Poetry](https://python-poetry.org/) to manage dependencies.
 
 2. `source venv/bin/activate`
 
-3. `poetry install`
+3. `poetry install --with dev`
 
 Run the following commands in separate terminal windows:
 
