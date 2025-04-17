@@ -48,13 +48,4 @@ See [the guide to adding goals and tools](./adding-goals-and-tools.md) for more 
 ## For Temporal SAs
 Check out the [slides](https://docs.google.com/presentation/d/1wUFY4v17vrtv8llreKEBDPLRtZte3FixxBUn0uWy5NU/edit#slide=id.g3333e5deaa9_0_0) here and the enablement guide here (TODO).
 
-## Tests
 
-Running the tests requires `poe` and `pytest_asyncio` to be installed.
-
-    python -m pip install poethepoet
-    python -m pip install pytest_asyncio
-
-Once you have `poe` and `pytest_asyncio` installed you can run:
-
-    poe test

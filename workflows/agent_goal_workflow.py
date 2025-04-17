@@ -215,6 +215,13 @@ class AgentGoalWorkflow:
         workflow.logger.info("Received user signal: confirmation")
         self.confirmed = True
 
+    #Signal that comes from api/main.py via a post to /confirm
+    @workflow.signal
+    async def confirm(self) -> None:
+        """Signal handler for user confirmation of tool execution."""
+        workflow.logger.info("Received user signal: confirmation")
+        self.confirmed = True
+
     #Signal that comes from api/main.py via a post to /end-chat
     @workflow.signal
     async def end_chat(self) -> None:
@@ -362,9 +369,11 @@ class AgentGoalWorkflow:
     # also don't forget you can look at the workflow itself and do queries if you want
     def print_useful_workflow_vars(self, status_or_step:str) -> None:
         print(f"***{status_or_step}:***")
-        print(f"force confirm? {self.tool_data['force_confirm']}")
-        print(f"next step: {self.tool_data.get('next')}")
-        print(f"current_tool: {self.tool_data.get('tool')}")
-        print(f"self.confirm: {self.confirmed}")
-        print(f"waiting_for_confirm (about to be set to true): {self.waiting_for_confirm}")
+        if self.tool_data:
+            print(f"force confirm? {self.tool_data['force_confirm']}")
+            print(f"next step: {self.tool_data.get('next')}")
+            print(f"current_tool: {self.tool_data.get('tool')}")
+        else:
+            print("no tool data initialized yet")
+        print(f"self.confirmed: {self.confirmed}")
     
