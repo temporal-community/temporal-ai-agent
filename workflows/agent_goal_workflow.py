@@ -177,8 +177,16 @@ class AgentGoalWorkflow:
                     next_step = tool_data["next"] = "confirm"
                     current_tool = tool_data["tool"] = "ListAgents"
                     waiting_for_confirm = True
-                    self.confirmed = True
-                    continue
+                    self.tool_data = tool_data
+                    if self.show_tool_args_confirmation:
+                        self.confirmed = False 
+                    # if we have all needed arguments (handled above) and not holding for a debugging confirm, proceed:
+                    else:
+                        self.confirmed = True
+                    #self.print_useful_workflow_vars("before adding agent message<-- tool data")
+                    # maybe want to do this sometimes? for now it loops self.add_message("agent", tool_data)
+                    self.print_useful_workflow_vars("after pick-new-goal")
+                    continue # try with this out
                 
                 # else if the next step is to be done with the conversation such as if the user requests it via asking to "end conversation"
                 elif next_step == "done":
