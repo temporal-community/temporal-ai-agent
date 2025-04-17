@@ -371,6 +371,9 @@ goal_fin_loan_application = AgentGoal(
             "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountSubmitLoanApproval tool>",
             "tool_result: { 'status': submitted, 'detailed_status': loan application is submitted and initial validation is complete, 'confirmation id': 333421, 'next_step': You'll receive a confirmation for final approval in three business days }",
             "agent: I have submitted your loan application process and the initial validation is successful. Your application ID is 333421. You'll receive a notification for final approval from us in three business days. "
+        ]
+    ),
+)
 
 # ----- E-Commerce Goals ---
 #todo: add goal to list all orders for last X amount of time?
