@@ -16,6 +16,7 @@ from .hr.checkpaybankstatus import checkpaybankstatus
 from .fin.check_account_valid import check_account_valid
 from .fin.get_account_balances import get_account_balance
 from .fin.move_money import move_money
+from .fin.submit_loan_application import submit_loan_application
 
 from .give_hint import give_hint
 from .guess_location import guess_location
@@ -53,7 +54,9 @@ def get_handler(tool_name: str):
     if tool_name == "FinCheckAccountBalance":
         return get_account_balance    
     if tool_name == "FinMoveMoneyOrder":
-        return move_money    
+        return move_money
+    if tool_name == "FinCheckAccountSubmitLoanApproval":
+        return submit_loan_application    
     if tool_name == "GiveHint":
         return give_hint
     if tool_name == "GuessLocation":

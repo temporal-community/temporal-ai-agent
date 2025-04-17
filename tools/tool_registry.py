@@ -317,3 +317,22 @@ financial_move_money = ToolDefinition(
         ),
     ],
 )
+
+financial_submit_loan_approval = ToolDefinition(
+    name="FinCheckAccountSubmitLoanApproval",
+    description="Submit a loan application. "
+    "Returns the loan status. ",
+    
+    arguments=[
+        ToolArgument(
+            name="accountkey",
+            type="string",
+            description="email address or account ID of user",
+        ),  
+         ToolArgument(
+            name="amount",
+            type="string",
+            description="amount requested for the loan",
+        ),
+    ],
+)

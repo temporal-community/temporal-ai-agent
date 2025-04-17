@@ -1,15 +1,5 @@
 # todo list
-[ ] goal change management tweaks <br />
-  - [x] maybe make the choose_Agent_goal tag not be system/not always included? <br />
-  - [x] try taking out list-agents as a tool because agent_prompt_generators may do it for you <br />
-  - [x] make goal selection not be a system tool but be an option in .env, see how that works, includes taking it out of the goal/toolset for all goals <br />
-  - [x] test single-goal <br />
-  - [x] test claude and grok<br />
-  - [x] document in sample env and docs how to control <br />
-
 [ ] expand [tests](./tests/agent_goal_workflow_test.py)<br />
-[x] try claude-3-7-sonnet-20250219, see [tool_activities.py](./activities/tool_activities.py) <br />
-[x] test Grok with changes
 
 [ ] adding fintech goals <br />
 - Fraud Detection and Prevention - The AI monitors transactions across accounts, flagging suspicious activities (e.g., unusual spending patterns or login attempts) and autonomously freezing accounts or notifying customers and compliance teams.<br />
@@ -17,6 +7,14 @@
 - Portfolio Management and Rebalancing - The AI monitors a customer’s investment portfolio, rebalancing it automatically based on market trends, risk tolerance, and financial goals (e.g., shifting assets between stocks, bonds, or crypto).<br />
 
 [ ] new loan/fraud check/update with start <br />
+[ ] financial advise - args being freeform customer input about their financial situation, goals
+    [ ] tool is maybe a new tool asking the LLM to advise
+
+
+[ ] LLM failure->autoswitch: <br />
+    - detect failure in the activity using failurecount <br />
+    - activity switches to secondary LLM defined in .env
+    - activity reports switch to workflow
 
 [ ] for demo simulate failure  - add utilities/simulated failures from pipeline demo <br />
 
