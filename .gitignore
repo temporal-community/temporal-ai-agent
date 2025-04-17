@@ -33,3 +33,4 @@ coverage.xml
 
 .env
 *.env
+.env*
