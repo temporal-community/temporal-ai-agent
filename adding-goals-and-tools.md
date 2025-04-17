@@ -4,9 +4,10 @@ The agent is set up to allow for multiple goals and to switch back to choosing a
 It may be helpful to review the [architecture](./architecture.md) for a guide and definition of goals, tools, etc.
 
 ## Adding a New Goal Category
-Goal Categories lets you pick which groups of goals to show. Set via an .env setting, GOAL_CATEGORIES.
+Goal Categories lets you pick which groups of goals to show. Set via an .env setting, `GOAL_CATEGORIES`. 
+Even if you don't intend to use the goal in a multi-goal scenario, goal categories are useful for others.
 1. Pick a unique one that has some business meaning
-2. Use it in your .env file
+2. Use it in your [.env](./.env) file
 3. Add to [.env.example](./.env.example)
 4. Use it in your Goal definition, see below.
 
@@ -35,7 +36,7 @@ tools=[
 
 ## Adding Tools
 
-### Optional Tools
+### Note on Optional Tools
 Tools can be optional - you can indicate this in the tool listing of goal description (see above section re: goal registry) by adding something like, "This step is optional and can be skipped by moving to the next tool." Here is an example from an older iteration of the `goal_hr_schedule_pto` goal, when it was going to have an optional step to check for existing calendar conflicts:
 
 ```
@@ -85,3 +86,14 @@ There are three ways to manage confirmation of tool runs:
 ```
 If you really want to wait for user confirmation, record it on the workflow (as a Signal) and not rely on the LLM to probably get it, use option #3. 
 I recommend exploring all three. For a demo, I would decide if you want the Arguments confirmation in the UI, and if not I'd generally go with option #2 but use #3 for tools that make business sense to confirm, e.g. those tools that take action/write data.
+
+## Add a Goal & Tools Checklist
+[  ] Add goal in [/tools/goal_registry.py](tools/goal_registry.py) <br />
+- [  ] If a new category, add Goal Category to [.env](./.env)  and [.env.example](./.env.example)  <br />
+- [  ] don't forget the goal list at the bottom of the [goal_registry.py](tools/goal_registry.py) <br />
+
+[  ] Add Tools listed in the Goal Registry to the  [tool_registry.py](tools/tool_registry.py)  <br />
+[  ] Define your tools as Activities in `/tools` <br />
+[  ] Add your tools to [tool list](tools/__init__.py) in the tool get_handler() <br />
+
+And that's it! Happy AI Agent building!

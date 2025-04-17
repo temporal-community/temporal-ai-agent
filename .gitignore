@@ -32,3 +32,5 @@ coverage.xml
 .idea/
 
 .env
+.env*
+
