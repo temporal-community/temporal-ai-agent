@@ -10,6 +10,11 @@
 [ ] financial advise - args being freeform customer input about their financial situation, goals
     [ ] tool is maybe a new tool asking the LLM to advise
 
+[ ] for demo simulate failure  - add utilities/simulated failures from pipeline demo <br />
+
+[ ] ecommerce goals <br />
+- [ ] add to docs <br />
+- [ ] decide about api key names with Laine <br />
 
 [ ] LLM failure->autoswitch: <br />
     - detect failure in the activity using failurecount <br />
