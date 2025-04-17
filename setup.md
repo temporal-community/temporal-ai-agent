@@ -204,6 +204,7 @@ FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
 By default it will _not_ make a real workflow, it'll just fake it. If you get the worker running and want to start a workflow, in your [.env](./.env):
 ```bash
 FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
+```
 
 
 #### Goals: HR/PTO
