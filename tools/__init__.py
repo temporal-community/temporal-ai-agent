@@ -18,6 +18,10 @@ from .fin.get_account_balances import get_account_balance
 from .fin.move_money import move_money
 from .fin.submit_loan_application import submit_loan_application
 
+from .ecommerce.get_order import get_order
+from .ecommerce.track_package import track_package
+from .ecommerce.list_orders import list_orders
+
 from .give_hint import give_hint
 from .guess_location import guess_location
 
@@ -57,6 +61,12 @@ def get_handler(tool_name: str):
         return move_money
     if tool_name == "FinCheckAccountSubmitLoanApproval":
         return submit_loan_application    
+    if tool_name == "GetOrder":
+        return get_order
+    if tool_name == "TrackPackage":
+        return track_package
+    if tool_name == "ListOrders":
+        return list_orders     
     if tool_name == "GiveHint":
         return give_hint
     if tool_name == "GuessLocation":
