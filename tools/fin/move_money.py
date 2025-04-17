@@ -31,7 +31,6 @@ class MoneyMovementWorkflowParameterObj:
 # this assumes it's a valid account - use check_account_valid() to verify that first
 async def move_money(args: dict) -> dict:
     
-    print("in move_money")
     account_key = args.get("accountkey")
     account_type: str = args.get("accounttype")
     amount = args.get("amount")
