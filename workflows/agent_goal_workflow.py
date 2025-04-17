@@ -178,6 +178,7 @@ class AgentGoalWorkflow:
                     current_tool = tool_data["tool"] = "ListAgents"
                     waiting_for_confirm = True
                     self.confirmed = True
+                    continue
                 
                 # else if the next step is to be done with the conversation such as if the user requests it via asking to "end conversation"
                 elif next_step == "done":

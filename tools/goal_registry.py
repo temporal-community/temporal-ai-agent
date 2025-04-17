@@ -362,8 +362,8 @@ goal_ecomm_order_status = AgentGoal(
     example_conversation_history="\n ".join(
         [
             "user: I'd like to know the status of my order",
-            "agent: Sure! I can help you out with that. May I have your email address or order number?",
-            "user: email is bob.johnson@emailzzz.com ",
+            "agent: Sure! I can help you out with that. May I have your order number?",
+            "user: 102 ",
             "user_confirmed_tool_run: <user clicks confirm on GetOrderStatus tool>",
             "tool_result: { 'id': '102', 'summary': 'Red Sunglasses', 'email': 'matt.murdock@nelsonmurdock.com', 'status': 'shipped', 'order_date': '2025-04-01', 'last_order_update': '2025-04-06', 'tracking_id': '039813852990618' }",
             "agent: Your order 'Red Sunglasses,' placed April 1, 2025, was shipped on April 6, 2025. Would you like to see the tracking inforation?",
