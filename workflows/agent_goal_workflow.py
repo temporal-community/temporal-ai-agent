@@ -210,13 +210,6 @@ class AgentGoalWorkflow:
 
     #Signal that comes from api/main.py via a post to /confirm
     @workflow.signal
-    async def confirmed(self) -> None:
-        """Signal handler for user confirmation of tool execution."""
-        workflow.logger.info("Received user signal: confirmation")
-        self.confirmed = True
-
-    #Signal that comes from api/main.py via a post to /confirm
-    @workflow.signal
     async def confirm(self) -> None:
         """Signal handler for user confirmation of tool execution."""
         workflow.logger.info("Received user signal: confirmation")
