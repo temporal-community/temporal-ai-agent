@@ -108,7 +108,7 @@ class AgentGoalWorkflow:
                         conversation_history=self.conversation_history,
                         agent_goal=self.goal,
                     )
-                    validation_result = await workflow.execute_activity(
+                    validation_result = await workflow.execute_activity_method(
                         ToolActivities.agent_validatePrompt,
                         args=[validation_input],
                         schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
@@ -134,7 +134,7 @@ class AgentGoalWorkflow:
                 prompt_input = ToolPromptInput(prompt=prompt, context_instructions=context_instructions)
 
                 # connect to LLM and execute to get next steps
-                tool_data = await workflow.execute_activity(
+                tool_data = await workflow.execute_activity_method(
                     ToolActivities.agent_toolPlanner,
                     prompt_input,
                     schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
@@ -316,8 +316,9 @@ class AgentGoalWorkflow:
     async def lookup_wf_env_settings(self, combined_input: CombinedInput)->None:
         env_lookup_input = EnvLookupInput(
             show_confirm_env_var_name = "SHOW_CONFIRM", 
-            show_confirm_default = True)
-        env_output:EnvLookupOutput = await workflow.execute_activity(
+            show_confirm_default = True,
+        )
+        env_output:EnvLookupOutput = await workflow.execute_activity_method(
             ToolActivities.get_wf_env_vars, 
             env_lookup_input,
             start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,

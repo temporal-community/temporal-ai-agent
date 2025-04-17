@@ -10,10 +10,13 @@
 [ ] financial advise - args being freeform customer input about their financial situation, goals
     [ ] tool is maybe a new tool asking the LLM to advise
 
+
 [ ] LLM failure->autoswitch: <br />
     - detect failure in the activity using failurecount <br />
     - activity switches to secondary LLM defined in .env
     - activity reports switch to workflow
+
+[ ] for demo simulate failure  - add utilities/simulated failures from pipeline demo <br />
 
 [ ] ask the ai agent how it did at the end of the conversation, was it efficient? successful? insert a search attribute to document that before return <br />
 - Insight into the agent’s performance <br />
