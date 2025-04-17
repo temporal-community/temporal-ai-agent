@@ -18,10 +18,6 @@ def get_order(args: dict) -> dict:
     for order in order_list:
         if order["id"] == order_id:
             return order
-#            if order["status"] == "shipped":
- #               return{"status": order["status"], "tracking_id": order["tracking_id"]}
-  #          else:
-   #             return{"status": order["status"]}
         
     return_msg = "Order " + order_id + " not found."
     return {"error": return_msg}

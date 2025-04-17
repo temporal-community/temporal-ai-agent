@@ -333,6 +333,9 @@ financial_submit_loan_approval = ToolDefinition(
             name="amount",
             type="string",
             description="amount requested for the loan",
+        ),
+    ],
+)
 
 # ----- ECommerce Use Case Tools -----
 ecomm_list_orders = ToolDefinition(
