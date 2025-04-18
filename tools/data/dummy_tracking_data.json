@@ -1,0 +1,158 @@
+{ 
+    "packages": [
+        {
+            "TrackingNumber": "USPS12345",
+            "Delivered": false,
+            "Carrier": "USPS",
+            "ServiceType": "USPS Ground Advantage<SUP>&#153;</SUP>",
+            "PickupDate": "",
+            "ScheduledDeliveryDate": "April 14, 2025",
+            "ScheduledDeliveryDateInDateTimeFromat": "2025-04-14T00:00:00",
+            "StatusCode": "In Transit from Origin Processing",
+            "Status": "Departed Post Office",
+            "StatusSummary": "Your item has left our acceptance facility and is in transit to a sorting facility on April 10, 2025 at 7:06 am in IRON RIDGE, WI 53035.",
+            "Message": "",
+            "DeliveredDateTime": "",
+            "DeliveredDateTimeInDateTimeFormat": null,
+            "SignatureName": "",
+            "DestinationCity": "CITY",
+            "DestinationState": "ST",
+            "DestinationZip": "12345",
+            "DestinationCountry": null,
+            "EventDate": "2025-04-10T07:06:00",
+            "TrackingDetails": [
+                {
+                    "EventDateTime": "April 10, 2025 7:06 am",
+                    "Event": "Departed Post Office",
+                    "EventAddress": "IRON RIDGE WI 53035",
+                    "State": "WI",
+                    "City": "IRON RIDGE",
+                    "Zip": "53035",
+                    "EventDateTimeInDateTimeFormat": "2025-04-10T07:06:00"
+                },
+                {
+                    "EventDateTime": "April 9, 2025 11:29 am",
+                    "Event": "USPS picked up item",
+                    "EventAddress": "IRON RIDGE WI 53035",
+                    "State": "WI",
+                    "City": "IRON RIDGE",
+                    "Zip": "53035",
+                    "EventDateTimeInDateTimeFormat": "2025-04-09T11:29:00"
+                },
+                {
+                    "EventDateTime": "April 7, 2025 6:29 am",
+                    "Event": "Shipping Label Created, USPS Awaiting Item",
+                    "EventAddress": "IRON RIDGE WI 53035",
+                    "State": "WI",
+                    "City": "IRON RIDGE",
+                    "Zip": "53035",
+                    "EventDateTimeInDateTimeFormat": "2025-04-07T06:29:00"
+                }
+            ]
+        },
+        {
+            "TrackingNumber": "UPS67890",
+            "Delivered": true,
+            "Carrier": "UPS",
+            "ServiceType": "UPS Ground Saver®",
+            "PickupDate": "",
+            "ScheduledDeliveryDate": "",
+            "ScheduledDeliveryDateInDateTimeFromat": null,
+            "StatusCode": "D",
+            "Status": "DELIVERED",
+            "StatusSummary": "DELIVERED",
+            "Message": "",
+            "DeliveredDateTime": "20250415 154315",
+            "DeliveredDateTimeInDateTimeFormat": "2025-04-15T15:43:15",
+            "SignatureName": "",
+            "DestinationCity": "CHICAGO",
+            "DestinationState": "IL",
+            "DestinationZip": "",
+            "DestinationCountry": "US",
+            "EventDate": "2025-04-15T15:43:15",
+            "TrackingDetails": [
+                {
+                    "EventDateTime": "20250415 154315",
+                    "Event": "DELIVERED ",
+                    "EventAddress": "CHICAGO IL US",
+                    "State": "IL",
+                    "City": "CHICAGO",
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-15T15:43:15"
+                },
+                {
+                    "EventDateTime": "20250415 090938",
+                    "Event": "Out For Delivery Today",
+                    "EventAddress": "Chicago IL US",
+                    "State": "IL",
+                    "City": "Chicago",
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-15T09:09:38"
+                },
+                {
+                    "EventDateTime": "20250415 074141",
+                    "Event": "Loaded on Delivery Vehicle ",
+                    "EventAddress": "Chicago IL US",
+                    "State": "IL",
+                    "City": "Chicago",
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-15T07:41:41"
+                },
+                {
+                    "EventDateTime": "20250415 032200",
+                    "Event": "Arrived at Facility",
+                    "EventAddress": "Chicago IL US",
+                    "State": "IL",
+                    "City": "Chicago",
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-15T03:22:00"
+                },
+                {
+                    "EventDateTime": "20250414 223000",
+                    "Event": "Departed from Facility",
+                    "EventAddress": "Hodgkins IL US",
+                    "State": "IL",
+                    "City": "Hodgkins",
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-14T22:30:00"
+                },
+                {
+                    "EventDateTime": "20250414 002700",
+                    "Event": "Arrived at Facility",
+                    "EventAddress": "Hodgkins IL US",
+                    "State": "IL",
+                    "City": "Hodgkins",
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-14T00:27:00"
+                },
+                {
+                    "EventDateTime": "20250410 211700",
+                    "Event": "Departed from Facility",
+                    "EventAddress": "Las Vegas NV US",
+                    "State": "NV",
+                    "City": "Las Vegas",
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-10T21:17:00"
+                },
+                {
+                    "EventDateTime": "20250410 132625",
+                    "Event": "Arrived at Facility",
+                    "EventAddress": "Las Vegas NV US",
+                    "State": "NV",
+                    "City": "Las Vegas",
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-10T13:26:25"
+                },
+                {
+                    "EventDateTime": "20250409 100659",
+                    "Event": "Shipper created a label, UPS has not received the package yet. ",
+                    "EventAddress": "  US",
+                    "State": null,
+                    "City": null,
+                    "Zip": null,
+                    "EventDateTimeInDateTimeFormat": "2025-04-09T10:06:59"
+                }
+            ]
+        }
+    ]
+}

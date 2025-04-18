@@ -16,7 +16,6 @@ TEMPORAL_TLS_CERT = os.getenv("TEMPORAL_TLS_CERT", "")
 TEMPORAL_TLS_KEY = os.getenv("TEMPORAL_TLS_KEY", "")
 TEMPORAL_API_KEY = os.getenv("TEMPORAL_API_KEY", "")
 
-
 async def get_temporal_client() -> Client:
     """
     Creates a Temporal client based on environment configuration.
