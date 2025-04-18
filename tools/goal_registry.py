@@ -345,7 +345,7 @@ goal_fin_move_money = AgentGoal(
 )
 
 # this starts a loan approval process
-# it also uses a separate workflow/tool, see ./setup.md for details #todo
+# it also uses a separate workflow/tool, see ./setup.md for details 
 goal_fin_loan_application = AgentGoal(
     id = "goal_fin_loan_application",
     category_tag="fin",
@@ -353,7 +353,7 @@ goal_fin_loan_application = AgentGoal(
     agent_friendly_description="Initiate loan application.",   
     tools=[
         tool_registry.financial_check_account_is_valid,
-        tool_registry.financial_submit_loan_approval, #todo 
+        tool_registry.financial_submit_loan_approval, 
     ],
     description="The user wants to apply for a loan at the financial institution. To assist with that goal, help the user gather args for these tools in order: "
     "1. FinCheckAccountIsValid: validate the user's account is valid"
@@ -375,7 +375,6 @@ goal_fin_loan_application = AgentGoal(
     ),
 )
 # ----- E-Commerce Goals ---
-#todo: add goal to list all orders for last X amount of time?
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
 goal_ecomm_order_status = AgentGoal(
     id = "goal_ecomm_order_status",
