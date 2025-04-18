@@ -46,14 +46,14 @@ async def submit_loan_application(args: dict) -> dict:
 # Async function to start workflow
 async def start_workflow(amount: str, account_name: str, )-> dict:
  
-    # Connect to Temporal 
-    client = await get_temporal_client()
     start_real_workflow = os.getenv("FIN_START_REAL_WORKFLOW")
     if start_real_workflow is not None and start_real_workflow.lower() == "false":
         START_REAL_WORKFLOW = False
         return {'loan_application_status': "applied", 'application_details': "loan application is submitted and initial validation is complete",'transaction_id': "APPLICATION"+account_name, 'advisement': "You'll receive a confirmation for final approval in three business days", }  
     else:
         START_REAL_WORKFLOW = True
+         # Connect to Temporal 
+        client = await get_temporal_client()
     
         # Define the workflow ID and task queue
         workflow_id = "LOAN_APPLICATION-"+account_name+"-"+date.today().strftime('%Y-%m-%d')

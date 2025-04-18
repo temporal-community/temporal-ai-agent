@@ -172,12 +172,33 @@ class AgentGoalWorkflow:
 
                 # else if the next step is to pick a new goal, set the goal and tool to do it
                 elif next_step == "pick-new-goal":
-                    workflow.logger.info("All steps completed. Resetting goal.")
-                    self.change_goal("goal_choose_agent_type")
-                    next_step = tool_data["next"] = "confirm"
-                    current_tool = tool_data["tool"] = "ListAgents"
-                    waiting_for_confirm = True
-                    self.confirmed = True
+                    if self.goal.id != "goal_choose_agent_type":
+                        self.add_message("agent", tool_data)
+                        workflow.logger.info("All tools completed and new Agent Goal recommended. Resetting goal.")
+                        self.change_goal("goal_choose_agent_type")
+                        next_step = tool_data["next"] = "confirm"
+                        current_tool = tool_data["tool"] = "ListAgents"
+                        waiting_for_confirm = True
+                        self.tool_data = tool_data
+                        if self.show_tool_args_confirmation:
+                            self.confirmed = False 
+                        # if we have all needed arguments (handled above) and not holding for a debugging confirm, proceed:
+                        else:
+                            self.confirmed = True
+                        continue 
+                    else:
+                        if not current_tool == "ListAgents":
+                            current_tool = tool_data["tool"] = "ListAgents"
+                            waiting_for_confirm = True
+                            
+                            self.tool_data = tool_data
+                            next_step = tool_data["next"] = "confirm"
+                            if self.show_tool_args_confirmation:
+                                self.confirmed = False 
+                            # if we have all needed arguments (handled above) and not holding for a debugging confirm, proceed:
+                            else:
+                                self.confirmed = True
+
                 
                 # else if the next step is to be done with the conversation such as if the user requests it via asking to "end conversation"
                 elif next_step == "done":
@@ -348,14 +369,12 @@ class AgentGoalWorkflow:
             self.prompt_queue
         )
 
-        #set new goal if we should
+        # set new goal if we should
         if len(self.tool_results) > 0:
             if "ChangeGoal" in self.tool_results[-1].values() and "new_goal" in self.tool_results[-1].keys():
                 new_goal = self.tool_results[-1].get("new_goal")
-                workflow.logger.info(f"Booya new goal!: {new_goal}")
                 self.change_goal(new_goal)
             elif "ListAgents" in self.tool_results[-1].values() and self.goal.id != "goal_choose_agent_type":
-                workflow.logger.info("setting goal to goal_choose_agent_type")
                 self.change_goal("goal_choose_agent_type")
         return waiting_for_confirm
         
@@ -363,6 +382,8 @@ class AgentGoalWorkflow:
     # also don't forget you can look at the workflow itself and do queries if you want
     def print_useful_workflow_vars(self, status_or_step:str) -> None:
         print(f"***{status_or_step}:***")
+        if self.goal:
+            print(f"current goal: {self.goal.id}")
         if self.tool_data:
             print(f"force confirm? {self.tool_data['force_confirm']}")
             print(f"next step: {self.tool_data.get('next')}")
