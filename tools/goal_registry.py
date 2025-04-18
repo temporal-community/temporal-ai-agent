@@ -374,6 +374,7 @@ goal_fin_loan_application = AgentGoal(
         ]
     ),
 )
+
 # ----- E-Commerce Goals ---
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
 goal_ecomm_order_status = AgentGoal(
