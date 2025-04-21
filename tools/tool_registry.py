@@ -281,7 +281,7 @@ financial_get_account_balances = ToolDefinition(
     
     arguments=[
         ToolArgument(
-            name="accountkey",
+            name="email_address_or_account_ID",
             type="string",
             description="email address or account ID of user",
         ),
@@ -295,7 +295,7 @@ financial_move_money = ToolDefinition(
     
     arguments=[
         ToolArgument(
-            name="accountkey",
+            name="email_address_or_account_ID",
             type="string",
             description="email address or account ID of user",
         ),
@@ -325,7 +325,7 @@ financial_submit_loan_approval = ToolDefinition(
     
     arguments=[
         ToolArgument(
-            name="accountkey",
+            name="email_address_or_account_ID",
             type="string",
             description="email address or account ID of user",
         ),  

@@ -31,7 +31,7 @@ class TxResult:
 
 #demonstrate starting a workflow and early return pattern while the workflow continues
 async def submit_loan_application(args: dict) -> dict:
-    account_key = args.get("accountkey")
+    account_key = args.get("email_address_or_account_ID")
     amount = args.get("amount")
 
     loan_status: dict = await start_workflow(amount=amount,account_name=account_key)

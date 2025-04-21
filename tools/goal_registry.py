@@ -1,3 +1,4 @@
+import os
 from typing import List
 from models.tool_definitions import AgentGoal
 import tools.tool_registry as tool_registry
@@ -33,14 +34,14 @@ goal_choose_agent_type = AgentGoal(
         "1. ListAgents: List agents available to interact with. Do not ask for user confirmation for this tool. "
         "2. ChangeGoal: Change goal of agent "
         "After these tools are complete, change your goal to the new goal as chosen by the user. ",
-    starter_prompt=starter_prompt_generic + " Begin by listing all details of all agents as provided by the output of the first tool included in this goal. ",
+    starter_prompt="Welcome me, give me a description of what you can do, then ask me for the details you need to do your job. Listi all details of all agents as provided by the output of the first tool included in this goal. ",
     example_conversation_history="\n ".join(
         [
             "agent: Here are the currently available agents.",
-            "user_confirmed_tool_run: <user clicks confirm on ListAgents tool>",
-            "tool_result: { 'agent_name': 'Event Flight Finder', 'goal_id': 'goal_event_flight_invoice', 'agent_description': 'Helps users find interesting events and arrange travel to them' }",
-            "agent: The available agents are: 1. Event Flight Finder. \n Which agent would you like to speak to? (You can respond with name or number.)",
-            "user: 1, Event Flight Finder",
+            "tool_result: { agents: 'agent_name': 'Event Flight Finder', 'goal_id': 'goal_event_flight_invoice', 'agent_description': 'Helps users find interesting events and arrange travel to them',"
+            "'agent_name': 'Schedule PTO', 'goal_id': 'goal_hr_schedule_pto', 'agent_description': 'Schedule PTO based on your available PTO.' }",
+            "agent: The available agents are: Event Flight Finder and Schedule PTO. \n Which agent would you like to speak to? ",
+            "user: I'd like to find an event and book flights using the Event Flight Finder",
             "user_confirmed_tool_run: <user clicks confirm on ChangeGoal tool>",
             "tool_result: { 'new_goal': 'goal_event_flight_invoice' }",
         ]
@@ -288,7 +289,7 @@ goal_fin_check_account_balances = AgentGoal(
     example_conversation_history="\n ".join(
         [
             "user: I'd like to check my account balances",
-            "agent: Sure! I can help you out with that. May I have your email address or account number?",
+            "agent: Sure! I can help you out with that. May I have your email address and account number?",
             "user: email is bob.johnson@emailzzz.com ",
             "user_confirmed_tool_run: <user clicks confirm on FincheckAccountIsValid tool>",
             "tool_result: { 'status': account valid }",
@@ -466,3 +467,19 @@ goal_list.append(goal_fin_loan_application)
 goal_list.append(goal_ecomm_list_orders)
 goal_list.append(goal_ecomm_order_status)
 
+
+# for multi-goal, just set list agents as the last tool
+first_goal_value = os.getenv("AGENT_GOAL")
+if first_goal_value is None:
+    multi_goal_mode = True # default if unset
+elif first_goal_value is not None and first_goal_value.lower() != "goal_choose_agent_type":
+    multi_goal_mode = False
+else:
+    multi_goal_mode = True
+
+if multi_goal_mode:
+    for goal in goal_list:
+        if any(goal.tools.name == "ListAgents" for goal in goal_list):
+            continue
+        else:
+            goal.tools.append(tool_registry.list_agents_tool)

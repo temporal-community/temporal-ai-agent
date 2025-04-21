@@ -5,7 +5,7 @@ import json
 # this assumes it's a valid account - use check_account_valid() to verify that first
 def get_account_balance(args: dict) -> dict:
     
-    account_key = args.get("accountkey")
+    account_key = args.get("email_address_or_account_ID")
 
     file_path = Path(__file__).resolve().parent.parent / "data" / "customer_account_data.json"
     if not file_path.exists():
