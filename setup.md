@@ -210,6 +210,9 @@ FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
 #### Goals: HR/PTO
 Make sure you have the mock users you want in (such as yourself) in [the PTO mock data file](./tools/data/employee_pto_data.json).
 
+#### Goals: Ecommerce
+Make sure you have the mock orders you want in (such as those with real tracking numbers) in [the mock orders file](./tools/data/customer_order_data.json).
+
 
 ## Customizing the Agent Further
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)

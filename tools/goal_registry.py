@@ -346,7 +346,7 @@ goal_fin_move_money = AgentGoal(
 )
 
 # this starts a loan approval process
-# it also uses a separate workflow/tool, see ./setup.md for details #todo
+# it also uses a separate workflow/tool, see ./setup.md for details 
 goal_fin_loan_application = AgentGoal(
     id = "goal_fin_loan_application",
     category_tag="fin",
@@ -354,7 +354,7 @@ goal_fin_loan_application = AgentGoal(
     agent_friendly_description="Initiate loan application.",   
     tools=[
         tool_registry.financial_check_account_is_valid,
-        tool_registry.financial_submit_loan_approval, #todo 
+        tool_registry.financial_submit_loan_approval, 
     ],
     description="The user wants to apply for a loan at the financial institution. To assist with that goal, help the user gather args for these tools in order: "
     "1. FinCheckAccountIsValid: validate the user's account is valid"
@@ -377,7 +377,6 @@ goal_fin_loan_application = AgentGoal(
 )
 
 # ----- E-Commerce Goals ---
-#todo: add goal to list all orders for last X amount of time?
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
 goal_ecomm_order_status = AgentGoal(
     id = "goal_ecomm_order_status",
@@ -395,8 +394,8 @@ goal_ecomm_order_status = AgentGoal(
     example_conversation_history="\n ".join(
         [
             "user: I'd like to know the status of my order",
-            "agent: Sure! I can help you out with that. May I have your email address or order number?",
-            "user: email is bob.johnson@emailzzz.com ",
+            "agent: Sure! I can help you out with that. May I have your order number?",
+            "user: 102 ",
             "user_confirmed_tool_run: <user clicks confirm on GetOrderStatus tool>",
             "tool_result: { 'id': '102', 'summary': 'Red Sunglasses', 'email': 'matt.murdock@nelsonmurdock.com', 'status': 'shipped', 'order_date': '2025-04-01', 'last_order_update': '2025-04-06', 'tracking_id': '039813852990618' }",
             "agent: Your order 'Red Sunglasses,' placed April 1, 2025, was shipped on April 6, 2025. Would you like to see the tracking inforation?",

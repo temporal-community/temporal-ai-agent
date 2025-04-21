@@ -187,7 +187,7 @@ def generate_pick_new_goal_guidance()-> str:
         str: A prompt string prompting the LLM to when to go to pick-new-goal
     """
     if is_multi_goal_mode(): 
-        return 'Next should only be "pick-new-goal" if all tools have been run (use the system prompt to figure that out) or the user explicitly requested to pick a new goal.'
+        return 'Next should only be "pick-new-goal" if all tools have been run for the current goal (use the system prompt to figure that out) and the last successful tool was not ListAgents, or the user explicitly requested to pick a new goal.'
     else: 
         return 'Next should never be "pick-new-goal".'
 

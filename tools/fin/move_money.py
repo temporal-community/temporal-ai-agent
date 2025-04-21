@@ -77,8 +77,6 @@ async def move_money(args: dict) -> dict:
 # Async function to start workflow
 async def start_workflow(amount_cents: int, from_account_name: str, to_account_name: str)-> str:
  
-    # Connect to Temporal 
-    client = await get_temporal_client()
     start_real_workflow = os.getenv("FIN_START_REAL_WORKFLOW")
     if start_real_workflow is not None and start_real_workflow.lower() == "false":
         START_REAL_WORKFLOW = False
@@ -86,6 +84,8 @@ async def start_workflow(amount_cents: int, from_account_name: str, to_account_n
         START_REAL_WORKFLOW = True
     
     if START_REAL_WORKFLOW:
+        # Connect to Temporal 
+        client = await get_temporal_client()
         # Create the parameter object
         params = MoneyMovementWorkflowParameterObj(
             amount=amount_cents,  
