@@ -363,7 +363,7 @@ goal_fin_loan_application = AgentGoal(
     example_conversation_history="\n ".join(
         [
             "user: I'd like to apply for a loan",
-            "agent: Sure! I can help you out with that. May I have account number for confirmation?",
+            "agent: Sure! I can help you out with that. May I have account number and email address to validate your account?",
             "user: account number is 11235813",
             "user_confirmed_tool_run: <user clicks confirm on FincheckAccountIsValid tool>",
             "tool_result: { 'status': account valid }",
