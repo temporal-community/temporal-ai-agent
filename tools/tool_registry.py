@@ -299,21 +299,25 @@ financial_move_money = ToolDefinition(
             type="string",
             description="email address or account ID of user",
         ),
-         ToolArgument(
+        ToolArgument(
             name="accounttype",
             type="string",
             description="account type, such as checking or savings",
         ),        
-         ToolArgument(
+        ToolArgument(
             name="amount",
             type="string",
             description="amount to move in the order",
         ),
-                
-         ToolArgument(
+        ToolArgument(
             name="destinationaccount",
             type="string",
             description="account number to move the money to",
+        ),
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="Indication of user's desire to move money",
         ),
     ],
 )
