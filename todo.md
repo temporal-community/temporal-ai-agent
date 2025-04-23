@@ -1,5 +1,6 @@
 # todo list
-[ ] expand [tests](./tests/agent_goal_workflow_test.py)<br />
+[x] take steve's confirm box changes https://temporaltechnologies.slack.com/archives/D062SV8KEEM/p1745251279164319 <br />
+[ ] consider adding goal categories to goal picker
 
 [ ] adding fintech goals <br />
 - Fraud Detection and Prevention - The AI monitors transactions across accounts, flagging suspicious activities (e.g., unusual spending patterns or login attempts) and autonomously freezing accounts or notifying customers and compliance teams.<br />
@@ -12,16 +13,16 @@
 
 [ ] for demo simulate failure  - add utilities/simulated failures from pipeline demo <br />
 
-[x] ecommerce goals <br />
-- [x] add to docs <br />
-- [x] decide about api key names with Laine <br />
-
 [ ] LLM failure->autoswitch: <br />
     - detect failure in the activity using failurecount <br />
     - activity switches to secondary LLM defined in .env
     - activity reports switch to workflow
 
 [ ] for demo simulate failure  - add utilities/simulated failures from pipeline demo <br />
+
+[ ] expand [tests](./tests/agent_goal_workflow_test.py)<br />
+[ ] collapse history/summarize after goal finished <br />
+[ ] add aws bedrock <br />
 
 [ ] ask the ai agent how it did at the end of the conversation, was it efficient? successful? insert a search attribute to document that before return <br />
 - Insight into the agent’s performance <br />

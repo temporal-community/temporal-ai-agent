@@ -370,8 +370,8 @@ class ToolActivities:
             print("Initialized Anthropic client on demand")
 
         response = self.anthropic_client.messages.create(
-            #model="claude-3-5-sonnet-20241022",  # todo try claude-3-7-sonnet-20250219
-            model="claude-3-7-sonnet-20250219",  # todo try claude-3-7-sonnet-20250219
+            model="claude-3-5-sonnet-20241022",  
+            #model="claude-3-7-sonnet-20250219",  # doesn't do as well
             max_tokens=1024,
             system=input.context_instructions
             + ". The current date is "
