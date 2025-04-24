@@ -126,9 +126,21 @@ See the [Temporal documentation](https://learn.temporal.io/getting_started/pytho
 
 
 ## Running the Application
+### Development with Docker
+- All services are defined in `docker-compose.yml`.
+- **Dev overrides** (mounted code, live‑reload commands) live in `docker-compose.override.yml` and are **auto‑merged** on `docker compose up`.
+- To start **development** mode (with hot‑reload):
+  ```bash
+  docker compose up -d
+  # quick rebuild without infra:
+  docker compose up -d --no-deps --build api train-api worker frontend
+  ```
+- To run **production** mode (ignore dev overrides):
+  ```bash
+  docker compose -f docker-compose.yml up -d
+  ```
 
 ### Python Backend
-
 Requires [Poetry](https://python-poetry.org/) to manage dependencies.
 
 1. `python -m venv venv`
