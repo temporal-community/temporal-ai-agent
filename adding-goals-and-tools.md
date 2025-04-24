@@ -1,5 +1,6 @@
 # Customizing the Agent
-The agent is set up to allow for multiple goals and to switch back to choosing a new goal at the end of every successful goal. A goal is made up of a list of tools that the agent will guide the user through. 
+The agent is set up to have multiple agents, each with their own goal. It supports switching back to choosing a new goal at the end of every successful goal (or even mid-goal). 
+A goal is made up of a list of tools that the agent will guide the user through. 
 
 It may be helpful to review the [architecture](./architecture.md) for a guide and definition of goals, tools, etc.
 
