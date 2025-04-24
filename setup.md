@@ -18,7 +18,7 @@ SHOW_CONFIRM=True
 
 The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. If unset, default is `goal_choose_agent_type`. 
 
-If the first goal is `goal_choose_agent_type` the agent will support multiple goals using goal categories defined by `GOAL_CATEGORIES` in your .env file. If unset, default is all.
+If the first goal is `goal_choose_agent_type` the agent will support multiple goals using goal categories defined by `GOAL_CATEGORIES` in your .env file. If unset, default is all. We recommend starting with `fin`.
 ```bash
 GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
 ```
@@ -206,7 +206,6 @@ By default it will _not_ make a real workflow, it'll just fake it. If you get th
 FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
 ```
 
-
 #### Goals: HR/PTO
 Make sure you have the mock users you want in (such as yourself) in [the PTO mock data file](./tools/data/employee_pto_data.json).
 
@@ -221,3 +220,15 @@ Make sure you have the mock orders you want in (such as those with real tracking
 - Note the mapping in `tools/__init__.py` to each tool
 
 For more details, check out [adding goals and tools guide](./adding-goals-and-tools.md).
+
+## Setup Checklist
+[  ] copy `.env.example` to `.env` <br />
+[  ] Select an LLM and add your API key to `.env` <br />
+[  ] (Optional) set your starting goal and goal category in  `.env` <br />
+[  ] (Optional) configure your Temporal Cloud settings in  `.env` <br />
+[  ] `poetry run python scripts/run_worker.py` <br />
+[  ] `poetry run uvicorn api.main:app --reload` <br />
+[  ] `cd frontend`, `npm install`, `npx vite` <br />
+[ ] Access the UI at `http://localhost:5173` <br />
+
+And that's it! Happy AI Agent Exploring!
