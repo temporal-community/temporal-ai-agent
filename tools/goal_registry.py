@@ -5,36 +5,40 @@ import tools.tool_registry as tool_registry
 
 # Turn on Silly Mode - this should be a description of the persona you'd like the bot to have and can be a single word or a phrase.
 # Example if you want the bot to be a specific person, like Mario or Christopher Walken, or to describe a specific tone:
-#SILLY_MODE="Christopher Walken"
-#SILLY_MODE="belligerent"
-# 
+# SILLY_MODE="Christopher Walken"
+# SILLY_MODE="belligerent"
+#
 # Example if you want it to take on a persona (include 'a'):
-#SILLY_MODE="a pirate"
+# SILLY_MODE="a pirate"
 # Note - this only works with certain LLMs. Grok for sure will stay in character, while OpenAI will not.
-SILLY_MODE="off"
+SILLY_MODE = "off"
 if SILLY_MODE is not None and SILLY_MODE != "off":
-    silly_prompt = "You are " + SILLY_MODE +", stay in character at all times. "
+    silly_prompt = "You are " + SILLY_MODE + ", stay in character at all times. "
     print("Silly mode is on: " + SILLY_MODE)
 else:
     silly_prompt = ""
 
-starter_prompt_generic = silly_prompt + "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job."
+starter_prompt_generic = (
+    silly_prompt
+    + "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job."
+)
 
 goal_choose_agent_type = AgentGoal(
-    id = "goal_choose_agent_type",
+    id="goal_choose_agent_type",
     category_tag="agent_selection",
     agent_name="Choose Agent",
     agent_friendly_description="Choose the type of agent to assist you today. You can always interrupt an existing agent to pick a new one.",
     tools=[
-        tool_registry.list_agents_tool, 
+        tool_registry.list_agents_tool,
         tool_registry.change_goal_tool,
     ],
     description="The user wants to choose which type of agent they will interact with. "
-        "Help the user select an agent by gathering args for the Changegoal tool, in order: "
-        "1. ListAgents: List agents available to interact with. Do not ask for user confirmation for this tool. "
-        "2. ChangeGoal: Change goal of agent "
-        "After these tools are complete, change your goal to the new goal as chosen by the user. ",
-    starter_prompt= silly_prompt + "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job. List all details of all agents as provided by the output of the first tool included in this goal. ",
+    "Help the user select an agent by gathering args for the Changegoal tool, in order: "
+    "1. ListAgents: List agents available to interact with. Do not ask for user confirmation for this tool. "
+    "2. ChangeGoal: Change goal of agent "
+    "After these tools are complete, change your goal to the new goal as chosen by the user. ",
+    starter_prompt=silly_prompt
+    + "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job. List all details of all agents as provided by the output of the first tool included in this goal. ",
     example_conversation_history="\n ".join(
         [
             "agent: Here are the currently available agents.",
@@ -55,7 +59,7 @@ pirate_category_tag = "pirate"
 if SILLY_MODE == "a pirate":
     pirate_category_tag = "system"
 goal_pirate_treasure = AgentGoal(
-    id = "goal_pirate_treasure",
+    id="goal_pirate_treasure",
     category_tag=pirate_category_tag,
     agent_name="Arrr, Find Me Treasure!",
     agent_friendly_description="Sail the high seas and find me pirate treasure, ye land lubber!",
@@ -64,9 +68,9 @@ goal_pirate_treasure = AgentGoal(
         tool_registry.guess_location_tool,
     ],
     description="The user wants to find a pirate treasure. "
-        "Help the user gather args for these tools, in a loop, until treasure_found is True or the user requests to be done: "
-        "1. GiveHint: If the user wants a hint regarding the location of the treasure, give them a hint. If they do not want a hint, this tool is optional."
-        "2. GuessLocation: The user guesses where the treasure is, by giving an address. ",
+    "Help the user gather args for these tools, in a loop, until treasure_found is True or the user requests to be done: "
+    "1. GiveHint: If the user wants a hint regarding the location of the treasure, give them a hint. If they do not want a hint, this tool is optional."
+    "2. GuessLocation: The user guesses where the treasure is, by giving an address. ",
     starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
         [
@@ -98,7 +102,7 @@ goal_pirate_treasure = AgentGoal(
 
 # ----- Travel Goals ---
 goal_match_train_invoice = AgentGoal(
-    id = "goal_match_train_invoice",
+    id="goal_match_train_invoice",
     category_tag="travel-trains",
     agent_name="UK Premier League Match Trip Booking",
     agent_friendly_description="Book a trip to a city in the UK around the dates of a premier league match.",
@@ -145,10 +149,10 @@ goal_match_train_invoice = AgentGoal(
 )
 
 goal_event_flight_invoice = AgentGoal(
-    id = "goal_event_flight_invoice",
+    id="goal_event_flight_invoice",
     category_tag="travel-flights",
     agent_name="Australia and New Zealand Event Flight Booking",
-    agent_friendly_description="Book a trip to a city in Australia or New Zealand around the dates of events in that city.",    
+    agent_friendly_description="Book a trip to a city in Australia or New Zealand around the dates of events in that city.",
     tools=[
         tool_registry.find_events_tool,
         tool_registry.search_flights_tool,
@@ -185,10 +189,10 @@ goal_event_flight_invoice = AgentGoal(
 # ----- HR Goals ---
 # This goal uses the data/employee_pto_data.json file as dummy data.
 goal_hr_schedule_pto = AgentGoal(
-    id = "goal_hr_schedule_pto",
+    id="goal_hr_schedule_pto",
     category_tag="hr",
     agent_name="Schedule PTO",
-    agent_friendly_description="Schedule PTO based on your available PTO.",   
+    agent_friendly_description="Schedule PTO based on your available PTO.",
     tools=[
         tool_registry.current_pto_tool,
         tool_registry.future_pto_calc_tool,
@@ -223,10 +227,10 @@ goal_hr_schedule_pto = AgentGoal(
 
 # This goal uses the data/employee_pto_data.json file as dummy data.
 goal_hr_check_pto = AgentGoal(
-    id = "goal_hr_check_pto",
+    id="goal_hr_check_pto",
     category_tag="hr",
     agent_name="Check PTO Amount",
-    agent_friendly_description="Check your available PTO.",   
+    agent_friendly_description="Check your available PTO.",
     tools=[
         tool_registry.current_pto_tool,
     ],
@@ -248,10 +252,10 @@ goal_hr_check_pto = AgentGoal(
 
 # check integration with bank
 goal_hr_check_paycheck_bank_integration_status = AgentGoal(
-    id = "goal_hr_check_paycheck_bank_integration_status",
+    id="goal_hr_check_paycheck_bank_integration_status",
     category_tag="hr",
     agent_name="Check paycheck deposit status",
-    agent_friendly_description="Check your integration between your employer and your financial institution.",   
+    agent_friendly_description="Check your integration between your employer and your financial institution.",
     tools=[
         tool_registry.paycheck_bank_integration_status_check,
     ],
@@ -274,10 +278,10 @@ goal_hr_check_paycheck_bank_integration_status = AgentGoal(
 # ----- FinServ Goals ---
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
 goal_fin_check_account_balances = AgentGoal(
-    id = "goal_fin_check_account_balances",
+    id="goal_fin_check_account_balances",
     category_tag="fin",
     agent_name="Account Balances",
-    agent_friendly_description="Check your account balances in Checking, Savings, etc.",   
+    agent_friendly_description="Check your account balances in Checking, Savings, etc.",
     tools=[
         tool_registry.financial_check_account_is_valid,
         tool_registry.financial_get_account_balances,
@@ -297,10 +301,10 @@ goal_fin_check_account_balances = AgentGoal(
             "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountBalance tool>",
             "tool_result: { 'name': Matt Murdock, 'email': matt.murdock@nelsonmurdock.com, 'account_id': 11235, 'checking_balance': 875.40, 'savings_balance': 3200.15, 'bitcoin_balance': 0.1378, 'account_creation_date': 2014-03-10 }",
             "agent: Your account balances are as follows: \n "
-                "Checking: $875.40. \n "
-                "Savings: $3200.15. \n "
-                "Bitcoint: 0.1378 \n "
-                "Thanks for being a customer since 2014!",
+            "Checking: $875.40. \n "
+            "Savings: $3200.15. \n "
+            "Bitcoint: 0.1378 \n "
+            "Thanks for being a customer since 2014!",
         ]
     ),
 )
@@ -308,10 +312,10 @@ goal_fin_check_account_balances = AgentGoal(
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
 # it also uses a separate workflow/tool, see ./setup.md for details
 goal_fin_move_money = AgentGoal(
-    id = "goal_fin_move_money",
+    id="goal_fin_move_money",
     category_tag="fin",
-    agent_name="Money Order",
-    agent_friendly_description="Initiate a money movement order.",   
+    agent_name="Money Movement",
+    agent_friendly_description="Initiate money movement.",
     tools=[
         tool_registry.financial_check_account_is_valid,
         tool_registry.financial_get_account_balances,
@@ -320,7 +324,7 @@ goal_fin_move_money = AgentGoal(
     description="The user wants to transfer money in their account at the bank or financial institution. To assist with that goal, help the user gather args for these tools in order: "
     "1. FinCheckAccountIsValid: validate the user's account is valid"
     "2. FinCheckAccountBalance: Tell the user their account balance at the bank or financial institution"
-    "3. FinMoveMoney: Initiate a money movement order",
+    "3. FinMoveMoney: Initiate money movement (transfer)",
     starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
         [
@@ -330,31 +334,31 @@ goal_fin_move_money = AgentGoal(
             "user_confirmed_tool_run: <user clicks confirm on FincheckAccountIsValid tool>",
             "tool_result: { 'status': account valid }",
             "agent: Great! Here are your account balances:",
-            "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountBalance tool>", 
+            "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountBalance tool>",
             "tool_result: { 'name': Matt Murdock, 'email': matt.murdock@nelsonmurdock.com, 'account_id': 11235, 'checking_balance': 875.40, 'savings_balance': 3200.15, 'bitcoin_balance': 0.1378, 'account_creation_date': 2014-03-10 }",
             "agent: Your account balances are as follows: \n "
-                "Checking: $875.40. \n "
-                "Savings: $3200.15. \n "
-                "Bitcoint: 0.1378 \n "
+            "Checking: $875.40. \n "
+            "Savings: $3200.15. \n "
+            "Bitcoint: 0.1378 \n "
             "agent: how much would you like to move, from which account type, and to which account number?",
             "user: I'd like to move $500 from savings to account number #56789",
             "user_confirmed_tool_run: <user clicks confirm on FinMoveMoney tool>",
             "tool_result: { 'status': money movement complete, 'confirmation id': 333421, 'new_balance': $2700.15 }",
-            "agent: Money movement order completed! New account balance: $2700.15. Your confirmation id is 333421. "
+            "agent: Money movement completed! New account balance: $2700.15. Your confirmation id is 333421. ",
         ]
     ),
 )
 
 # this starts a loan approval process
-# it also uses a separate workflow/tool, see ./setup.md for details 
+# it also uses a separate workflow/tool, see ./setup.md for details
 goal_fin_loan_application = AgentGoal(
-    id = "goal_fin_loan_application",
+    id="goal_fin_loan_application",
     category_tag="fin",
     agent_name="Easy Loan",
-    agent_friendly_description="Initiate a simple loan application.",   
+    agent_friendly_description="Initiate a simple loan application.",
     tools=[
         tool_registry.financial_check_account_is_valid,
-        tool_registry.financial_submit_loan_approval, 
+        tool_registry.financial_submit_loan_approval,
     ],
     description="The user wants to apply for a loan at the financial institution. To assist with that goal, help the user gather args for these tools in order: "
     "1. FinCheckAccountIsValid: validate the user's account is valid"
@@ -371,7 +375,7 @@ goal_fin_loan_application = AgentGoal(
             "user: I'd like a loan for $500",
             "user_confirmed_tool_run: <user clicks confirm on FinCheckAccountSubmitLoanApproval tool>",
             "tool_result: { 'status': submitted, 'detailed_status': loan application is submitted and initial validation is complete, 'confirmation id': 333421, 'next_step': You'll receive a confirmation for final approval in three business days }",
-            "agent: I have submitted your loan application process and the initial validation is successful. Your application ID is 333421. You'll receive a notification for final approval from us in three business days. "
+            "agent: I have submitted your loan application process and the initial validation is successful. Your application ID is 333421. You'll receive a notification for final approval from us in three business days. ",
         ]
     ),
 )
@@ -379,10 +383,10 @@ goal_fin_loan_application = AgentGoal(
 # ----- E-Commerce Goals ---
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
 goal_ecomm_order_status = AgentGoal(
-    id = "goal_ecomm_order_status",
+    id="goal_ecomm_order_status",
     category_tag="ecommerce",
     agent_name="Check Order Status",
-    agent_friendly_description="Check the status of your order.",   
+    agent_friendly_description="Check the status of your order.",
     tools=[
         tool_registry.ecomm_get_order,
         tool_registry.ecomm_track_package,
@@ -410,10 +414,10 @@ goal_ecomm_order_status = AgentGoal(
 )
 
 goal_ecomm_list_orders = AgentGoal(
-    id = "goal_ecomm_list_orders",
+    id="goal_ecomm_list_orders",
     category_tag="ecommerce",
     agent_name="List All Orders",
-    agent_friendly_description="List all orders for a user.",   
+    agent_friendly_description="List all orders for a user.",
     tools=[
         tool_registry.ecomm_list_orders,
         tool_registry.ecomm_get_order,
@@ -445,13 +449,12 @@ goal_ecomm_list_orders = AgentGoal(
             "Your item has left our acceptance facility and is in transit to a sorting facility on April 10, 2025 at 7:06 am in IRON RIDGE, WI 53035. \n"
             "You can find the full tracking details here: tracking_link ! \n"
             "Would you like more information about any of your other orders?",
-            "user: No"
-            "agent: Thanks, and have a great day!"
+            "user: No" "agent: Thanks, and have a great day!",
         ]
     ),
 )
 
-#Add the goals to a list for more generic processing, like listing available agents
+# Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
 goal_list.append(goal_pirate_treasure)
@@ -470,15 +473,18 @@ goal_list.append(goal_ecomm_order_status)
 # for multi-goal, just set list agents as the last tool
 first_goal_value = os.getenv("AGENT_GOAL")
 if first_goal_value is None:
-    multi_goal_mode = True # default if unset
-elif first_goal_value is not None and first_goal_value.lower() != "goal_choose_agent_type":
+    multi_goal_mode = True  # default if unset
+elif (
+    first_goal_value is not None
+    and first_goal_value.lower() != "goal_choose_agent_type"
+):
     multi_goal_mode = False
 else:
     multi_goal_mode = True
 
 if multi_goal_mode:
     for goal in goal_list:
-        list_agents_found:bool = False
+        list_agents_found: bool = False
         for tool in goal.tools:
             if tool.name == "ListAgents":
                 list_agents_found = True
