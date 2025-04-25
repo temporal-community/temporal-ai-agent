@@ -4,8 +4,8 @@
             "name": "Matt Murdock",
             "email": "matt.murdock@nelsonmurdock.com",
             "account_id": "11235",
-            "checking_balance": 875.4,
-            "savings_balance": 3200.15,
+            "checking_balance": "1275.4",
+            "savings_balance": "2800.15",
             "bitcoin_balance": 0.1378,
             "account_creation_date": "2014-03-10"
         },

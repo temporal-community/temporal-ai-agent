@@ -96,6 +96,8 @@ def generate_genai_prompt(
         "1) ALWAYS ask a question in your response if next='question'.\n"
         "2) ALWAYS set next='confirm' if you have arguments\n "
         'And respond with "let\'s proceed with <tool> (and any other useful info)" \n '
+        + "DON'T set next='confirm' if you have a question to ask.\n"
+        "EXAMPLE: If you have a question to ask, set next='question' and ask the user.\n"
         "3) You can carry over arguments from one tool to another.\n "
         "EXAMPLE: If you asked for an account ID, then use the conversation history to infer that argument "
         "going forward."
