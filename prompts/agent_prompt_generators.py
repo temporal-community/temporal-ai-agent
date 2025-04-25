@@ -2,10 +2,14 @@ from models.tool_definitions import AgentGoal
 from typing import Optional
 import json
 
-MULTI_GOAL_MODE:bool = None
+MULTI_GOAL_MODE: bool = None
+
 
 def generate_genai_prompt(
-    agent_goal: AgentGoal, conversation_history: str, multi_goal_mode:bool, raw_json: Optional[str] = None
+    agent_goal: AgentGoal,
+    conversation_history: str,
+    multi_goal_mode: bool,
+    raw_json: Optional[str] = None,
 ) -> str:
     """
     Generates a concise prompt for producing or validating JSON instructions
@@ -25,10 +29,12 @@ def generate_genai_prompt(
     prompt_lines.append(
         "This is the ongoing history to determine which tool and arguments to gather:"
     )
-    prompt_lines.append("BEGIN CONVERSATION HISTORY")
+    prompt_lines.append("*BEGIN CONVERSATION HISTORY*")
     prompt_lines.append(json.dumps(conversation_history, indent=2))
-    prompt_lines.append("END CONVERSATION HISTORY")
-    prompt_lines.append("")
+    prompt_lines.append("*END CONVERSATION HISTORY*")
+    prompt_lines.append(
+        "REMINDER: You can use the conversation history to infer arguments for the tools."
+    )
 
     # Example Conversation History (from agent_goal)
     if agent_goal.example_conversation_history:
@@ -84,7 +90,20 @@ def generate_genai_prompt(
         "2) If all required arguments are known, set next='confirm' and specify the tool.\n"
         "   The user will confirm before the tool is run.\n"
         f"3) {generate_toolchain_complete_guidance()}\n"
-        "4) response should be short and user-friendly.\n"
+        "4) response should be short and user-friendly.\n\n"
+        "Guardrails (always remember!)\n"
+        "1) If any required argument is missing, set next='question' and ask the user.\n"
+        "1) ALWAYS ask a question in your response if next='question'.\n"
+        "2) ALWAYS set next='confirm' if you have arguments\n "
+        'And respond with "let\'s proceed with <tool> (and any other useful info)" \n '
+        "3) You can carry over arguments from one tool to another.\n "
+        "EXAMPLE: If you asked for an account ID, then use the conversation history to infer that argument "
+        "going forward."
+        "4) If ListAgents in the conversation history is force_confirm='False', you MUST check "
+        + "if the current tool contains userConfirmation. If it does, please ask the user to confirm details "
+        + "with the user. userConfirmation overrides force_confirm='False'.\n"
+        + "EXAMPLE: (force_confirm='False' AND userConfirmation exists on tool) Would you like me to <run tool> "
+        + "with the following details: <details>?\n"
     )
 
     # Validation Task (If raw_json is provided)
@@ -110,14 +129,15 @@ def generate_genai_prompt(
 
     return "\n".join(prompt_lines)
 
+
 def generate_tool_completion_prompt(current_tool: str, dynamic_result: dict) -> str:
     """
     Generates a prompt for handling tool completion and determining next steps.
-    
+
     Args:
         current_tool: The name of the tool that just completed
         dynamic_result: The result data from the tool execution
-        
+
     Returns:
         str: A formatted prompt string for the agent to process the tool completion
     """
@@ -132,15 +152,18 @@ def generate_tool_completion_prompt(current_tool: str, dynamic_result: dict) -> 
         f"{generate_pick_new_goal_guidance()}"
     )
 
-def generate_missing_args_prompt(current_tool: str, tool_data: dict, missing_args: list[str]) -> str:
+
+def generate_missing_args_prompt(
+    current_tool: str, tool_data: dict, missing_args: list[str]
+) -> str:
     """
     Generates a prompt for handling missing arguments for a tool.
-    
+
     Args:
         current_tool: The name of the tool that needs arguments
         tool_data: The current tool data containing the response
         missing_args: List of argument names that are missing
-        
+
     Returns:
         str: A formatted prompt string for requesting missing arguments
     """
@@ -150,13 +173,14 @@ def generate_missing_args_prompt(current_tool: str, tool_data: dict, missing_arg
         "Only provide a valid JSON response without any comments or metadata."
     )
 
-def set_multi_goal_mode_if_unset(mode:bool)->None:
+
+def set_multi_goal_mode_if_unset(mode: bool) -> None:
     """
     Set multi-mode (used to pass workflow)
-    
+
     Args:
         None
-        
+
     Returns:
         bool: True if in multi-goal mode, false if not
     """
@@ -164,44 +188,47 @@ def set_multi_goal_mode_if_unset(mode:bool)->None:
     if MULTI_GOAL_MODE is None:
         MULTI_GOAL_MODE = mode
 
-def is_multi_goal_mode()-> bool:
+
+def is_multi_goal_mode() -> bool:
     """
     Centralized logic for if we're in multi-goal mode.
-    
+
     Args:
         None
-        
+
     Returns:
         bool: True if in multi-goal mode, false if not
     """
     return MULTI_GOAL_MODE
 
-def generate_pick_new_goal_guidance()-> str:
+
+def generate_pick_new_goal_guidance() -> str:
     """
     Generates a prompt for guiding the LLM to pick a new goal or be done depending on multi-goal mode.
-    
+
     Args:
         None
-        
+
     Returns:
         str: A prompt string prompting the LLM to when to go to pick-new-goal
     """
-    if is_multi_goal_mode(): 
+    if is_multi_goal_mode():
         return 'Next should only be "pick-new-goal" if all tools have been run for the current goal (use the system prompt to figure that out), or the user explicitly requested to pick a new goal.'
-    else: 
+    else:
         return 'Next should never be "pick-new-goal".'
+
 
 def generate_toolchain_complete_guidance() -> str:
     """
     Generates a prompt for guiding the LLM to handle the end of the toolchain.
-    
+
     Args:
         None
-        
+
     Returns:
         str: A prompt string prompting the LLM to prompt for a new goal, or be done
     """
-    if is_multi_goal_mode(): 
+    if is_multi_goal_mode():
         return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='confirm' and tool='ListAgents'."
-    else :
+    else:
         return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=''."

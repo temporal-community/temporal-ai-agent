@@ -56,17 +56,17 @@ def get_handler(tool_name: str):
     if tool_name == "FinCheckAccountIsValid":
         return check_account_valid
     if tool_name == "FinCheckAccountBalance":
-        return get_account_balance    
-    if tool_name == "FinMoveMoneyOrder":
+        return get_account_balance
+    if tool_name == "FinMoveMoney":
         return move_money
     if tool_name == "FinCheckAccountSubmitLoanApproval":
-        return submit_loan_application    
+        return submit_loan_application
     if tool_name == "GetOrder":
         return get_order
     if tool_name == "TrackPackage":
         return track_package
     if tool_name == "ListOrders":
-        return list_orders     
+        return list_orders
     if tool_name == "GiveHint":
         return give_hint
     if tool_name == "GuessLocation":

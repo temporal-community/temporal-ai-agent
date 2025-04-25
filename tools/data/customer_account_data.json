@@ -1,10 +1,10 @@
-{ 
+{
     "accounts": [
         {
             "name": "Matt Murdock",
             "email": "matt.murdock@nelsonmurdock.com",
             "account_id": "11235",
-            "checking_balance": 875.40,
+            "checking_balance": 875.4,
             "savings_balance": 3200.15,
             "bitcoin_balance": 0.1378,
             "account_creation_date": "2014-03-10"
@@ -13,8 +13,8 @@
             "name": "Foggy Nelson",
             "email": "foggy.nelson@nelsonmurdock.com",
             "account_id": "112358",
-            "checking_balance": 1523.67,
-            "savings_balance": 4875.90,
+            "checking_balance": "1523.66",
+            "savings_balance": "4875.89",
             "bitcoin_balance": 0.0923,
             "account_creation_date": "2014-03-10"
         },
@@ -23,7 +23,7 @@
             "email": "karen.page@nelsonmurdock.com",
             "account_id": "112",
             "checking_balance": 645.25,
-            "savings_balance": 1830.50,
+            "savings_balance": "830.5",
             "bitcoin_balance": 0.0456,
             "account_creation_date": "2015-01-15"
         },
@@ -31,7 +31,7 @@
             "name": "Wilson Fisk",
             "email": "wilson.fisk@fiskcorp.com",
             "account_id": "11",
-            "checking_balance": 25000.00,
+            "checking_balance": 25000.0,
             "savings_balance": 150000.75,
             "bitcoin_balance": 5987.6721,
             "account_creation_date": "2013-09-20"
@@ -40,8 +40,8 @@
             "name": "Frank Castle",
             "email": "frank.castle@vigilante.net",
             "account_id": "1",
-            "checking_balance": 320.10,
-            "savings_balance": 0.30,
+            "checking_balance": 320.1,
+            "savings_balance": 0.3,
             "bitcoin_balance": 15.2189,
             "account_creation_date": "2016-02-05"
         },
@@ -49,8 +49,8 @@
             "name": "Joshua Smith",
             "email": "joshmsmith@gmail.com",
             "account_id": "11235813",
-            "checking_balance": 3021.90,
-            "savings_balance": 500.50,
+            "checking_balance": 3021.9,
+            "savings_balance": 500.5,
             "bitcoin_balance": 0.001,
             "account_creation_date": "2020-03-19"
         }

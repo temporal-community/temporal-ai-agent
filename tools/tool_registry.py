@@ -1,4 +1,5 @@
 from models.tool_definitions import ToolDefinition, ToolArgument
+
 # ----- System tools -----
 list_agents_tool = ToolDefinition(
     name="ListAgents",
@@ -21,12 +22,13 @@ change_goal_tool = ToolDefinition(
 give_hint_tool = ToolDefinition(
     name="GiveHint",
     description="Give a hint to the user regarding the location of the pirate treasure. Use previous conversation to determine the hint_total, it should initially be 0 ",
-    arguments=[        
+    arguments=[
         ToolArgument(
             name="hint_total",
             type="number",
             description="How many hints have been given",
-        ),],
+        ),
+    ],
 )
 
 guess_location_tool = ToolDefinition(
@@ -54,7 +56,8 @@ guess_location_tool = ToolDefinition(
 # ----- Travel use cases tools -----
 search_flights_tool = ToolDefinition(
     name="SearchFlights",
-    description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn).",
+    description="Search for return flights from an origin to a destination within a date range (dateDepart, dateReturn). "
+    "You are allowed to suggest dates from the conversation history, but ALWAYS ask the user if ok.",
     arguments=[
         ToolArgument(
             name="origin",
@@ -75,6 +78,12 @@ search_flights_tool = ToolDefinition(
             name="dateReturn",
             type="ISO8601",
             description="End of date range in human readable format, when you want to return",
+        ),
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="Indication of the user's desire to search flights, and to confirm the details "
+            + "before moving on to the next step",
         ),
     ],
 )
@@ -115,6 +124,11 @@ book_trains_tool = ToolDefinition(
             type="string",
             description="The IDs of the trains to book, comma separated",
         ),
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="Indication of user's desire to book train tickets",
+        ),
     ],
 )
 
@@ -131,6 +145,11 @@ create_invoice_tool = ToolDefinition(
             name="tripDetails",
             type="string",
             description="A description of the item details to be invoiced, inferred from the conversation history.",
+        ),
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="Indication of user's desire to create an invoice",
         ),
     ],
 )
@@ -278,7 +297,6 @@ financial_get_account_balances = ToolDefinition(
     name="FinCheckAccountBalance",
     description="Get account balance for your accounts. "
     "Returns the account balances of your accounts. ",
-    
     arguments=[
         ToolArgument(
             name="email_address_or_account_ID",
@@ -289,10 +307,9 @@ financial_get_account_balances = ToolDefinition(
 )
 
 financial_move_money = ToolDefinition(
-    name="FinMoveMoneyOrder",
-    description="Execute a money movement order. "
-    "Returns the status of the order and the account balance of the account money was moved from. ",
-    
+    name="FinMoveMoney",
+    description="Send money from one account to another under the same acount ID (e.g. checking to savings). "
+    "Returns the status of the order and the new balances in each account. ",
     arguments=[
         ToolArgument(
             name="email_address_or_account_ID",
@@ -303,16 +320,16 @@ financial_move_money = ToolDefinition(
             name="accounttype",
             type="string",
             description="account type, such as checking or savings",
-        ),        
+        ),
         ToolArgument(
             name="amount",
             type="string",
-            description="amount to move in the order",
+            description="amount to move in the order (e.g. checking or savings)",
         ),
         ToolArgument(
             name="destinationaccount",
             type="string",
-            description="account number to move the money to",
+            description="account to move the money to (e.g. checking or savings)",
         ),
         ToolArgument(
             name="userConfirmation",
@@ -324,16 +341,14 @@ financial_move_money = ToolDefinition(
 
 financial_submit_loan_approval = ToolDefinition(
     name="FinCheckAccountSubmitLoanApproval",
-    description="Submit a loan application. "
-    "Returns the loan status. ",
-    
+    description="Submit a loan application. " "Returns the loan status. ",
     arguments=[
         ToolArgument(
             name="email_address_or_account_ID",
             type="string",
             description="email address or account ID of user",
-        ),  
-         ToolArgument(
+        ),
+        ToolArgument(
             name="amount",
             type="string",
             description="amount requested for the loan",
