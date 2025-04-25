@@ -314,7 +314,7 @@ financial_move_money = ToolDefinition(
         ToolArgument(
             name="email_address_or_account_ID",
             type="string",
-            description="email address or account ID of user",
+            description="email address or account ID of user (you will need both to find the account)",
         ),
         ToolArgument(
             name="accounttype",
