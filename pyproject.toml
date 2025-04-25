@@ -1,9 +1,13 @@
 [tool.poetry]
-name = "temporal-AI-agent"
-version = "0.1.0"
+name = "temporal_AI_agent"
+version = "0.2.0"
 description = "Temporal AI Agent"
 license = "MIT"
-authors = ["Steve Androulakis <steve.androulakis@temporal.io>"]
+authors = [
+    "Steve Androulakis <steve.androulakis@temporal.io>",
+    "Laine Smith <lainecaseysmith@gmail.com>",
+    "Joshua Smith <josh.smith@temporal.io>"
+]
 readme = "README.md"
 
 # By default, Poetry will find packages automatically, 
@@ -13,7 +17,13 @@ packages = [
 ]
 
 [tool.poetry.urls]
-"Bug Tracker" = "https://github.com/temporalio/samples-python/issues"
+"Bug Tracker" = "https://github.com/temporal-community/temporal-ai-agent/issues"
+
+[tool.poe.tasks]
+format = [{cmd = "black ."}, {cmd = "isort ."}]
+lint = [{cmd = "black --check ."}, {cmd = "isort --check-only ."}, {ref = "lint-types" }]
+lint-types = "mypy --check-untyped-defs --namespace-packages ."
+test = "pytest"
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
@@ -36,10 +46,18 @@ pandas = "^2.2.3"
 gtfs-kit = "^10.1.1"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^7.3"
+pytest = ">=8.2"
+pytest-asyncio = "^0.26.0"
 black = "^23.7"
 isort = "^5.12"
 
 [build-system]
 requires = ["poetry-core>=1.4.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
+asyncio_default_fixture_loop_scope = "function"

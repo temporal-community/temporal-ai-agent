@@ -11,7 +11,7 @@ def search_airport(query: str) -> list:
     """
     load_dotenv(override=True)
     api_key = os.getenv("RAPIDAPI_KEY", "YOUR_DEFAULT_KEY")
-    api_host = os.getenv("RAPIDAPI_HOST", "sky-scrapper.p.rapidapi.com")
+    api_host = os.getenv("RAPIDAPI_HOST_FLIGHTS", "sky-scrapper.p.rapidapi.com")
 
     conn = http.client.HTTPSConnection(api_host)
     headers = {
@@ -73,7 +73,7 @@ def search_flights_real_api(
     # Step 2: Call flight search with resolved codes
     load_dotenv(override=True)
     api_key = os.getenv("RAPIDAPI_KEY", "YOUR_DEFAULT_KEY")
-    api_host = os.getenv("RAPIDAPI_HOST", "sky-scrapper.p.rapidapi.com")
+    api_host = os.getenv("RAPIDAPI_HOST_FLIGHTS", "sky-scrapper.p.rapidapi.com")
 
     conn = http.client.HTTPSConnection(api_host)
     headers = {

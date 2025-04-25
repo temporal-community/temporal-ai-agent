@@ -1,3 +1,4 @@
+import inspect
 from temporalio import activity
 from ollama import chat, ChatResponse
 from openai import OpenAI
@@ -10,7 +11,7 @@ import google.generativeai as genai
 import anthropic
 import deepseek
 from dotenv import load_dotenv
-from models.data_types import ValidationInput, ValidationResult, ToolPromptInput
+from models.data_types import EnvLookupOutput, ValidationInput, ValidationResult, ToolPromptInput, EnvLookupInput
 
 load_dotenv(override=True)
 print(
@@ -34,6 +35,7 @@ class ToolActivities:
 
         # Initialize client variables (all set to None initially)
         self.openai_client: Optional[OpenAI] = None
+        self.grok_client: Optional[OpenAI] = None
         self.anthropic_client: Optional[anthropic.Anthropic] = None
         self.genai_configured: bool = False
         self.deepseek_client: Optional[deepseek.DeepSeekAPI] = None
@@ -47,6 +49,13 @@ class ToolActivities:
                 print("Initialized OpenAI client")
             else:
                 print("Warning: OPENAI_API_KEY not set but LLM_PROVIDER is 'openai'")
+        
+        elif self.llm_provider == "grok":
+            if os.environ.get("GROK_API_KEY"):
+                self.grok_client = OpenAI(api_key=os.environ.get("GROK_API_KEY"), base_url="https://api.x.ai/v1")
+                print("Initialized grok client")
+            else:
+                print("Warning: GROK_API_KEY not set but LLM_PROVIDER is 'grok'")
 
         elif self.llm_provider == "anthropic":
             if os.environ.get("ANTHROPIC_API_KEY"):
@@ -195,6 +204,8 @@ class ToolActivities:
             return self.prompt_llm_anthropic(input)
         elif self.llm_provider == "deepseek":
             return self.prompt_llm_deepseek(input)
+        elif self.llm_provider == "grok":
+            return self.prompt_llm_grok(input)
         else:
             return self.prompt_llm_openai(input)
 
@@ -237,13 +248,47 @@ class ToolActivities:
         )
 
         response_content = chat_completion.choices[0].message.content
-        print(f"ChatGPT response: {response_content}")
+        activity.logger.info(f"ChatGPT response: {response_content}")
 
         # Use the new sanitize function
         response_content = self.sanitize_json_response(response_content)
 
         return self.parse_json_response(response_content)
 
+    def prompt_llm_grok(self, input: ToolPromptInput) -> dict:
+        if not self.grok_client:
+            api_key = os.environ.get("GROK_API_KEY")
+            if not api_key:
+                raise ValueError(
+                    "GROK_API_KEY is not set in the environment variables but LLM_PROVIDER is 'grok'"
+                )
+            self.grok_client = OpenAI(api_key=api_key, base_url="https://api.x.ai/v1")
+            print("Initialized grok client on demand")
+
+        messages = [
+            {
+                "role": "system",
+                "content": input.context_instructions
+                + ". The current date is "
+                + datetime.now().strftime("%B %d, %Y"),
+            },
+            {
+                "role": "user",
+                "content": input.prompt,
+            },
+        ]
+
+        chat_completion = self.grok_client.chat.completions.create(
+            model="grok-2-1212", messages=messages  
+        )
+
+        response_content = chat_completion.choices[0].message.content
+        activity.logger.info(f"Grok response: {response_content}")
+
+        # Use the new sanitize function
+        response_content = self.sanitize_json_response(response_content)
+
+        return self.parse_json_response(response_content)
     def prompt_llm_ollama(self, input: ToolPromptInput) -> dict:
         # If not yet initialized, try to do so now (this is a backup if warm_up_ollama wasn't called or failed)
         if not self.ollama_initialized:
@@ -325,7 +370,8 @@ class ToolActivities:
             print("Initialized Anthropic client on demand")
 
         response = self.anthropic_client.messages.create(
-            model="claude-3-5-sonnet-20241022",  # todo try claude-3-7-sonnet-20250219
+            model="claude-3-5-sonnet-20241022",  
+            #model="claude-3-7-sonnet-20250219",  # doesn't do as well
             max_tokens=1024,
             system=input.context_instructions
             + ". The current date is "
@@ -426,6 +472,32 @@ class ToolActivities:
             print(f"Full response: {response_content}")
             raise
 
+    # get env vars for workflow
+    @activity.defn
+    async def get_wf_env_vars(self, input: EnvLookupInput) -> EnvLookupOutput:
+        """ gets env vars for workflow as an activity result so it's deterministic
+            handles default/None
+        """
+        output: EnvLookupOutput = EnvLookupOutput(show_confirm=input.show_confirm_default, 
+                                                  multi_goal_mode=True)
+        show_confirm_value = os.getenv(input.show_confirm_env_var_name)
+        if show_confirm_value is None:
+            output.show_confirm = input.show_confirm_default
+        elif show_confirm_value is not None and show_confirm_value.lower() == "false":
+            output.show_confirm = False
+        else:
+            output.show_confirm = True
+        
+        first_goal_value = os.getenv("AGENT_GOAL")
+        if first_goal_value is None:
+            output.multi_goal_mode = True # default if unset
+        elif first_goal_value is not None and first_goal_value.lower() != "goal_choose_agent_type":
+            output.multi_goal_mode = False
+        else:
+            output.multi_goal_mode = True
+
+        return output
+
 
 def get_current_date_human_readable():
     """
@@ -439,7 +511,7 @@ def get_current_date_human_readable():
 
 
 @activity.defn(dynamic=True)
-def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
+async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     from tools import get_handler
 
     tool_name = activity.info().activity_type  # e.g. "FindEvents"
@@ -448,8 +520,13 @@ def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
 
     # Delegate to the relevant function
     handler = get_handler(tool_name)
-    result = handler(tool_args)
+    if inspect.iscoroutinefunction(handler):
+        result = await handler(tool_args)
+    else:
+        result = handler(tool_args)
 
     # Optionally log or augment the result
     activity.logger.info(f"Tool '{tool_name}' result: {result}")
     return result
+
+
