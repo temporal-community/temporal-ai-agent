@@ -1,3 +1,6 @@
+### Branch 'ecommerce'
+This branch is for a demo, where I will live-install a new goal and tools.
+
 # Temporal AI Agent
 
 This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The purpose of the agent is to collect information towards a goal, running tools along the way. There's a simple DSL input for collecting information (currently set up to use mock functions to search for public events, search for flights around those events, then create a test Stripe invoice for the trip).
