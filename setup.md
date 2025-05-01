@@ -145,7 +145,7 @@ Here is configuration guidance for specific goals. Travel and financial goals ha
 * Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
     * It's free to sign up and get a key at [Stripe](https://stripe.com/)
         * Set permissions for read-write on: `Credit Notes, Invoices, Customers and Customer Sessions`
-    * If you don't have a Stripe key, comment out the STRIPE_API_KEY in the .env file, and a dummy invoice will be created in `tools/create_invoice.py`
+    * If you don't have a Stripe key, comment out the STRIPE_API_KEY in the .env file, and a dummy invoice will be created rather than a Stripe invoice. The function can be found in `tools/create_invoice.py`
 
 ### Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost (Replay 2025 Keynote)
 - `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
