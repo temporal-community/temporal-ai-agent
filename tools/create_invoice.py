@@ -69,15 +69,3 @@ def create_invoice(args: dict) -> dict:
             "invoiceURL": "https://pay.example.com/invoice/12345",
             "reference": "INV-12345",
         }
-
-def create_invoice_example(args: dict) -> dict:
-    """
-    This is an example implementation of the CreateInvoice tool
-    Doesn't call any external services, just returns a dummy response
-    """
-    print("[CreateInvoice] Creating invoice with:", args)
-    return {
-        "invoiceStatus": "generated",
-        "invoiceURL": "https://pay.example.com/invoice/12345",
-        "reference": "INV-12345",
-    }
