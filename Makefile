@@ -1,4 +1,4 @@
-.PHONY: setup install run-worker run-api run-frontend run-train-api run-legacy-worker run-enterprise setup-venv check-python
+.PHONY: setup install run-worker run-api run-frontend run-train-api run-legacy-worker run-enterprise setup-venv check-python run-dev
 
 # Setup commands
 setup: check-python setup-venv install
@@ -38,6 +38,14 @@ setup-temporal-mac:
 	brew install temporal
 	temporal server start-dev
 
+# Run all development services
+run-dev:
+	@echo "Starting all development services..."
+	@make run-worker & \
+	make run-api & \
+	make run-frontend & \
+	wait
+
 # Help command
 help:
 	@echo "Available commands:"
@@ -50,4 +58,5 @@ help:
 	@echo "  make run-train-api      - Start the train API server"
 	@echo "  make run-legacy-worker  - Start the legacy worker"
 	@echo "  make run-enterprise     - Build and run the enterprise .NET worker"
-	@echo "  make setup-temporal-mac - Install and start Temporal server on Mac" 
+	@echo "  make setup-temporal-mac - Install and start Temporal server on Mac"
+	@echo "  make run-dev            - Start all development services (worker, API, frontend) in parallel" 
