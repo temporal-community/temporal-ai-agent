@@ -14,6 +14,37 @@ If you want to show confirmations/enable the debugging UI that shows tool args, 
 SHOW_CONFIRM=True
 ```
 
+### Quick Start with Makefile
+
+We've provided a Makefile to simplify the setup and running of the application. Here are the main commands:
+
+```bash
+# Initial setup
+make setup              # Creates virtual environment and installs dependencies
+make setup-venv         # Creates virtual environment only
+make install            # Installs all dependencies
+
+# Running the application
+make run-worker         # Starts the Temporal worker
+make run-api            # Starts the API server
+make run-frontend       # Starts the frontend development server
+
+# Additional services
+make run-train-api      # Starts the train API server
+make run-legacy-worker  # Starts the legacy worker
+make run-enterprise     # Builds and runs the enterprise .NET worker
+
+# Development environment setup
+make setup-temporal-mac # Installs and starts Temporal server on Mac
+
+# View all available commands
+make help
+```
+
+### Manual Setup (Alternative to Makefile)
+
+If you prefer to run commands manually, follow these steps:
+
 ### Agent Goal Configuration
 
 The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. If unset, default is `goal_choose_agent_type`. 
@@ -25,15 +56,39 @@ GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
 
 See the section Goal-Specific Tool Configuration below for tool configuration for specific goals.
 
-### LLM Provider Configuration
+### LLM Configuration
 
-The agent can use OpenAI's GPT-4o, Google Gemini, Anthropic Claude, or a local LLM via Ollama. Set the `LLM_PROVIDER` environment variable in your `.env` file to choose the desired provider:
+The agent uses LiteLLM to interact with various LLM providers. Configure the following environment variables in your `.env` file:
 
-- `LLM_PROVIDER=openai` for OpenAI's GPT-4o
-- `LLM_PROVIDER=google` for Google Gemini
-- `LLM_PROVIDER=anthropic` for Anthropic Claude
-- `LLM_PROVIDER=deepseek` for DeepSeek-V3
-- `LLM_PROVIDER=ollama` for running LLMs via [Ollama](https://ollama.ai) (not recommended for this use case)
+- `LLM_MODEL`: The model to use (e.g., "openai/gpt-4o", "anthropic/claude-3-sonnet", "google/gemini-pro", etc.)
+- `LLM_KEY`: Your API key for the selected provider
+- `LLM_BASE_URL`: (Optional) Custom base URL for the LLM provider. Useful for:
+  - Using Ollama with a custom endpoint
+  - Using a proxy or custom API gateway
+  - Testing with different API versions
+
+LiteLLM will automatically detect the provider based on the model name. For example:
+- For OpenAI models: `openai/gpt-4o` or `openai/gpt-3.5-turbo`
+- For Anthropic models: `anthropic/claude-3-sonnet`
+- For Google models: `google/gemini-pro`
+- For Ollama models: `ollama/mistral` (requires `LLM_BASE_URL` set to your Ollama server)
+
+Example configurations:
+```bash
+# For OpenAI
+LLM_MODEL=openai/gpt-4o
+LLM_KEY=your-api-key-here
+
+# For Anthropic
+LLM_MODEL=anthropic/claude-3-sonnet
+LLM_KEY=your-api-key-here
+
+# For Ollama with custom URL
+LLM_MODEL=ollama/mistral
+LLM_BASE_URL=http://localhost:11434
+```
+
+For a complete list of supported models and providers, visit the [LiteLLM documentation](https://docs.litellm.ai/docs/providers).
 
 ### Option 1: OpenAI
 
