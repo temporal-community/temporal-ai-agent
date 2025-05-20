@@ -2,7 +2,13 @@
 
 This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The purpose of the agent is to collect information towards a goal, running tools along the way. There's a simple DSL input for collecting information (currently set up to use mock functions to search for public events, search for flights around those events, then create a test Stripe invoice for the trip).
 
-The AI will respond with clarifications and ask for any missing information to that goal. You can configure it to use [ChatGPT 4o](https://openai.com/index/hello-gpt-4o/), [Anthropic Claude](https://www.anthropic.com/claude), [Google Gemini](https://gemini.google.com), [Deepseek-V3](https://www.deepseek.com/), [Grok](https://docs.x.ai/docs/overview) or a local LLM of your choice using [Ollama](https://ollama.com).
+The AI will respond with clarifications and ask for any missing information to that goal. You can configure it to use any LLM supported by [LiteLLM](https://docs.litellm.ai/docs/providers), including:
+- OpenAI models (GPT-4, GPT-3.5)
+- Anthropic Claude models
+- Google Gemini models
+- Deepseek models
+- Ollama models (local)
+- And many more!
 
 It's really helpful to [watch the demo (5 minute YouTube video)](https://www.youtube.com/watch?v=GEXllEH2XiQ) to understand how interaction works.
 
@@ -28,7 +34,11 @@ These are the key elements of an agentic framework:
 For a deeper dive into this, check out the [architecture guide](./architecture.md).
 
 ## Setup and Configuration
-See [the Setup guide](./setup.md).
+See [the Setup guide](./setup.md) for detailed instructions. The basic configuration requires just two environment variables:
+```bash
+LLM_MODEL=openai/gpt-4o  # or any other model supported by LiteLLM
+LLM_KEY=your-api-key-here
+```
 
 ## Customizing Interaction & Tools
 See [the guide to adding goals and tools](./adding-goals-and-tools.md).

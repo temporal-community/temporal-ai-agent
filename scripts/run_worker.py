@@ -17,18 +17,18 @@ async def main():
     load_dotenv(override=True)
 
     # Print LLM configuration info
-    llm_provider = os.environ.get("LLM_PROVIDER", "openai").lower()
-    print(f"Worker will use LLM provider: {llm_provider}")
+    llm_model = os.environ.get("LLM_MODEL", "openai/gpt-4")
+    print(f"Worker will use LLM model: {llm_model}")
 
     # Create the client
     client = await get_temporal_client()
 
-    # Initialize the activities class once with the specified LLM provider
+    # Initialize the activities class
     activities = ToolActivities()
-    print(f"ToolActivities initialized with LLM provider: {llm_provider}")
+    print(f"ToolActivities initialized with LLM model: {llm_model}")
 
     # If using Ollama, pre-load the model to avoid cold start latency
-    if llm_provider == "ollama":
+    if llm_model.startswith("ollama"):
         print("\n======== OLLAMA MODEL INITIALIZATION ========")
         print("Ollama models need to be loaded into memory on first use.")
         print("This may take 30+ seconds depending on your hardware and model size.")
@@ -50,8 +50,6 @@ async def main():
 
     print("Worker ready to process tasks!")
     logging.basicConfig(level=logging.WARN)
-
-
 
     # Run the worker
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as activity_executor:
