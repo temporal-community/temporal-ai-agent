@@ -58,6 +58,8 @@ See the section Goal-Specific Tool Configuration below for tool configuration fo
 
 ### LLM Configuration
 
+Note: We recommend using OpenAI's GPT-4o or Claude 3.5 Sonnet for the best results, but you can use any model supported by LiteLLM.
+
 The agent uses LiteLLM to interact with various LLM providers. Configure the following environment variables in your `.env` file:
 
 - `LLM_MODEL`: The model to use (e.g., "openai/gpt-4o", "anthropic/claude-3-sonnet", "google/gemini-pro", etc.)
@@ -89,45 +91,6 @@ LLM_BASE_URL=http://localhost:11434
 ```
 
 For a complete list of supported models and providers, visit the [LiteLLM documentation](https://docs.litellm.ai/docs/providers).
-
-### Option 1: OpenAI
-
-If using OpenAI, ensure you have an OpenAI key for the GPT-4o model. Set this in the `OPENAI_API_KEY` environment variable in `.env`.
-
-### Option 2: Google Gemini
-
-To use Google Gemini:
-
-1. Obtain a Google API key and set it in the `GOOGLE_API_KEY` environment variable in `.env`.
-2. Set `LLM_PROVIDER=google` in your `.env` file.
-
-### Option 3: Anthropic Claude (recommended)
-
-I find that Claude Sonnet 3.5 performs better than the other hosted LLMs for this use case.
-
-To use Anthropic:
-
-1. Obtain an Anthropic API key and set it in the `ANTHROPIC_API_KEY` environment variable in `.env`.
-2. Set `LLM_PROVIDER=anthropic` in your `.env` file.
-
-### Option 4: Deepseek-V3
-
-To use Deepseek-V3:
-
-1. Obtain a Deepseek API key and set it in the `DEEPSEEK_API_KEY` environment variable in `.env`.
-2. Set `LLM_PROVIDER=deepseek` in your `.env` file.
-
-### Option 5: Local LLM via Ollama (not recommended)
-
-To use a local LLM with Ollama:
-
-1. Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model.
-   - Run `ollama run <OLLAMA_MODEL_NAME>` to start the model. Note that this model is about 9GB to download.
-   - Example: `ollama run qwen2.5:14b`
-
-2. Set `LLM_PROVIDER=ollama` in your `.env` file and `OLLAMA_MODEL_NAME` to the name of the model you installed.
-
-Note: I found the other (hosted) LLMs to be MUCH more reliable for this use case. However, you can switch to Ollama if desired, and choose a suitably large model if your computer has the resources.
 
 ## Configuring Temporal Connection
 
