@@ -58,9 +58,9 @@ See the section Goal-Specific Tool Configuration below for tool configuration fo
 
 ### LLM Configuration
 
-Note: We recommend using OpenAI's GPT-4o or Claude 3.5 Sonnet for the best results, but you can use any model supported by LiteLLM.
+Note: We recommend using OpenAI's GPT-4o or Claude 3.5 Sonnet for the best results. There can be significant differences in performance and capabilities between models, especially for complex tasks.
 
-The agent uses LiteLLM to interact with various LLM providers. Configure the following environment variables in your `.env` file:
+The agent uses LiteLLM to interact with various LLM providers. Configure theqfollowing environment variables in your `.env` file:
 
 - `LLM_MODEL`: The model to use (e.g., "openai/gpt-4o", "anthropic/claude-3-sonnet", "google/gemini-pro", etc.)
 - `LLM_KEY`: Your API key for the selected provider
