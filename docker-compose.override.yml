@@ -1,0 +1,20 @@
+services:
+  api:
+    volumes:
+      - ./:/app:cached
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    volumes:
+      - ./:/app:cached
+    command: python scripts/run_worker.py
+
+  train-api:
+    volumes:
+      - ./:/app:cached
+    command: python thirdparty/train_api.py
+
+  frontend:
+    volumes:
+      - ./frontend:/app:cached
+    command: sh -c "apk update && apk add --no-cache xdg-utils && npm install && npx vite --host 0.0.0.0 --port 5173"

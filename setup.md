@@ -93,10 +93,32 @@ temporal server start-dev
 ```
 See the [Temporal documentation](https://learn.temporal.io/getting_started/python/dev_environment/) for other platforms.
 
+You can also run a local Temporal server using Docker Compose. See the `Development with Docker` section below.
 
 ## Running the Application
 
-### Python Backend
+### Docker
+- All services are defined in `docker-compose.yml` (includes a Temporal server).
+- **Dev overrides** (mounted code, live‑reload commands) live in `docker-compose.override.yml` and are **auto‑merged** on `docker compose up`.
+- To start **development** mode (with hot‑reload):
+  ```bash
+  docker compose up -d
+  # quick rebuild without infra:
+  docker compose up -d --no-deps --build api train-api worker frontend
+  ```
+- To run **production** mode (ignore dev overrides):
+  ```bash
+  docker compose -f docker-compose.yml up -d
+  ```
+
+Default urls:
+* Temporal UI: [http://localhost:8080](http://localhost:8080)
+* API: [http://localhost:8000](http://localhost:8000)
+* Frontend: [http://localhost:5173](http://localhost:5173)
+
+### Local Machine (no docker)
+
+**Python Backend**
 
 Requires [Poetry](https://python-poetry.org/) to manage dependencies.
 
@@ -119,7 +141,7 @@ poetry run uvicorn api.main:app --reload
 ```
 Access the API at `/docs` to see the available endpoints.
 
-### React UI
+**React UI**
 Start the frontend:
 ```bash
 cd frontend
@@ -127,8 +149,7 @@ npm install
 npx vite
 ```
 Access the UI at `http://localhost:5173`
-
-
+  
 
 ## Goal-Specific Tool Configuration
 Here is configuration guidance for specific goals. Travel and financial goals have configuration & setup as below.

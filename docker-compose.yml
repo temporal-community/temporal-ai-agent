@@ -1,0 +1,120 @@
+services:
+  # Database service
+  postgresql:
+    image: postgres:14
+    container_name: temporal-postgresql
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+    networks:
+      - temporal-network
+
+  # Temporal services
+  temporal:
+    image: temporalio/auto-setup:1.27.2
+    container_name: temporal
+    ports:
+      - "7233:7233"
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_SEEDS=postgresql
+    depends_on:
+      - postgresql
+    networks:
+      - temporal-network
+
+  temporal-admin-tools:
+    image: temporalio/admin-tools:1.27
+    container_name: temporal-admin-tools
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    networks:
+      - temporal-network
+
+  temporal-ui:
+    image: temporalio/ui:2.37.2
+    container_name: temporal-ui
+    ports:
+      - "8080:8080"
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:8080
+    depends_on:
+      - temporal
+    networks:
+      - temporal-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: temporal-ai-agent-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      - temporal
+    networks:
+      - temporal-network
+    env_file:
+      - .env
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: temporal-ai-agent-worker
+    depends_on:
+      - temporal
+    env_file:
+      - .env
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+    command: python scripts/run_worker.py
+    networks:
+      - temporal-network
+
+  train-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: temporal-ai-agent-train-api
+    depends_on:
+      - temporal
+    env_file:
+      - .env
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+    command: python thirdparty/train_api.py
+    networks:
+      - temporal-network
+
+  frontend:
+    image: node:18-alpine
+    container_name: temporal-ai-agent-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "apk update && apk add --no-cache xdg-utils && npm install && npx vite --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    depends_on:
+      - api
+    networks:
+      - temporal-network
+
+networks:
+  temporal-network:
+    driver: bridge
+
+volumes:
+  postgresql:
