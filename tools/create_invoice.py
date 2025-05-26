@@ -27,7 +27,7 @@ def ensure_customer_exists(
 def create_invoice(args: dict) -> dict:
     """Create and finalize a Stripe invoice."""
     # If an API key exists in the env file, find or create customer
-    if stripe.api_key is not None:
+    if stripe.api_key is not None and stripe.api_key != "":
         customer_id = ensure_customer_exists(
             args.get("customer_id"), args.get("email", "default@example.com")
         )
