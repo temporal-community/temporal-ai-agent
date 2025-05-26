@@ -31,16 +31,11 @@ temporalio = "^1.8.0"
 
 # Standard library modules (e.g. asyncio, collections) don't need to be added
 # since they're built-in for Python 3.8+.
-ollama = "^0.4.5"
+litellm = "^1.70.0"
 pyyaml = "^6.0.2"
 fastapi = "^0.115.6"
 uvicorn = "^0.34.0"
 python-dotenv = "^1.0.1"
-openai = "^1.59.2"
-stripe = "^11.4.1"
-google-generativeai = "^0.8.4"
-anthropic = "0.47.0"
-deepseek = "^1.0.0"
 requests = "^2.32.3"
 pandas = "^2.2.3"
 gtfs-kit = "^10.1.1"

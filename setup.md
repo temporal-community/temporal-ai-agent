@@ -14,6 +14,37 @@ If you want to show confirmations/enable the debugging UI that shows tool args, 
 SHOW_CONFIRM=True
 ```
 
+### Quick Start with Makefile
+
+We've provided a Makefile to simplify the setup and running of the application. Here are the main commands:
+
+```bash
+# Initial setup
+make setup              # Creates virtual environment and installs dependencies
+make setup-venv         # Creates virtual environment only
+make install            # Installs all dependencies
+
+# Running the application
+make run-worker         # Starts the Temporal worker
+make run-api            # Starts the API server
+make run-frontend       # Starts the frontend development server
+
+# Additional services
+make run-train-api      # Starts the train API server
+make run-legacy-worker  # Starts the legacy worker
+make run-enterprise     # Builds and runs the enterprise .NET worker
+
+# Development environment setup
+make setup-temporal-mac # Installs and starts Temporal server on Mac
+
+# View all available commands
+make help
+```
+
+### Manual Setup (Alternative to Makefile)
+
+If you prefer to run commands manually, follow these steps:
+
 ### Agent Goal Configuration
 
 The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. If unset, default is `goal_choose_agent_type`. 
@@ -25,54 +56,41 @@ GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
 
 See the section Goal-Specific Tool Configuration below for tool configuration for specific goals.
 
-### LLM Provider Configuration
+### LLM Configuration
 
-The agent can use OpenAI's GPT-4o, Google Gemini, Anthropic Claude, or a local LLM via Ollama. Set the `LLM_PROVIDER` environment variable in your `.env` file to choose the desired provider:
+Note: We recommend using OpenAI's GPT-4o or Claude 3.5 Sonnet for the best results. There can be significant differences in performance and capabilities between models, especially for complex tasks.
 
-- `LLM_PROVIDER=openai` for OpenAI's GPT-4o
-- `LLM_PROVIDER=google` for Google Gemini
-- `LLM_PROVIDER=anthropic` for Anthropic Claude
-- `LLM_PROVIDER=deepseek` for DeepSeek-V3
-- `LLM_PROVIDER=ollama` for running LLMs via [Ollama](https://ollama.ai) (not recommended for this use case)
+The agent uses LiteLLM to interact with various LLM providers. Configure theqfollowing environment variables in your `.env` file:
 
-### Option 1: OpenAI
+- `LLM_MODEL`: The model to use (e.g., "openai/gpt-4o", "anthropic/claude-3-sonnet", "google/gemini-pro", etc.)
+- `LLM_KEY`: Your API key for the selected provider
+- `LLM_BASE_URL`: (Optional) Custom base URL for the LLM provider. Useful for:
+  - Using Ollama with a custom endpoint
+  - Using a proxy or custom API gateway
+  - Testing with different API versions
 
-If using OpenAI, ensure you have an OpenAI key for the GPT-4o model. Set this in the `OPENAI_API_KEY` environment variable in `.env`.
+LiteLLM will automatically detect the provider based on the model name. For example:
+- For OpenAI models: `openai/gpt-4o` or `openai/gpt-3.5-turbo`
+- For Anthropic models: `anthropic/claude-3-sonnet`
+- For Google models: `google/gemini-pro`
+- For Ollama models: `ollama/mistral` (requires `LLM_BASE_URL` set to your Ollama server)
 
-### Option 2: Google Gemini
+Example configurations:
+```bash
+# For OpenAI
+LLM_MODEL=openai/gpt-4o
+LLM_KEY=your-api-key-here
 
-To use Google Gemini:
+# For Anthropic
+LLM_MODEL=anthropic/claude-3-sonnet
+LLM_KEY=your-api-key-here
 
-1. Obtain a Google API key and set it in the `GOOGLE_API_KEY` environment variable in `.env`.
-2. Set `LLM_PROVIDER=google` in your `.env` file.
+# For Ollama with custom URL
+LLM_MODEL=ollama/mistral
+LLM_BASE_URL=http://localhost:11434
+```
 
-### Option 3: Anthropic Claude (recommended)
-
-I find that Claude Sonnet 3.5 performs better than the other hosted LLMs for this use case.
-
-To use Anthropic:
-
-1. Obtain an Anthropic API key and set it in the `ANTHROPIC_API_KEY` environment variable in `.env`.
-2. Set `LLM_PROVIDER=anthropic` in your `.env` file.
-
-### Option 4: Deepseek-V3
-
-To use Deepseek-V3:
-
-1. Obtain a Deepseek API key and set it in the `DEEPSEEK_API_KEY` environment variable in `.env`.
-2. Set `LLM_PROVIDER=deepseek` in your `.env` file.
-
-### Option 5: Local LLM via Ollama (not recommended)
-
-To use a local LLM with Ollama:
-
-1. Install [Ollama](https://ollama.com) and the [Qwen2.5 14B](https://ollama.com/library/qwen2.5) model.
-   - Run `ollama run <OLLAMA_MODEL_NAME>` to start the model. Note that this model is about 9GB to download.
-   - Example: `ollama run qwen2.5:14b`
-
-2. Set `LLM_PROVIDER=ollama` in your `.env` file and `OLLAMA_MODEL_NAME` to the name of the model you installed.
-
-Note: I found the other (hosted) LLMs to be MUCH more reliable for this use case. However, you can switch to Ollama if desired, and choose a suitably large model if your computer has the resources.
+For a complete list of supported models and providers, visit the [LiteLLM documentation](https://docs.litellm.ai/docs/providers).
 
 ## Configuring Temporal Connection
 
