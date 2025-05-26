@@ -27,7 +27,7 @@ def ensure_customer_exists(
 def create_invoice(args: dict) -> dict:
     """Create and finalize a Stripe invoice."""
     # If an API key exists in the env file, find or create customer
-    if stripe.api_key is not None:
+    if stripe.api_key is not None and stripe.api_key != "":
         customer_id = ensure_customer_exists(
             args.get("customer_id"), args.get("email", "default@example.com")
         )
@@ -69,15 +69,3 @@ def create_invoice(args: dict) -> dict:
             "invoiceURL": "https://pay.example.com/invoice/12345",
             "reference": "INV-12345",
         }
-
-def create_invoice_example(args: dict) -> dict:
-    """
-    This is an example implementation of the CreateInvoice tool
-    Doesn't call any external services, just returns a dummy response
-    """
-    print("[CreateInvoice] Creating invoice with:", args)
-    return {
-        "invoiceStatus": "generated",
-        "invoiceURL": "https://pay.example.com/invoice/12345",
-        "reference": "INV-12345",
-    }
