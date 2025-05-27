@@ -114,10 +114,10 @@ goal_match_train_invoice = AgentGoal(
     ],
     description="The user wants to book a trip to a city in the UK around the dates of a premier league match. "
     "Help the user find a premier league match to attend, search and book trains for that match and offers to invoice them for the cost of train tickets. "
-    "The user lives in London. "
+    "The user lives in London. Premier league fixtures may be mocked data, so don't worry about valid season dates and teams. "
     "Gather args for these tools in order, ensuring you move the user from one tool to the next: "
     "1. SearchFixtures: Search for fixtures for a team within a specified date range. The user might ask questions about the matches dates and locations to decide on where to go. "
-    "2. SearchTrains: Search for trains to the city of the match and list them for the customer to choose from "
+    "2. SearchTrains: Search for trains to the city of the match. Ensure you list them for the customer to choose from "
     "3. BookTrains: Book the train tickets, used to invoice the user for the cost of the train tickets "
     "4. CreateInvoice: Invoices the user for the cost of train tickets, with total and details inferred from the conversation history ",
     starter_prompt=starter_prompt_generic,
@@ -489,6 +489,6 @@ if multi_goal_mode:
             if tool.name == "ListAgents":
                 list_agents_found = True
                 continue
-        if list_agents_found == False:
+        if list_agents_found is False:
             goal.tools.append(tool_registry.list_agents_tool)
             continue
