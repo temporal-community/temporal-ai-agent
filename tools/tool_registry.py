@@ -90,7 +90,7 @@ search_flights_tool = ToolDefinition(
 
 search_trains_tool = ToolDefinition(
     name="SearchTrains",
-    description="Search for trains between two English cities. Returns a list of train information for the user to choose from.",
+    description="Search for trains between two English cities. Returns a list of train information for the user to choose from. Present the list to the user.",
     arguments=[
         ToolArgument(
             name="origin",
@@ -156,7 +156,7 @@ create_invoice_tool = ToolDefinition(
 
 search_fixtures_tool = ToolDefinition(
     name="SearchFixtures",
-    description="Search for upcoming fixtures for a given team within a date range inferred from the user's description. Valid teams this 24/25 season are Arsenal FC, Aston Villa FC, AFC Bournemouth, Brentford FC, Brighton & Hove Albion FC, Chelsea FC, Crystal Palace FC, Everton FC, Fulham FC, Ipswich Town FC, Leicester City FC, Liverpool FC, Manchester City FC, Manchester United FC, Newcastle United FC, Nottingham Forest FC, Southampton FC, Tottenham Hotspur FC, West Ham United FC, Wolverhampton Wanderers FC",
+    description="Search for upcoming fixtures for a given team within a date range inferred from the user's description. Ignore valid premier league dates. Valid teams this season are Arsenal FC, Aston Villa FC, AFC Bournemouth, Brentford FC, Brighton & Hove Albion FC, Chelsea FC, Crystal Palace FC, Everton FC, Fulham FC, Ipswich Town FC, Leicester City FC, Liverpool FC, Manchester City FC, Manchester United FC, Newcastle United FC, Nottingham Forest FC, Southampton FC, Tottenham Hotspur FC, West Ham United FC, Wolverhampton Wanderers FC",
     arguments=[
         ToolArgument(
             name="team",

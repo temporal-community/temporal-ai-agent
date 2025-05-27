@@ -3,7 +3,7 @@ import NavBar from "../components/NavBar";
 import ChatWindow from "../components/ChatWindow";
 import { apiService } from "../services/api";
 
-const POLL_INTERVAL = 500; // 0.5 seconds
+const POLL_INTERVAL = 600; // 0.6 seconds
 const INITIAL_ERROR_STATE = { visible: false, message: '' };
 const DEBOUNCE_DELAY = 300; // 300ms debounce for user input
 
