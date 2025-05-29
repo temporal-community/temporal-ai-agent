@@ -17,7 +17,7 @@
 
 [ ] Collapse history/summarize chat after goal finished <br />
 
-[ ] expand [tests](./tests/agent_goal_workflow_test.py)<br />
+[ ] Write tests<br />
 
 [ ] non-retry the api key error - "Invalid API Key provided: sk_test_**J..." and "AuthenticationError" <br />
 
