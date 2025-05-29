@@ -102,6 +102,38 @@ Connect to an existing Temporal server:
 poetry run pytest --workflow-environment=localhost:7233
 ```
 
+#### Setup Script for AI Agent environments such as OpenAI Codex
+```bash
+export SHELL=/bin/bash
+curl -sSL https://install.python-poetry.org | python3 -
+export PATH="$HOME/.local/bin:$PATH"
+ls
+poetry install --with dev
+cd frontend
+npm install
+cd ..
+
+# Pre-download the temporal test server binary
+poetry run python3 -c "
+import asyncio
+import sys
+from temporalio.testing import WorkflowEnvironment
+
+async def predownload():
+    try:
+        print('Starting test server download...')
+        env = await WorkflowEnvironment.start_time_skipping()
+        print('Test server downloaded and started successfully')
+        await env.shutdown()
+        print('Test server shut down successfully')
+    except Exception as e:
+        print(f'Error during download: {e}')
+        sys.exit(1)
+
+asyncio.run(predownload())
+"
+```
+
 ### Filtering Tests
 
 Run tests by pattern:
