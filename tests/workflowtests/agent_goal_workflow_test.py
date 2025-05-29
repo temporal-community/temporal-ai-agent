@@ -1,9 +1,19 @@
+import uuid
 from temporalio.client import Client, WorkflowExecutionStatus
 from temporalio.worker import Worker
+from temporalio import activity
 import concurrent.futures
 from temporalio.testing import WorkflowEnvironment
 from api.main import get_initial_agent_goal
-from models.data_types import AgentGoalWorkflowParams, CombinedInput
+from models.data_types import (
+    AgentGoalWorkflowParams, 
+    CombinedInput,
+    ValidationResult,
+    ValidationInput,
+    EnvLookupOutput,
+    EnvLookupInput,
+    ToolPromptInput
+)
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 from activities.tool_activities import ToolActivities, dynamic_tool_activity
 from unittest.mock import patch
@@ -31,15 +41,41 @@ async def test_flight_booking(client: Client):
         # Create the test environment
         #env = await WorkflowEnvironment.start_local()
         #client = env.client
-        task_queue_name = "agent-ai-workflow"
-        workflow_id = "agent-workflow"
+        task_queue_name = str(uuid.uuid4())
+        workflow_id = str(uuid.uuid4())
+
+        # Create mock activity functions with proper signatures
+        @activity.defn(name="get_wf_env_vars")
+        async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
+            return EnvLookupOutput(
+                show_confirm=True,
+                multi_goal_mode=True
+            )
+            
+        @activity.defn(name="agent_validatePrompt")
+        async def mock_agent_validatePrompt(validation_input: ValidationInput) -> ValidationResult:
+            return ValidationResult(
+                validationResult=True,
+                validationFailedReason={}
+            )
+            
+        @activity.defn(name="agent_toolPlanner")
+        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+            return {
+                "next": "done",
+                "response": "Test response from LLM"
+            }
 
         with concurrent.futures.ThreadPoolExecutor(max_workers=100) as activity_executor:        
             worker = Worker(
                 client, 
                 task_queue=task_queue_name,
                 workflows=[AgentGoalWorkflow],
-                activities=[ToolActivities.agent_validatePrompt, ToolActivities.agent_toolPlanner, ToolActivities.get_wf_env_vars, dynamic_tool_activity],
+                activities=[
+                    mock_get_wf_env_vars,
+                    mock_agent_validatePrompt,
+                    mock_agent_toolPlanner
+                ],
                 activity_executor=activity_executor,
             )
 
