@@ -17,7 +17,6 @@
 
 [ ] Collapse history/summarize chat after goal finished <br />
 
-
 [ ] expand [tests](./tests/agent_goal_workflow_test.py)<br />
 
 [ ] non-retry the api key error - "Invalid API Key provided: sk_test_**J..." and "AuthenticationError" <br />
@@ -25,7 +24,6 @@
 [ ] add visual feedback when workflow starting <br />
 
 [ ] enable user to list agents at any time - like end conversation - probably with a next step<br />
- - with changing "'Next should only be "pick-new-goal" if all tools have been run (use the system prompt to figure that out).'" in [prompt_generators](./prompts/agent_prompt_generators.py).
 
 ## Ideas for more goals and tools
 
