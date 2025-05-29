@@ -10,7 +10,7 @@ authors = [
 ]
 readme = "README.md"
 
-# By default, Poetry will find packages automatically, 
+# By default, Poetry will find packages automatically,
 # but explicitly including them is fine:
 packages = [
   { include = "**/*.py", from = "." }
@@ -38,6 +38,7 @@ uvicorn = "^0.34.0"
 python-dotenv = "^1.0.1"
 requests = "^2.32.3"
 pandas = "^2.2.3"
+stripe = "^11.4.1"
 gtfs-kit = "^10.1.1"
 
 [tool.poetry.group.dev.dependencies]

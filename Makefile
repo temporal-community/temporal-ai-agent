@@ -5,6 +5,7 @@ setup: check-python setup-venv install
 
 check-python:
 	@which python3 >/dev/null 2>&1 || (echo "Python 3 is required. Please install it first." && exit 1)
+	@which poetry >/dev/null 2>&1 || (echo "Poetry is required. Please install it first." && exit 1)
 
 setup-venv:
 	python3 -m venv venv
@@ -59,4 +60,4 @@ help:
 	@echo "  make run-legacy-worker  - Start the legacy worker"
 	@echo "  make run-enterprise     - Build and run the enterprise .NET worker"
 	@echo "  make setup-temporal-mac - Install and start Temporal server on Mac"
-	@echo "  make run-dev            - Start all development services (worker, API, frontend) in parallel" 
+	@echo "  make run-dev            - Start all development services (worker, API, frontend) in parallel"

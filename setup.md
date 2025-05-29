@@ -47,7 +47,7 @@ If you prefer to run commands manually, follow these steps:
 
 ### Agent Goal Configuration
 
-The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. If unset, default is `goal_choose_agent_type`. 
+The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. If unset, default is `goal_choose_agent_type`.
 
 If the first goal is `goal_choose_agent_type` the agent will support multiple goals using goal categories defined by `GOAL_CATEGORIES` in your .env file. If unset, default is all. We recommend starting with `fin`.
 ```bash
@@ -60,7 +60,7 @@ See the section Goal-Specific Tool Configuration below for tool configuration fo
 
 Note: We recommend using OpenAI's GPT-4o or Claude 3.5 Sonnet for the best results. There can be significant differences in performance and capabilities between models, especially for complex tasks.
 
-The agent uses LiteLLM to interact with various LLM providers. Configure theqfollowing environment variables in your `.env` file:
+The agent uses LiteLLM to interact with various LLM providers. Configure the following environment variables in your `.env` file:
 
 - `LLM_MODEL`: The model to use (e.g., "openai/gpt-4o", "anthropic/claude-3-sonnet", "google/gemini-pro", etc.)
 - `LLM_KEY`: Your API key for the selected provider
@@ -167,7 +167,7 @@ npm install
 npx vite
 ```
 Access the UI at `http://localhost:5173`
-  
+
 
 ## Goal-Specific Tool Configuration
 Here is configuration guidance for specific goals. Travel and financial goals have configuration & setup as below.
@@ -175,7 +175,7 @@ Here is configuration guidance for specific goals. Travel and financial goals ha
 - `AGENT_GOAL=goal_event_flight_invoice` - Helps users find events, book flights, and arrange train travel with invoice generation
     - This is the scenario in the [original video](https://www.youtube.com/watch?v=GEXllEH2XiQ)
 
-#### Configuring Agent Goal: goal_event_flight_invoice 
+#### Configuring Agent Goal: goal_event_flight_invoice
 * The agent uses a mock function to search for events. This has zero configuration.
 * By default the agent uses a mock function to search for flights.
     * If you want to use the real flights API, go to `tools/search_flights.py` and replace the `search_flights` function with `search_flights_real_api` that exists in the same file.
@@ -190,7 +190,7 @@ Here is configuration guidance for specific goals. Travel and financial goals ha
 - `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
     - This goal was part of [Temporal's Replay 2025 conference keynote demo](https://www.youtube.com/watch?v=YDxAWrIBQNE)
     - Note, there is failure built in to this demo (the train booking step) to show how the agent can handle failures and retry. See Tool Configuration below for details.
-#### Configuring Agent Goal: goal_match_train_invoice 
+#### Configuring Agent Goal: goal_match_train_invoice
 NOTE: This goal was developed for an on-stage demo and has failure (and its resolution) built in to show how the agent can handle failures and retry.
 * Omit `FOOTBALL_DATA_API_KEY` from .env for the `SearchFixtures` tool to automatically return mock Premier League fixtures. Finding a real match requires a key from [Football Data](https://www.football-data.org). Sign up for a free account, then see the 'My Account' page to get your API token.
 * We use a mock function to search for trains. Start the train API server to use the real API: `python thirdparty/train_api.py`
@@ -212,15 +212,15 @@ poetry run python thirdparty/train_api.py
 
  ##### Python Train Legacy Worker
  > Agent Goal: goal_match_train_invoice only
- 
+
  These are Python activities that fail (raise NotImplemented) to show how Temporal handles a failure. You can run these activities with.
- 
+
  ```bash
- poetry run python scripts/run_legacy_worker.py 
+ poetry run python scripts/run_legacy_worker.py
  ```
- 
+
  The activity will fail and be retried infinitely. To rescue the activity (and its corresponding workflows), kill the worker and run the .NET one in the section below.
- 
+
  ##### .NET (enterprise) Worker ;)
 We have activities written in C# to call the train APIs.
 ```bash
@@ -233,12 +233,12 @@ If you're running your train API above on a different host/port then change the 
 #### Goals: FIN - Money Movement and Loan Application
 Make sure you have the mock users you want (such as yourself) in [the account mock data file](./tools/data/customer_account_data.json).
 
-- `AGENT_GOAL=goal_fin_move_money` - This scenario _can_ initiate a secondary workflow to move money. Check out [this repo](https://github.com/temporal-sa/temporal-money-transfer-java) - you'll need to get the worker running and connected to the same account as the agentic worker. 
+- `AGENT_GOAL=goal_fin_move_money` - This scenario _can_ initiate a secondary workflow to move money. Check out [this repo](https://github.com/temporal-sa/temporal-money-transfer-java) - you'll need to get the worker running and connected to the same account as the agentic worker.
 By default it will _not_ make a real workflow, it'll just fake it. If you get the worker running and want to start a workflow, in your [.env](./.env):
 ```bash
 FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
 ```
-- `AGENT_GOAL=goal_fin_loan_application` - This scenario _can_ initiate a secondary workflow to apply for a loan. Check out [this repo](https://github.com/temporal-sa/temporal-latency-optimization-scenarios) - you'll need to get the worker running and connected to the same account as the agentic worker. 
+- `AGENT_GOAL=goal_fin_loan_application` - This scenario _can_ initiate a secondary workflow to apply for a loan. Check out [this repo](https://github.com/temporal-sa/temporal-latency-optimization-scenarios) - you'll need to get the worker running and connected to the same account as the agentic worker.
 By default it will _not_ make a real workflow, it'll just fake it. If you get the worker running and want to start a workflow, in your [.env](./.env):
 ```bash
 FIN_START_REAL_WORKFLOW=FALSE #set this to true to start a real workflow
