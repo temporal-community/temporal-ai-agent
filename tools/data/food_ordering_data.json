@@ -1,0 +1,122 @@
+{
+  "restaurants": [
+    {
+      "id": "rest_001",
+      "name": "Tony's Pizza Palace",
+      "menu": [
+        {
+          "id": "item_001",
+          "name": "Margherita Pizza",
+          "category": "Pizza",
+          "price": 14.99,
+          "description": "Fresh mozzarella, tomato sauce, basil",
+          "available": true
+        },
+        {
+          "id": "item_002",
+          "name": "Pepperoni Pizza",
+          "category": "Pizza",
+          "price": 16.99,
+          "description": "Classic pepperoni with mozzarella and tomato sauce",
+          "available": true
+        },
+        {
+          "id": "item_003",
+          "name": "Caesar Salad",
+          "category": "Salad",
+          "price": 9.99,
+          "description": "Romaine lettuce, parmesan, croutons, caesar dressing",
+          "available": true
+        },
+        {
+          "id": "item_004",
+          "name": "Garlic Bread",
+          "category": "Sides",
+          "price": 5.99,
+          "description": "Fresh baked bread with garlic butter",
+          "available": true
+        },
+        {
+          "id": "item_005",
+          "name": "Tiramisu",
+          "category": "Dessert",
+          "price": 7.99,
+          "description": "Classic Italian dessert with coffee and mascarpone",
+          "available": true
+        }
+      ]
+    }
+  ],
+  "carts": {
+    "steve@example.com": {
+      "restaurant_id": "rest_001",
+      "items": []
+    }
+  },
+  "orders": [
+    {
+      "id": "order_001",
+      "customer_email": "john.doe@example.com",
+      "restaurant_id": "rest_001",
+      "items": [
+        {
+          "item_id": "item_001",
+          "quantity": 1,
+          "price": 14.99
+        },
+        {
+          "item_id": "item_004",
+          "quantity": 2,
+          "price": 5.99
+        }
+      ],
+      "total": 26.97,
+      "status": "delivered",
+      "order_date": "2025-05-29T18:30:00Z",
+      "estimated_delivery": "2025-05-29T19:15:00Z",
+      "actual_delivery": "2025-05-29T19:12:00Z"
+    },
+    {
+      "id": "order_002",
+      "customer_email": "jane.smith@example.com",
+      "restaurant_id": "rest_001",
+      "items": [
+        {
+          "item_id": "item_002",
+          "quantity": 1,
+          "price": 16.99
+        }
+      ],
+      "total": 16.99,
+      "status": "preparing",
+      "order_date": "2025-05-30T12:00:00Z",
+      "estimated_delivery": "2025-05-30T12:45:00Z"
+    },
+    {
+      "id": "order_58539a70",
+      "customer_email": "steve@example.com",
+      "restaurant_id": "rest_001",
+      "items": [
+        {
+          "item_id": "item_001",
+          "quantity": 1,
+          "price": 14.99
+        },
+        {
+          "item_id": "item_002",
+          "quantity": 1,
+          "price": 16.99
+        },
+        {
+          "item_id": "item_004",
+          "quantity": 1,
+          "price": 5.99
+        }
+      ],
+      "total": 37.97,
+      "status": "preparing",
+      "order_date": "2025-05-30T20:28:18.444162Z",
+      "estimated_delivery": "2025-05-30T20:58:18.444169Z"
+    }
+  ]
+}

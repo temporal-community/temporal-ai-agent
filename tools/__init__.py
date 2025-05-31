@@ -22,6 +22,12 @@ from .ecommerce.get_order import get_order
 from .ecommerce.track_package import track_package
 from .ecommerce.list_orders import list_orders
 
+from .food.get_menu import get_menu
+from .food.get_menu_item_details import get_menu_item_details
+from .food.add_to_cart import add_to_cart
+from .food.place_order import place_order
+from .food.check_order_status import check_order_status
+
 from .give_hint import give_hint
 from .guess_location import guess_location
 
@@ -67,6 +73,16 @@ def get_handler(tool_name: str):
         return track_package
     if tool_name == "ListOrders":
         return list_orders
+    if tool_name == "GetMenu":
+        return get_menu
+    if tool_name == "GetMenuItemDetails":
+        return get_menu_item_details
+    if tool_name == "AddToCart":
+        return add_to_cart
+    if tool_name == "PlaceOrder":
+        return place_order
+    if tool_name == "CheckOrderStatus":
+        return check_order_status
     if tool_name == "GiveHint":
         return give_hint
     if tool_name == "GuessLocation":

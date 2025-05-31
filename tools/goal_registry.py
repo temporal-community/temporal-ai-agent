@@ -454,6 +454,50 @@ goal_ecomm_list_orders = AgentGoal(
     ),
 )
 
+# ----- Food Ordering Goal -----
+goal_food_ordering = AgentGoal(
+    id="goal_food_ordering",
+    category_tag="food",
+    agent_name="Food Ordering Assistant",
+    agent_friendly_description="Order food from Tony's Pizza Palace. Browse menu, add items to cart, and place orders.",
+    tools=[
+        tool_registry.food_get_menu_tool,
+        tool_registry.food_get_menu_item_details_tool,
+        tool_registry.food_add_to_cart_tool,
+        tool_registry.food_place_order_tool,
+        tool_registry.food_check_order_status_tool,
+    ],
+    description="The user wants to order food from Tony's Pizza Palace. Help them browse the menu, learn about menu items, add items to their cart, and place an order. To assist with that goal, help the user gather args for these tools in order: "
+    "1. GetMenu: Show the restaurant menu. This tool is optional if the user already knows what they want. "
+    "2. GetMenuItemDetails: Get details about specific menu items. This tool is optional and can be used multiple times. "
+    "3. AddToCart: Add menu items to the customer's cart. This tool can be used multiple times to add different items. "
+    "4. PlaceOrder: Place the order for items in the cart. "
+    "5. CheckOrderStatus: Check the status of a placed order. This tool is optional and used after placing an order.",
+    starter_prompt=starter_prompt_generic,
+    example_conversation_history="\n ".join(
+        [
+            "user: I'd like to order some food",
+            "agent: Great! I can help you order food from Tony's Pizza Palace. Would you like to see the menu first?",
+            "user: Yes, please show me the menu",
+            "user_confirmed_tool_run: <user clicks confirm on GetMenu tool>",
+            "tool_result: {'restaurant_name': 'Tony\\'s Pizza Palace', 'menu': [{'id': 'item_001', 'name': 'Margherita Pizza', 'category': 'Pizza', 'price': 14.99, 'description': 'Fresh mozzarella, tomato sauce, basil', 'available': True}, {'id': 'item_002', 'name': 'Pepperoni Pizza', 'category': 'Pizza', 'price': 16.99, 'description': 'Classic pepperoni with mozzarella and tomato sauce', 'available': True}]}",
+            "agent: Here's the menu from Tony's Pizza Palace: \n"
+            "Pizza: \n"
+            "- Margherita Pizza ($14.99): Fresh mozzarella, tomato sauce, basil \n"
+            "- Pepperoni Pizza ($16.99): Classic pepperoni with mozzarella and tomato sauce \n"
+            "What would you like to add to your cart? I'll need your email address to create your order.",
+            "user: I'd like a Margherita Pizza. My email is john.doe@example.com",
+            "user_confirmed_tool_run: <user clicks confirm on AddToCart tool>",
+            "tool_result: {'status': 'success', 'message': 'Added 1 x Margherita Pizza to cart', 'cart': {'restaurant_id': 'rest_001', 'items': [{'item_id': 'item_001', 'quantity': 1, 'price': 14.99}]}}",
+            "agent: Perfect! I've added 1 Margherita Pizza to your cart. Would you like to add anything else or are you ready to place your order?",
+            "user: I'm ready to place the order",
+            "user_confirmed_tool_run: <user clicks confirm on PlaceOrder tool>",
+            "tool_result: {'status': 'success', 'order_id': 'order_12345678', 'total': 14.99, 'estimated_delivery': '2025-05-30T13:30:00Z', 'message': 'Order placed successfully!'}",
+            "agent: Order placed successfully! Your order ID is order_12345678 and the total is $14.99. Your food should be delivered by 1:30 PM today. You can check your order status anytime using the order ID.",
+        ]
+    ),
+)
+
 # Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
@@ -468,6 +512,7 @@ goal_list.append(goal_fin_move_money)
 goal_list.append(goal_fin_loan_application)
 goal_list.append(goal_ecomm_list_orders)
 goal_list.append(goal_ecomm_order_status)
+goal_list.append(goal_food_ordering)
 
 
 # for multi-goal, just set list agents as the last tool

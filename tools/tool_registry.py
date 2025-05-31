@@ -397,3 +397,89 @@ ecomm_track_package = ToolDefinition(
         ),
     ],
 )
+
+# ----- Food Ordering Use Case Tools -----
+food_get_menu_tool = ToolDefinition(
+    name="GetMenu",
+    description="Get the menu for a restaurant. Defaults to Tony's Pizza Palace if no restaurant specified.",
+    arguments=[
+        ToolArgument(
+            name="restaurant_id",
+            type="string",
+            description="ID of the restaurant (defaults to rest_001 for Tony's Pizza Palace)",
+        ),
+    ],
+)
+
+food_get_menu_item_details_tool = ToolDefinition(
+    name="GetMenuItemDetails",
+    description="Get detailed information about a specific menu item.",
+    arguments=[
+        ToolArgument(
+            name="item_id",
+            type="string",
+            description="ID of the menu item to get details for",
+        ),
+        ToolArgument(
+            name="restaurant_id",
+            type="string",
+            description="ID of the restaurant (defaults to rest_001 for Tony's Pizza Palace)",
+        ),
+    ],
+)
+
+food_add_to_cart_tool = ToolDefinition(
+    name="AddToCart",
+    description="Add a menu item to the customer's cart.",
+    arguments=[
+        ToolArgument(
+            name="customer_email",
+            type="string",
+            description="Email address of the customer",
+        ),
+        ToolArgument(
+            name="item_id",
+            type="string",
+            description="ID of the menu item to add to cart",
+        ),
+        ToolArgument(
+            name="quantity",
+            type="number",
+            description="Quantity of the item to add (defaults to 1)",
+        ),
+        ToolArgument(
+            name="restaurant_id",
+            type="string",
+            description="ID of the restaurant (defaults to rest_001 for Tony's Pizza Palace)",
+        ),
+    ],
+)
+
+food_place_order_tool = ToolDefinition(
+    name="PlaceOrder",
+    description="Place an order for the items in the customer's cart.",
+    arguments=[
+        ToolArgument(
+            name="customer_email",
+            type="string",
+            description="Email address of the customer",
+        ),
+        ToolArgument(
+            name="userConfirmation",
+            type="string",
+            description="Indication of user's desire to place the order",
+        ),
+    ],
+)
+
+food_check_order_status_tool = ToolDefinition(
+    name="CheckOrderStatus",
+    description="Check the status of a food order.",
+    arguments=[
+        ToolArgument(
+            name="order_id",
+            type="string",
+            description="ID of the order to check status for",
+        ),
+    ],
+)
