@@ -39,7 +39,7 @@ This is where you can add probabalistic business logic to
 ## LLM
 Probabalistic execution: it will _probably_ do what you tell it to do.
 Turns the guidance from the prompts (see [agent prompts](./prompts/agent_prompt_generators.py) and [goal prompts](./tools/goal_registry.py)) into 
-You have a choice of providers - see [setup](./setup.md). 
+You have a choice of providers - see [setup](./SETUP.md). 
 The LLM:
 - Drives toward the initial Goal and any subsequent Goals selected by user
 - Decides what to do based on input, such as:
