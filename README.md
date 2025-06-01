@@ -72,10 +72,7 @@ poetry run pytest --workflow-environment=time-skipping
 
 ## Development
 
-Install dependencies:
-```bash
-poetry install
-```
+To contribute to this project, see the [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Start the Temporal Server and API server, see [setup](SETUP.md)
 
@@ -85,8 +82,7 @@ Start the Temporal Server and API server, see [setup](SETUP.md)
 - Perhaps the UI should show when the LLM response is being retried (i.e. activity retry attempt because the LLM provided bad output)
 - The project now includes comprehensive tests for workflows and activities! [See testing guide](TESTING.md).
 
-
-See [the todo](./todo.md) for more details.
+See [the todo](./todo.md) for more details on things we want to do (or that you could contribute!).
 
 See [the guide to adding goals and tools](./adding-goals-and-tools.md) for more ways you can add features.
 
