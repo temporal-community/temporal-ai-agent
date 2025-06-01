@@ -72,7 +72,7 @@ poetry run pytest --workflow-environment=time-skipping
 
 ## Development
 
-To contribute to this project, see the [CONTRIBUTING.md](CONTRIBUTING.md).
+To contribute to this project, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Start the Temporal Server and API server, see [setup](SETUP.md)
 
