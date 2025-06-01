@@ -3,10 +3,7 @@ from dataclasses import dataclass
 from datetime import date
 
 from temporalio import common
-from temporalio.client import (
-    WithStartWorkflowOperation,
-    WorkflowUpdateFailedError,
-)
+from temporalio.client import WithStartWorkflowOperation, WorkflowUpdateFailedError
 
 from shared.config import get_temporal_client
 

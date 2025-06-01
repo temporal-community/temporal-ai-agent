@@ -46,6 +46,7 @@ pytest = ">=8.2"
 pytest-asyncio = "^0.26.0"
 black = "^23.7"
 isort = "^5.12"
+mypy = "^1.16.0"
 
 [build-system]
 requires = ["poetry-core>=1.4.0"]

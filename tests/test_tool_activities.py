@@ -98,7 +98,9 @@ class TestToolActivities:
         # Mock the completion function
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = (
+        mock_response.choices[
+            0
+        ].message.content = (
             '{"next": "confirm", "tool": "TestTool", "response": "Test response"}'
         )
 
@@ -136,9 +138,9 @@ class TestToolActivities:
 
             mock_response = MagicMock()
             mock_response.choices = [MagicMock()]
-            mock_response.choices[0].message.content = (
-                '{"next": "done", "response": "Test"}'
-            )
+            mock_response.choices[
+                0
+            ].message.content = '{"next": "done", "response": "Test"}'
 
             with patch("activities.tool_activities.completion") as mock_completion:
                 mock_completion.return_value = mock_response
@@ -362,9 +364,9 @@ class TestEdgeCases:
         # Mock the completion response
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = (
-            '{"next": "done", "response": "Processed long prompt"}'
-        )
+        mock_response.choices[
+            0
+        ].message.content = '{"next": "done", "response": "Processed long prompt"}'
 
         with patch("activities.tool_activities.completion", return_value=mock_response):
             activity_env = ActivityEnvironment()

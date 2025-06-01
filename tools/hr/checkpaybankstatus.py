@@ -1,5 +1,3 @@
-
-
 def checkpaybankstatus(args: dict) -> dict:
     email = args.get("email")
 
