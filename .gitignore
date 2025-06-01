@@ -33,3 +33,6 @@ coverage.xml
 
 .env
 .env*
+
+# Cursor
+.cursor

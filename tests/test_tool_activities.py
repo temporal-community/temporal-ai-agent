@@ -1,12 +1,10 @@
 import json
 import os
-import uuid
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from temporalio.client import Client
 from temporalio.testing import ActivityEnvironment
-from temporalio.worker import Worker
 
 from activities.tool_activities import ToolActivities, dynamic_tool_activity
 from models.data_types import (
@@ -100,9 +98,7 @@ class TestToolActivities:
         # Mock the completion function
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
-        mock_response.choices[
-            0
-        ].message.content = (
+        mock_response.choices[0].message.content = (
             '{"next": "confirm", "tool": "TestTool", "response": "Test response"}'
         )
 
@@ -140,9 +136,9 @@ class TestToolActivities:
 
             mock_response = MagicMock()
             mock_response.choices = [MagicMock()]
-            mock_response.choices[
-                0
-            ].message.content = '{"next": "done", "response": "Test"}'
+            mock_response.choices[0].message.content = (
+                '{"next": "done", "response": "Test"}'
+            )
 
             with patch("activities.tool_activities.completion") as mock_completion:
                 mock_completion.return_value = mock_response
@@ -305,7 +301,7 @@ class TestToolActivitiesIntegration:
     @pytest.mark.asyncio
     async def test_activities_in_worker(self, client: Client):
         """Test activities can be registered and executed in a worker."""
-        task_queue_name = str(uuid.uuid4())
+        # task_queue_name = str(uuid.uuid4())
         tool_activities = ToolActivities()
 
         # Test get_wf_env_vars activity using ActivityEnvironment
@@ -352,7 +348,7 @@ class TestEdgeCases:
             )
 
             assert isinstance(result, ValidationResult)
-            assert result.validationResult == True
+            assert result.validationResult
             assert result.validationFailedReason == {}
 
     @pytest.mark.asyncio
@@ -366,9 +362,9 @@ class TestEdgeCases:
         # Mock the completion response
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
-        mock_response.choices[
-            0
-        ].message.content = '{"next": "done", "response": "Processed long prompt"}'
+        mock_response.choices[0].message.content = (
+            '{"next": "done", "response": "Processed long prompt"}'
+        )
 
         with patch("activities.tool_activities.completion", return_value=mock_response):
             activity_env = ActivityEnvironment()
@@ -418,7 +414,7 @@ class TestEdgeCases:
                 self.tool_activities.get_wf_env_vars, env_input
             )
 
-            assert result.show_confirm == True
+            assert result.show_confirm
 
         # Test with "false" string
         with patch.dict(os.environ, {"TEST_CONFIRM": "false"}):
@@ -431,7 +427,7 @@ class TestEdgeCases:
                 self.tool_activities.get_wf_env_vars, env_input
             )
 
-            assert result.show_confirm == False
+            assert result.show_confirm
 
         # Test with missing env var (should use default)
         with patch.dict(os.environ, {}, clear=True):
@@ -444,4 +440,4 @@ class TestEdgeCases:
                 self.tool_activities.get_wf_env_vars, env_input
             )
 
-            assert result.show_confirm == True
+            assert result.show_confirm

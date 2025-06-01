@@ -2,7 +2,7 @@ import inspect
 import json
 import os
 from datetime import datetime
-from typing import Optional, Sequence
+from typing import Sequence
 
 from dotenv import load_dotenv
 from litellm import completion

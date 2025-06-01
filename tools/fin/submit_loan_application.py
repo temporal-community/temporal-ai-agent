@@ -1,19 +1,12 @@
-import asyncio
-import json
 import os
 from dataclasses import dataclass
-from datetime import date, timedelta
-from pathlib import Path
-from typing import Optional
+from datetime import date
 
 from temporalio import common
 from temporalio.client import (
-    Client,
     WithStartWorkflowOperation,
-    WorkflowHandle,
     WorkflowUpdateFailedError,
 )
-from temporalio.exceptions import WorkflowAlreadyStartedError
 
 from shared.config import get_temporal_client
 
@@ -59,7 +52,7 @@ async def start_workflow(
 ) -> dict:
     start_real_workflow = os.getenv("FIN_START_REAL_WORKFLOW")
     if start_real_workflow is not None and start_real_workflow.lower() == "false":
-        START_REAL_WORKFLOW = False
+        # START_REAL_WORKFLOW = False
         return {
             "loan_application_status": "applied",
             "application_details": "loan application is submitted and initial validation is complete",
@@ -67,7 +60,7 @@ async def start_workflow(
             "advisement": "You'll receive a confirmation for final approval in three business days",
         }
     else:
-        START_REAL_WORKFLOW = True
+        # START_REAL_WORKFLOW = True
         # Connect to Temporal
         client = await get_temporal_client()
 
@@ -107,6 +100,7 @@ async def start_workflow(
             return {"error": return_msg}
 
         workflow_handle = await start_op.workflow_handle()
+        print(f"Workflow started with ID: {workflow_handle.id}")
         print(tx_result)
 
         print(

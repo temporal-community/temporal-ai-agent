@@ -1,12 +1,8 @@
-import asyncio
 import json
 import os
 from dataclasses import dataclass
-from enum import Enum, auto
 from pathlib import Path
-from typing import Optional
 
-from temporalio.client import Client
 from temporalio.exceptions import WorkflowAlreadyStartedError
 
 from shared.config import get_temporal_client
@@ -126,7 +122,7 @@ async def start_workflow(
                 task_queue="MoneyTransferJava",  # Task queue name
             )
             return handle.id
-        except WorkflowAlreadyStartedError as e:
+        except WorkflowAlreadyStartedError:
             existing_handle = client.get_workflow_handle(workflow_id=workflow_id)
             return existing_handle.id
     else:

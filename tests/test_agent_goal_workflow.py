@@ -1,17 +1,12 @@
 import uuid
-from unittest.mock import MagicMock, patch
 
-import pytest
 from temporalio import activity
 from temporalio.client import Client
-from temporalio.testing import WorkflowEnvironment
 from temporalio.worker import Worker
 
-from activities.tool_activities import ToolActivities
 from models.data_types import (
     AgentGoalWorkflowParams,
     CombinedInput,
-    ConversationHistory,
     EnvLookupInput,
     EnvLookupOutput,
     ToolPromptInput,
@@ -120,7 +115,7 @@ class TestAgentGoalWorkflow:
 
             try:
                 conversation_history = json.loads(result.replace("'", '"'))
-            except:
+            except Exception:
                 # Fallback to eval if json fails
                 conversation_history = eval(result)
             messages = conversation_history["messages"]
@@ -256,7 +251,7 @@ class TestAgentGoalWorkflow:
 
             try:
                 conversation_history = json.loads(result.replace("'", '"'))
-            except:
+            except Exception:
                 # Fallback to eval if json fails
                 conversation_history = eval(result)
             messages = conversation_history["messages"]
@@ -535,7 +530,7 @@ class TestAgentGoalWorkflow:
 
             try:
                 conversation_history = json.loads(result.replace("'", '"'))
-            except:
+            except Exception:
                 conversation_history = eval(result)
             messages = conversation_history["messages"]
 
