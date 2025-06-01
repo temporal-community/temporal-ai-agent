@@ -1,12 +1,10 @@
 import asyncio
-
 import concurrent.futures
 
 from temporalio.worker import Worker
 
 from activities.tool_activities import dynamic_tool_activity
-
-from shared.config import get_temporal_client, TEMPORAL_LEGACY_TASK_QUEUE
+from shared.config import TEMPORAL_LEGACY_TASK_QUEUE, get_temporal_client
 
 
 async def main():
@@ -24,7 +22,9 @@ async def main():
             activity_executor=activity_executor,
         )
 
-        print(f"Starting legacy worker, connecting to task queue: {TEMPORAL_LEGACY_TASK_QUEUE}")
+        print(
+            f"Starting legacy worker, connecting to task queue: {TEMPORAL_LEGACY_TASK_QUEUE}"
+        )
         await worker.run()
 
 

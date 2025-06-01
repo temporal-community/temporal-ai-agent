@@ -58,3 +58,14 @@ log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s (%(filename)s:%(lineno)s)"
 asyncio_default_fixture_loop_scope = "function"
 norecursedirs = ["vibe"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+check_untyped_defs = true
+namespace_packages = true
+explicit_package_bases = true
+ignore_errors = true
+
+[tool.isort]
+profile = "black"

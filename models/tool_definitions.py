@@ -15,6 +15,7 @@ class ToolDefinition:
     description: str
     arguments: List[ToolArgument]
 
+
 @dataclass
 class AgentGoal:
     id: str
@@ -24,6 +25,4 @@ class AgentGoal:
     tools: List[ToolDefinition]
     description: str = "Description of the tools purpose and overall goal"
     starter_prompt: str = "Initial prompt to start the conversation"
-    example_conversation_history: str = (
-        "Example conversation history to help the AI agent understand the context of the conversation"
-    )
+    example_conversation_history: str = "Example conversation history to help the AI agent understand the context of the conversation"

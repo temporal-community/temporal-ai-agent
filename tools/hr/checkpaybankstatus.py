@@ -1,9 +1,8 @@
-from pathlib import Path
 import json
+from pathlib import Path
 
 
 def checkpaybankstatus(args: dict) -> dict:
-    
     email = args.get("email")
 
     if email == "grinch@grinch.com":

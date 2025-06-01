@@ -1,4 +1,4 @@
-from models.tool_definitions import ToolDefinition, ToolArgument
+from models.tool_definitions import ToolArgument, ToolDefinition
 
 # ----- System tools -----
 list_agents_tool = ToolDefinition(

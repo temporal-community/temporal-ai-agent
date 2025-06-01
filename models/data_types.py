@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Optional, Deque, Dict, Any, List, Union, Literal
+from typing import Any, Deque, Dict, List, Literal, Optional, Union
+
 from models.tool_definitions import AgentGoal
 
 
@@ -43,10 +44,12 @@ class ValidationResult:
         if self.validationFailedReason is None:
             self.validationFailedReason = {}
 
+
 @dataclass
 class EnvLookupInput:
     show_confirm_env_var_name: str
     show_confirm_default: bool
+
 
 @dataclass
 class EnvLookupOutput:

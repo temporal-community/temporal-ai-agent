@@ -1,6 +1,7 @@
-from models.tool_definitions import AgentGoal
-from typing import Optional
 import json
+from typing import Optional
+
+from models.tool_definitions import AgentGoal
 
 MULTI_GOAL_MODE: bool = None
 

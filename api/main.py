@@ -1,18 +1,18 @@
+import asyncio
 import os
-from fastapi import FastAPI
 from typing import Optional
+
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from temporalio.api.enums.v1 import WorkflowExecutionStatus
 from temporalio.client import Client
 from temporalio.exceptions import TemporalError
-from temporalio.api.enums.v1 import WorkflowExecutionStatus
-from fastapi import HTTPException
-from dotenv import load_dotenv
-import asyncio
 
-from workflows.agent_goal_workflow import AgentGoalWorkflow
-from models.data_types import CombinedInput, AgentGoalWorkflowParams
+from models.data_types import AgentGoalWorkflowParams, CombinedInput
+from shared.config import TEMPORAL_TASK_QUEUE, get_temporal_client
 from tools.goal_registry import goal_list
-from fastapi.middleware.cors import CORSMiddleware
-from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
+from workflows.agent_goal_workflow import AgentGoalWorkflow
 
 app = FastAPI()
 temporal_client: Optional[Client] = None
@@ -23,7 +23,9 @@ load_dotenv()
 
 def get_initial_agent_goal():
     """Get the agent goal from environment variables."""
-    env_goal = os.getenv("AGENT_GOAL", "goal_choose_agent_type") #if no goal is set in the env file, default to choosing an agent
+    env_goal = os.getenv(
+        "AGENT_GOAL", "goal_choose_agent_type"
+    )  # if no goal is set in the env file, default to choosing an agent
     for listed_goal in goal_list:
         if listed_goal.id == env_goal:
             return listed_goal
@@ -119,7 +121,8 @@ async def get_conversation_history():
             raise HTTPException(
                 status_code=500, detail="Internal server error while querying workflow."
             )
-    
+
+
 @app.get("/agent-goal")
 async def get_agent_goal():
     """Calls the workflow's 'get_agent_goal' query."""
@@ -148,7 +151,7 @@ async def send_prompt(prompt: str):
     combined_input = CombinedInput(
         tool_params=AgentGoalWorkflowParams(None, None),
         agent_goal=get_initial_agent_goal(),
-        #change to get from workflow query
+        # change to get from workflow query
     )
 
     workflow_id = "agent-workflow"

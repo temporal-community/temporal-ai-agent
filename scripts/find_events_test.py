@@ -1,5 +1,6 @@
-from tools.search_flights import search_flights
 import json
+
+from tools.search_flights import search_flights
 
 # Example usage
 if __name__ == "__main__":

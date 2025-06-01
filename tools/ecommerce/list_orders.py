@@ -1,17 +1,20 @@
-from pathlib import Path
 import json
+from pathlib import Path
+
 
 def sorting(e):
-  return e['order_date']
+    return e["order_date"]
+
 
 def list_orders(args: dict) -> dict:
-    
     email_address = args.get("email_address")
 
-    file_path = Path(__file__).resolve().parent.parent / "data" / "customer_order_data.json"
+    file_path = (
+        Path(__file__).resolve().parent.parent / "data" / "customer_order_data.json"
+    )
     if not file_path.exists():
         return {"error": "Data file not found."}
-    
+
     with open(file_path, "r") as file:
         data = json.load(file)
     order_list = data["orders"]
@@ -24,7 +27,6 @@ def list_orders(args: dict) -> dict:
     if len(rtn_order_list) > 0:
         rtn_order_list.sort(key=sorting)
         return {"orders": rtn_order_list}
-    else:    
+    else:
         return_msg = "No orders for customer " + email_address + " found."
         return {"error": return_msg}
-

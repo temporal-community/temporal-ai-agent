@@ -63,8 +63,8 @@ async def client(env: WorkflowEnvironment) -> Client:
 @pytest.fixture
 def sample_agent_goal():
     """Sample agent goal for testing."""
-    from models.tool_definitions import AgentGoal, ToolDefinition, ToolArgument
-    
+    from models.tool_definitions import AgentGoal, ToolArgument, ToolDefinition
+
     return AgentGoal(
         id="test_goal",
         category_tag="test",
@@ -77,13 +77,11 @@ def sample_agent_goal():
                 description="A test tool for testing purposes",
                 arguments=[
                     ToolArgument(
-                        name="test_arg",
-                        type="string",
-                        description="A test argument"
+                        name="test_arg", type="string", description="A test argument"
                     )
-                ]
+                ],
             )
-        ]
+        ],
     )
 
 
@@ -93,7 +91,7 @@ def sample_conversation_history():
     return {
         "messages": [
             {"actor": "user", "response": "Hello, I need help with testing"},
-            {"actor": "agent", "response": "I can help you with that"}
+            {"actor": "agent", "response": "I can help you with that"},
         ]
     }
 
@@ -101,16 +99,13 @@ def sample_conversation_history():
 @pytest.fixture
 def sample_combined_input(sample_agent_goal):
     """Sample combined input for workflow testing."""
-    from models.data_types import CombinedInput, AgentGoalWorkflowParams
-    
     from collections import deque
-    
+
+    from models.data_types import AgentGoalWorkflowParams, CombinedInput
+
     tool_params = AgentGoalWorkflowParams(
         conversation_summary="Test conversation summary",
-        prompt_queue=deque()  # Start with empty queue for most tests
+        prompt_queue=deque(),  # Start with empty queue for most tests
     )
-    
-    return CombinedInput(
-        agent_goal=sample_agent_goal,
-        tool_params=tool_params
-    )
+
+    return CombinedInput(agent_goal=sample_agent_goal, tool_params=tool_params)

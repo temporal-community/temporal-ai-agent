@@ -1,7 +1,8 @@
 import os
 from typing import List
-from models.tool_definitions import AgentGoal
+
 import tools.tool_registry as tool_registry
+from models.tool_definitions import AgentGoal
 
 # Turn on Silly Mode - this should be a description of the persona you'd like the bot to have and can be a single word or a phrase.
 # Example if you want the bot to be a specific person, like Mario or Christopher Walken, or to describe a specific tone:
