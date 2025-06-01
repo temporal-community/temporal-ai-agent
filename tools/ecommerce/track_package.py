@@ -1,49 +1,59 @@
 import http
-import os
 import json
-
+import os
 from pathlib import Path
 
-#Send back dummy data in the correct format - to use the real API, 1) change this to be track_package_fake and 2) change the below track_package_real to be track_package 
+
+# Send back dummy data in the correct format - to use the real API, 1) change this to be track_package_fake and 2) change the below track_package_real to be track_package
 def track_package(args: dict) -> dict:
-    
     tracking_id = args.get("tracking_id")
-    file_path = Path(__file__).resolve().parent.parent / "data" / "dummy_tracking_data.json"
+    file_path = (
+        Path(__file__).resolve().parent.parent / "data" / "dummy_tracking_data.json"
+    )
     if not file_path.exists():
         return {"error": "Data file not found."}
-    
+
     with open(file_path, "r") as file:
         data = json.load(file)
     package_list = data["packages"]
 
     for package in package_list:
         if package["TrackingNumber"] == tracking_id:
-                scheduled_delivery_date = package["ScheduledDeliveryDate"]
-                carrier = package["Carrier"]
-                status_summary = package["StatusSummary"]
-                tracking_details = package.get("TrackingDetails", [])
-                last_tracking_update = ""
-                if tracking_details and tracking_details is not None and tracking_details[0] is not None:
-                    last_tracking_update = tracking_details[0]["EventDateTimeInDateTimeFormat"]
-                
-                tracking_link = ""
-                if carrier == "USPS":
-                    tracking_link = f"https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1={tracking_id}"
-                elif carrier == "UPS":
-                    tracking_link = f"https://www.ups.com/track?track=yes&trackNums={tracking_id}"
+            scheduled_delivery_date = package["ScheduledDeliveryDate"]
+            carrier = package["Carrier"]
+            status_summary = package["StatusSummary"]
+            tracking_details = package.get("TrackingDetails", [])
+            last_tracking_update = ""
+            if (
+                tracking_details
+                and tracking_details is not None
+                and tracking_details[0] is not None
+            ):
+                last_tracking_update = tracking_details[0][
+                    "EventDateTimeInDateTimeFormat"
+                ]
 
-                return {
-                    "scheduled_delivery_date": scheduled_delivery_date,
-                    "carrier": carrier,
-                    "status_summary": status_summary,
-                    "tracking_link": tracking_link,
-                    "last_tracking_update": last_tracking_update
-                }
- 
+            tracking_link = ""
+            if carrier == "USPS":
+                tracking_link = f"https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1={tracking_id}"
+            elif carrier == "UPS":
+                tracking_link = (
+                    f"https://www.ups.com/track?track=yes&trackNums={tracking_id}"
+                )
+
+            return {
+                "scheduled_delivery_date": scheduled_delivery_date,
+                "carrier": carrier,
+                "status_summary": status_summary,
+                "tracking_link": tracking_link,
+                "last_tracking_update": last_tracking_update,
+            }
+
     return_msg = "Package not found with tracking info " + tracking_id
     return {"error": return_msg}
 
-'''Format of response:
+
+"""Format of response:
 {
     "TrackingNumber": "",
     "Delivered": false,
@@ -94,9 +104,10 @@ def track_package(args: dict) -> dict:
         }
     ]
 }
-'''
-def track_package_real(args: dict) -> dict:
+"""
 
+
+def track_package_real(args: dict) -> dict:
     tracking_id = args.get("tracking_id")
 
     api_key = os.getenv("RAPIDAPI_KEY")
@@ -127,11 +138,17 @@ def track_package_real(args: dict) -> dict:
     status_summary = json_data["StatusSummary"]
     tracking_details = json_data.get("TrackingDetails", [])
     last_tracking_update = ""
-    if tracking_details and tracking_details is not None and tracking_details[0] is not None:
+    if (
+        tracking_details
+        and tracking_details is not None
+        and tracking_details[0] is not None
+    ):
         last_tracking_update = tracking_details[0]["EventDateTimeInDateTimeFormat"]
     tracking_link = ""
     if carrier == "USPS":
-        tracking_link = f"https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1={tracking_id}"
+        tracking_link = (
+            f"https://tools.usps.com/go/TrackConfirmAction?qtc_tLabels1={tracking_id}"
+        )
     elif carrier == "UPS":
         tracking_link = f"https://www.ups.com/track?track=yes&trackNums={tracking_id}"
 
@@ -140,5 +157,5 @@ def track_package_real(args: dict) -> dict:
         "carrier": carrier,
         "status_summary": status_summary,
         "tracking_link": tracking_link,
-        "last_tracking_update": last_tracking_update
+        "last_tracking_update": last_tracking_update,
     }

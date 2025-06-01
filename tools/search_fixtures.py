@@ -1,7 +1,8 @@
 import os
-import requests
 import random
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
+
+import requests
 from dotenv import load_dotenv
 
 PREMIER_LEAGUE_CLUBS_DATA = [

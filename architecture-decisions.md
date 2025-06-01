@@ -3,7 +3,7 @@ This documents some of the "why" behind the [architecture](./architecture.md).
 
 ## AI Models
 We wanted to have flexibility to use different models, because this space is changing rapidly and models get better regularly.
-Also, for you, we wanted to let you pick your model of choice. The system is designed to make changing models out simple. For how to do that, checkout the [setup guide](./setup.md).
+Also, for you, we wanted to let you pick your model of choice. The system is designed to make changing models out simple. For how to do that, checkout the [setup guide](./SETUP.md).
 
 ## Temporal
 We asked one of the AI models used in this demo to answer this question (edited minorly):

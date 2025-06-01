@@ -1,5 +1,6 @@
-from tools.search_flights import search_flights
 import json
+
+from tools.search_flights import search_flights
 
 if __name__ == "__main__":
     # Suppose user typed "new" for New York, "lon" for London

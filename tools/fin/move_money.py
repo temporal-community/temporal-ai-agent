@@ -1,15 +1,11 @@
-import os
-from pathlib import Path
 import json
-from temporalio.client import Client
+import os
 from dataclasses import dataclass
-from typing import Optional
-import asyncio
+from pathlib import Path
+
 from temporalio.exceptions import WorkflowAlreadyStartedError
+
 from shared.config import get_temporal_client
-
-
-from enum import Enum, auto
 
 # enums for the java enum
 # class ExecutionScenarios(Enum):
@@ -32,7 +28,6 @@ class MoneyMovementWorkflowParameterObj:
 # this is made to demonstrate functionality but it could just as durably be an API call
 # this assumes it's a valid account - use check_account_valid() to verify that first
 async def move_money(args: dict) -> dict:
-
     account_key = args.get("email_address_or_account_ID")
     account_type: str = args.get("accounttype")
     amount = args.get("amount")
@@ -101,7 +96,6 @@ async def move_money(args: dict) -> dict:
 async def start_workflow(
     amount_cents: int, from_account_name: str, to_account_name: str
 ) -> str:
-
     start_real_workflow = os.getenv("FIN_START_REAL_WORKFLOW")
     if start_real_workflow is not None and start_real_workflow.lower() == "false":
         START_REAL_WORKFLOW = False
@@ -128,7 +122,7 @@ async def start_workflow(
                 task_queue="MoneyTransferJava",  # Task queue name
             )
             return handle.id
-        except WorkflowAlreadyStartedError as e:
+        except WorkflowAlreadyStartedError:
             existing_handle = client.get_workflow_handle(workflow_id=workflow_id)
             return existing_handle.id
     else:

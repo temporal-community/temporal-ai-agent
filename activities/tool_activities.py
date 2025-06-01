@@ -1,15 +1,24 @@
 import inspect
-from temporalio import activity
 import json
-from typing import Optional, Sequence
-from temporalio.common import RawValue
 import os
 from datetime import datetime
+from typing import Sequence
+
 from dotenv import load_dotenv
-from models.data_types import EnvLookupOutput, ValidationInput, ValidationResult, ToolPromptInput, EnvLookupInput
 from litellm import completion
+from temporalio import activity
+from temporalio.common import RawValue
+
+from models.data_types import (
+    EnvLookupInput,
+    EnvLookupOutput,
+    ToolPromptInput,
+    ValidationInput,
+    ValidationResult,
+)
 
 load_dotenv(override=True)
+
 
 class ToolActivities:
     def __init__(self):
@@ -22,7 +31,9 @@ class ToolActivities:
             print(f"Using custom base URL: {self.llm_base_url}")
 
     @activity.defn
-    async def agent_validatePrompt(self, validation_input: ValidationInput) -> ValidationResult:
+    async def agent_validatePrompt(
+        self, validation_input: ValidationInput
+    ) -> ValidationResult:
         """
         Validates the prompt in the context of the conversation history and agent goal.
         Returns a ValidationResult indicating if the prompt makes sense given the context.
@@ -99,15 +110,15 @@ class ToolActivities:
             completion_kwargs = {
                 "model": self.llm_model,
                 "messages": messages,
-                "api_key": self.llm_key
+                "api_key": self.llm_key,
             }
-            
+
             # Add base_url if configured
             if self.llm_base_url:
                 completion_kwargs["base_url"] = self.llm_base_url
 
             response = completion(**completion_kwargs)
-            
+
             response_content = response.choices[0].message.content
             activity.logger.info(f"LLM response: {response_content}")
 
@@ -136,19 +147,20 @@ class ToolActivities:
         """
         # Remove any markdown code block markers
         response_content = response_content.replace("```json", "").replace("```", "")
-        
+
         # Remove any leading/trailing whitespace
         response_content = response_content.strip()
-        
+
         return response_content
 
     @activity.defn
     async def get_wf_env_vars(self, input: EnvLookupInput) -> EnvLookupOutput:
-        """ gets env vars for workflow as an activity result so it's deterministic
-            handles default/None
+        """gets env vars for workflow as an activity result so it's deterministic
+        handles default/None
         """
-        output: EnvLookupOutput = EnvLookupOutput(show_confirm=input.show_confirm_default, 
-                                                  multi_goal_mode=True)
+        output: EnvLookupOutput = EnvLookupOutput(
+            show_confirm=input.show_confirm_default, multi_goal_mode=True
+        )
         show_confirm_value = os.getenv(input.show_confirm_env_var_name)
         if show_confirm_value is None:
             output.show_confirm = input.show_confirm_default
@@ -156,16 +168,20 @@ class ToolActivities:
             output.show_confirm = False
         else:
             output.show_confirm = True
-        
+
         first_goal_value = os.getenv("AGENT_GOAL")
         if first_goal_value is None:
-            output.multi_goal_mode = True # default if unset
-        elif first_goal_value is not None and first_goal_value.lower() != "goal_choose_agent_type":
+            output.multi_goal_mode = True  # default if unset
+        elif (
+            first_goal_value is not None
+            and first_goal_value.lower() != "goal_choose_agent_type"
+        ):
             output.multi_goal_mode = False
         else:
             output.multi_goal_mode = True
 
         return output
+
 
 @activity.defn(dynamic=True)
 async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
@@ -185,5 +201,3 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     # Optionally log or augment the result
     activity.logger.info(f"Tool '{tool_name}' result: {result}")
     return result
-
-

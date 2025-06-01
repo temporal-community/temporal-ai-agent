@@ -1,15 +1,14 @@
 import asyncio
 import concurrent.futures
-import os
-from dotenv import load_dotenv
 import logging
+import os
 
+from dotenv import load_dotenv
 from temporalio.worker import Worker
 
 from activities.tool_activities import ToolActivities, dynamic_tool_activity
+from shared.config import TEMPORAL_TASK_QUEUE, get_temporal_client
 from workflows.agent_goal_workflow import AgentGoalWorkflow
-
-from shared.config import get_temporal_client, TEMPORAL_TASK_QUEUE
 
 
 async def main():

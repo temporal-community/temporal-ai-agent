@@ -49,7 +49,7 @@ description="Help the user gather args for these tools in order: "
 ```
 
 Tools should generally return meaningful information and be generally ‘failsafe’ in returning a useful result based on input.
-(If you're doing a local data approach like those in [.tools/data/](./tools/data/)) it's good to document how they can be setup to get a good result in tool specific [setup](./setup.md).
+(If you're doing a local data approach like those in [.tools/data/](./tools/data/)) it's good to document how they can be setup to get a good result in tool specific [setup](./SETUP.md).
 
 ### Add to Tool Registry
 1.  Open [/tools/tool_registry.py](tools/tool_registry.py) - this file contains mapping of tool names to tool definitions (so the AI understands how to use them)

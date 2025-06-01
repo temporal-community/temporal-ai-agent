@@ -1,7 +1,8 @@
 import os
 from typing import List
-from models.tool_definitions import AgentGoal
+
 import tools.tool_registry as tool_registry
+from models.tool_definitions import AgentGoal
 
 # Turn on Silly Mode - this should be a description of the persona you'd like the bot to have and can be a single word or a phrase.
 # Example if you want the bot to be a specific person, like Mario or Christopher Walken, or to describe a specific tone:
@@ -310,7 +311,7 @@ goal_fin_check_account_balances = AgentGoal(
 )
 
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
-# it also uses a separate workflow/tool, see ./setup.md for details
+# it also uses a separate workflow/tool, see ./SETUP.md for details
 goal_fin_move_money = AgentGoal(
     id="goal_fin_move_money",
     category_tag="fin",
@@ -350,7 +351,7 @@ goal_fin_move_money = AgentGoal(
 )
 
 # this starts a loan approval process
-# it also uses a separate workflow/tool, see ./setup.md for details
+# it also uses a separate workflow/tool, see ./SETUP.md for details
 goal_fin_loan_application = AgentGoal(
     id="goal_fin_loan_application",
     category_tag="fin",

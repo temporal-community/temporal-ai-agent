@@ -5,7 +5,6 @@ from shared.config import get_temporal_client
 
 
 async def main():
-
     # Connect to Temporal and signal the workflow
     client = await get_temporal_client()
 

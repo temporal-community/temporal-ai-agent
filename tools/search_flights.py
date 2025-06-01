@@ -1,8 +1,9 @@
-import os
-import json
 import http.client
-from dotenv import load_dotenv
+import json
+import os
 import urllib.parse
+
+from dotenv import load_dotenv
 
 
 def search_airport(query: str) -> list:
