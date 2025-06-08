@@ -117,11 +117,20 @@ def generate_genai_prompt(
         "3) You can carry over arguments from one tool to another.\n "
         "EXAMPLE: If you asked for an account ID, then use the conversation history to infer that argument "
         "going forward."
-        "4) If ListAgents in the conversation history is force_confirm='False', you MUST check "
-        + "if the current tool contains userConfirmation. If it does, please ask the user to confirm details "
-        + "with the user. userConfirmation overrides force_confirm='False'.\n"
-        + "EXAMPLE: (force_confirm='False' AND userConfirmation exists on tool) Would you like me to <run tool> "
-        + "with the following details: <details>?\n"
+        "4) CRITICAL: Use sensible defaults for technical parameters instead of asking users. "
+        "EXAMPLE: For list_products, use limit=100 instead of asking 'how many items would you like to see?'"
+        "EXAMPLE: For browsing menus, show all relevant items rather than asking for technical limits."
+        "5) CRITICAL: When users specify quantities (like '2 garlic breads'), be explicit in your response about the quantity. "
+        "EXAMPLE: User says '2 garlic breads' -> response: 'Adding 2 Garlic Breads to your cart ($7.99 each).'"
+        "EXAMPLE: Always confirm the exact quantity being added before proceeding with next='confirm'."
+        "6) CRITICAL: If ListAgents in the conversation history is force_confirm='False', you MUST NOT ask permission "
+        + "or include any questions in your response unless the current tool has userConfirmation defined. "
+        + "NEVER say 'Is that okay?', 'Would you like me to...?', 'Should I...?', or any similar questions. "
+        + "Instead, use confident declarative statements and set next='confirm' to execute immediately.\n"
+        + "EXAMPLE: (force_confirm='False' AND no userConfirmation) -> response: 'Getting our menu items now.' next='confirm'\n"
+        + "EXAMPLE: (force_confirm='False' AND no userConfirmation) -> response: 'Adding the pizza to your cart.' next='confirm'\n"
+        + "EXAMPLE: (force_confirm='False' AND userConfirmation exists on tool) -> response: 'Would you like me to <run tool> "
+        + "with the following details: <details>?' next='question'\n"
     )
 
     # Validation Task (If raw_json is provided)
@@ -247,6 +256,6 @@ def generate_toolchain_complete_guidance() -> str:
         str: A prompt string prompting the LLM to prompt for a new goal, or be done
     """
     if is_multi_goal_mode():
-        return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='confirm' and tool='ListAgents'."
+        return "If no more tools are needed for the current goal (user_confirmed_tool_run has been run for all required tools), set next='pick-new-goal' and tool=null to allow the user to choose their next action."
     else:
-        return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=''."
+        return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=null."
