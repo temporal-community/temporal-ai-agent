@@ -1,13 +1,16 @@
 import inspect
 import json
 import os
+from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 from dotenv import load_dotenv
 from litellm import completion
 from temporalio import activity
 from temporalio.common import RawValue
+from temporalio.converter import PayloadConverter
+from temporalio.exceptions import ApplicationError
 
 from models.data_types import (
     EnvLookupInput,
@@ -16,6 +19,17 @@ from models.data_types import (
     ValidationInput,
     ValidationResult,
 )
+from models.tool_definitions import MCPServerDefinition
+
+# Import MCP client libraries
+try:
+    from mcp import ClientSession, StdioServerParameters
+    from mcp.client.stdio import stdio_client
+except ImportError:
+    # Fallback if MCP not installed
+    ClientSession = None
+    StdioServerParameters = None
+    stdio_client = None
 
 load_dotenv(override=True)
 
@@ -182,6 +196,59 @@ class ToolActivities:
 
         return output
 
+    @activity.defn
+    async def mcp_tool_activity(
+        self, tool_name: str, tool_args: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """MCP Tool"""
+        activity.logger.info(f"Executing MCP tool: {tool_name} with args: {tool_args}")
+
+        # Extract server definition
+        server_definition = tool_args.pop("server_definition", None)
+        connection = _build_connection(server_definition)
+
+        try:
+            if connection["type"] == "stdio":
+                # Handle stdio connection
+                async with _stdio_connection(
+                    command=connection.get("command", "python"),
+                    args=connection.get("args", ["server.py"]),
+                    env=connection.get("env", {}),
+                ) as (read, write):
+                    async with ClientSession(read, write) as session:
+                        # Initialize the session
+                        await session.initialize()
+
+                        # Call the tool
+                        result = await session.call_tool(tool_name, arguments=tool_args)
+
+                        normalized_result = _normalize_result(result)
+                        activity.logger.info(f"Tool {tool_name} completed successfully")
+
+                        return {
+                            "tool": tool_name,
+                            "success": True,
+                            "content": normalized_result,
+                        }
+
+            elif connection["type"] == "tcp":
+                # Handle TCP connection (placeholder for future implementation)
+                raise ApplicationError("TCP connections not yet implemented")
+
+            else:
+                raise ApplicationError(f"Unsupported connection type: {connection['type']}")
+
+        except Exception as e:
+            activity.logger.error(f"MCP tool {tool_name} failed: {str(e)}")
+
+            # Return error information
+            return {
+                "tool": tool_name,
+                "success": False,
+                "error": str(e),
+                "error_type": type(e).__name__,
+            }
+
 
 @activity.defn(dynamic=True)
 async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
@@ -191,13 +258,188 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
     tool_args = activity.payload_converter().from_payload(args[0].payload, dict)
     activity.logger.info(f"Running dynamic tool '{tool_name}' with args: {tool_args}")
 
-    # Delegate to the relevant function
-    handler = get_handler(tool_name)
-    if inspect.iscoroutinefunction(handler):
-        result = await handler(tool_args)
-    else:
-        result = handler(tool_args)
+    # Check if this is an MCP tool call by looking for server_definition in args
+    server_definition = tool_args.pop("server_definition", None)
+    
+    if server_definition:
+        # This is an MCP tool call - handle it directly
+        activity.logger.info(f"Executing MCP tool: {tool_name}")
+        
+        connection = _build_connection(server_definition)
 
-    # Optionally log or augment the result
-    activity.logger.info(f"Tool '{tool_name}' result: {result}")
+        try:
+            if connection["type"] == "stdio":
+                # Handle stdio connection
+                async with _stdio_connection(
+                    command=connection.get("command", "python"),
+                    args=connection.get("args", ["server.py"]),
+                    env=connection.get("env", {}),
+                ) as (read, write):
+                    async with ClientSession(read, write) as session:
+                        # Initialize the session
+                        await session.initialize()
+
+                        # Call the tool
+                        result = await session.call_tool(tool_name, arguments=tool_args)
+
+                        normalized_result = _normalize_result(result)
+                        activity.logger.info(f"MCP tool {tool_name} completed successfully")
+
+                        return {
+                            "tool": tool_name,
+                            "success": True,
+                            "content": normalized_result,
+                        }
+
+            elif connection["type"] == "tcp":
+                # Handle TCP connection (placeholder for future implementation)
+                raise ApplicationError(f"TCP connections not yet implemented")
+
+            else:
+                raise ApplicationError(f"Unsupported connection type: {connection['type']}")
+
+        except Exception as e:
+            activity.logger.error(f"MCP tool {tool_name} failed: {str(e)}")
+
+            # Return error information
+            return {
+                "tool": tool_name,
+                "success": False,
+                "error": str(e),
+                "error_type": type(e).__name__,
+            }
+    else:
+        # This is a regular tool - delegate to the relevant function
+        handler = get_handler(tool_name)
+        if inspect.iscoroutinefunction(handler):
+            result = await handler(tool_args)
+        else:
+            result = handler(tool_args)
+
+        # Optionally log or augment the result
+        activity.logger.info(f"Tool '{tool_name}' result: {result}")
+        return result
+
+
+# MCP Client Activities
+
+
+def _build_connection(
+    server_definition: MCPServerDefinition | Dict[str, Any] | None,
+) -> Dict[str, Any]:
+    """Build connection parameters from MCPServerDefinition or dict"""
+    if server_definition is None:
+        # Default to stdio connection with the main server
+        return {"type": "stdio", "command": "python", "args": ["server.py"], "env": {}}
+
+    # Handle both MCPServerDefinition objects and dicts (from Temporal serialization)
+    if isinstance(server_definition, dict):
+        return {
+            "type": server_definition.get("connection_type", "stdio"),
+            "command": server_definition.get("command", "python"),
+            "args": server_definition.get("args", ["server.py"]),
+            "env": server_definition.get("env", {}) or {},
+        }
+
+    return {
+        "type": server_definition.connection_type,
+        "command": server_definition.command,
+        "args": server_definition.args,
+        "env": server_definition.env or {},
+    }
+
+
+def _normalize_result(result: Any) -> Any:
+    """Normalize MCP tool result for serialization"""
+    if hasattr(result, "content"):
+        # Handle MCP result objects
+        if hasattr(result.content, "__iter__") and not isinstance(result.content, str):
+            return [
+                item.text if hasattr(item, "text") else str(item)
+                for item in result.content
+            ]
+        return str(result.content)
     return result
+
+
+@asynccontextmanager
+async def _stdio_connection(command: str, args: list, env: dict):
+    """Create stdio connection to MCP server"""
+    if stdio_client is None:
+        raise ApplicationError("MCP client libraries not available")
+
+    # Create server parameters
+    server_params = StdioServerParameters(command=command, args=args, env=env)
+
+    async with stdio_client(server_params) as (read, write):
+        yield read, write
+
+
+@activity.defn
+async def mcp_list_tools(
+    server_definition: MCPServerDefinition, include_tools: Optional[List[str]] = None
+) -> Dict[str, Any]:
+    """List available MCP tools from the specified server"""
+
+    activity.logger.info(f"Listing MCP tools for server: {server_definition.name}")
+
+    connection = _build_connection(server_definition)
+
+    try:
+        if connection["type"] == "stdio":
+            async with _stdio_connection(
+                command=connection.get("command", "python"),
+                args=connection.get("args", ["server.py"]),
+                env=connection.get("env", {}),
+            ) as (read, write):
+                async with ClientSession(read, write) as session:
+                    # Initialize the session
+                    await session.initialize()
+
+                    # List available tools
+                    tools_response = await session.list_tools()
+
+                    # Process tools based on include_tools filter
+                    tools_info = {}
+                    for tool in tools_response.tools:
+                        # If include_tools is specified, only include those tools
+                        if include_tools is None or tool.name in include_tools:
+                            tools_info[tool.name] = {
+                                "name": tool.name,
+                                "description": tool.description,
+                                "inputSchema": (
+                                    tool.inputSchema.model_dump()
+                                    if hasattr(tool.inputSchema, "model_dump")
+                                    else str(tool.inputSchema)
+                                ),
+                            }
+
+                    activity.logger.info(
+                        f"Found {len(tools_info)} tools for server {server_definition.name}"
+                    )
+
+                    return {
+                        "server_name": server_definition.name,
+                        "success": True,
+                        "tools": tools_info,
+                        "total_available": len(tools_response.tools),
+                        "filtered_count": len(tools_info),
+                    }
+
+        elif connection["type"] == "tcp":
+            raise ApplicationError("TCP connections not yet implemented")
+
+        else:
+            raise ApplicationError(f"Unsupported connection type: {connection['type']}")
+
+    except Exception as e:
+        activity.logger.error(
+            f"Failed to list tools for server {server_definition.name}: {str(e)}"
+        )
+
+        return {
+            "server_name": server_definition.name,
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__,
+        }

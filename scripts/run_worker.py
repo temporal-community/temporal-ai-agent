@@ -6,7 +6,11 @@ import os
 from dotenv import load_dotenv
 from temporalio.worker import Worker
 
-from activities.tool_activities import ToolActivities, dynamic_tool_activity
+from activities.tool_activities import (
+    ToolActivities,
+    dynamic_tool_activity,
+    mcp_list_tools,
+)
 from shared.config import TEMPORAL_TASK_QUEUE, get_temporal_client
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 
@@ -60,7 +64,9 @@ async def main():
                 activities.agent_validatePrompt,
                 activities.agent_toolPlanner,
                 activities.get_wf_env_vars,
+                activities.mcp_tool_activity,
                 dynamic_tool_activity,
+                mcp_list_tools,
             ],
             activity_executor=activity_executor,
         )

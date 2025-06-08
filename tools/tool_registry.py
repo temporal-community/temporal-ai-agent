@@ -1,3 +1,4 @@
+from typing import Dict, List
 from models.tool_definitions import ToolArgument, ToolDefinition
 
 # ----- System tools -----
@@ -397,3 +398,35 @@ ecomm_track_package = ToolDefinition(
         ),
     ],
 )
+
+
+# MCP Integration Functions
+
+def create_mcp_tool_definitions(mcp_tools_info: Dict[str, Dict]) -> List[ToolDefinition]:
+    """Convert MCP tool info to ToolDefinition objects"""
+    tool_definitions = []
+    
+    for tool_name, tool_info in mcp_tools_info.items():
+        # Extract input schema properties
+        input_schema = tool_info.get("inputSchema", {})
+        properties = input_schema.get("properties", {}) if isinstance(input_schema, dict) else {}
+        
+        # Convert properties to ToolArgument objects
+        arguments = []
+        for param_name, param_info in properties.items():
+            if isinstance(param_info, dict):
+                arguments.append(ToolArgument(
+                    name=param_name,
+                    type=param_info.get("type", "string"),
+                    description=param_info.get("description", "")
+                ))
+        
+        # Create ToolDefinition
+        tool_def = ToolDefinition(
+            name=tool_info["name"],
+            description=tool_info.get("description", ""),
+            arguments=arguments
+        )
+        tool_definitions.append(tool_def)
+    
+    return tool_definitions

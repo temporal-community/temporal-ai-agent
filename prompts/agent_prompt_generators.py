@@ -11,6 +11,7 @@ def generate_genai_prompt(
     conversation_history: str,
     multi_goal_mode: bool,
     raw_json: Optional[str] = None,
+    mcp_tools_info: Optional[dict] = None,
 ) -> str:
     """
     Generates a concise prompt for producing or validating JSON instructions
@@ -46,6 +47,20 @@ def generate_genai_prompt(
         prompt_lines.append("BEGIN EXAMPLE")
         prompt_lines.append(agent_goal.example_conversation_history)
         prompt_lines.append("END EXAMPLE")
+        prompt_lines.append("")
+
+    # Add MCP server context if present
+    if agent_goal.mcp_server_definition:
+        prompt_lines.append("=== MCP Server Information ===")
+        prompt_lines.append(f"Connected to MCP Server: {agent_goal.mcp_server_definition.name}")
+        if mcp_tools_info and mcp_tools_info.get("success", False):
+            tools = mcp_tools_info.get("tools", {})
+            server_name = mcp_tools_info.get("server_name", "Unknown")
+            prompt_lines.append(f"MCP Tools loaded from {server_name} ({len(tools)} tools):")
+            for tool_name, tool_info in tools.items():
+                prompt_lines.append(f"  - {tool_name}: {tool_info.get('description', 'No description')}")
+        else:
+            prompt_lines.append("Additional tools available via MCP integration:")
         prompt_lines.append("")
 
     # Tools Definitions

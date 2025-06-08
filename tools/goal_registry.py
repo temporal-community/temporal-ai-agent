@@ -2,7 +2,7 @@ import os
 from typing import List
 
 import tools.tool_registry as tool_registry
-from models.tool_definitions import AgentGoal
+from models.tool_definitions import AgentGoal, MCPServerDefinition
 
 # Turn on Silly Mode - this should be a description of the persona you'd like the bot to have and can be a single word or a phrase.
 # Example if you want the bot to be a specific person, like Mario or Christopher Walken, or to describe a specific tone:
@@ -455,6 +455,46 @@ goal_ecomm_list_orders = AgentGoal(
     ),
 )
 
+
+# ----- MCP Integrations -----
+goal_mcp_stripe = AgentGoal(
+    id="goal_mcp_stripe",
+    category_tag="mcp-integrations",
+    agent_name="Stripe MCP Agent",
+    agent_friendly_description="Manage Stripe operations via MCP",
+    tools=[],  # Will be populated dynamically
+    mcp_server_definition=MCPServerDefinition(
+        name="stripe-mcp",
+        command="npx",
+        args=[
+            "-y",
+            "@stripe/mcp",
+            "--tools=all",
+            f"--api-key={os.getenv('STRIPE_API_KEY')}",
+        ],
+        env=None,
+        included_tools=["list_customers", "list_products"],
+    ),
+    description="Help manage Stripe operations for customer and product data by using the customers.read and products.read tools.",
+    starter_prompt="Welcome! I can help you read Stripe customer and product information.",
+    example_conversation_history="\n ".join(
+        [
+            "agent: Welcome! I can help you read Stripe customer and product information. What would you like to do first?",
+            "user: what customers are there?",
+            "agent: I'll check for customers now.",
+            "user_confirmed_tool_run: <user clicks confirm on customers.read tool>",
+            'tool_result: { "customers": [{"id": "cus_abc", "name": "Customer A"}, {"id": "cus_xyz", "name": "Customer B"}] }',
+            "agent: I found two customers: Customer A and Customer B. Can I help with anything else?",
+            "user: what products exist?",
+            "agent: Let me get the list of products for you.",
+            "user_confirmed_tool_run: <user clicks confirm on products.read tool>",
+            'tool_result: { "products": [{"id": "prod_123", "name": "Gold Plan"}, {"id": "prod_456", "name": "Silver Plan"}] }',
+            "agent: I found two products: Gold Plan and Silver Plan.",
+        ]
+    ),
+)
+
+
 # Add the goals to a list for more generic processing, like listing available agents
 goal_list: List[AgentGoal] = []
 goal_list.append(goal_choose_agent_type)
@@ -469,6 +509,7 @@ goal_list.append(goal_fin_move_money)
 goal_list.append(goal_fin_loan_application)
 goal_list.append(goal_ecomm_list_orders)
 goal_list.append(goal_ecomm_order_status)
+goal_list.append(goal_mcp_stripe)
 
 
 # for multi-goal, just set list agents as the last tool
