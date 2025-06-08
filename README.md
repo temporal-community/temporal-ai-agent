@@ -42,7 +42,7 @@ This agent acts as an **MCP (Model Context Protocol) client**, enabling seamless
 - **MCP Tools**: External tools accessed via Model Context Protocol (MCP) servers like Stripe, databases, or APIs
 
 ## Setup and Configuration
-See [the Setup guide](./SETUP.md) for detailed instructions. The basic configuration requires just two environment variables:
+See [the Setup guide](./setup.md) for detailed instructions. The basic configuration requires just two environment variables:
 ```bash
 LLM_MODEL=openai/gpt-4o  # or any other model supported by LiteLLM
 LLM_KEY=your-api-key-here
@@ -84,7 +84,7 @@ poetry run pytest --workflow-environment=time-skipping
 
 To contribute to this project, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Start the Temporal Server and API server, see [setup](SETUP.md)
+Start the Temporal Server and API server, see [setup](setup.md)
 
 ## Productionalization & Adding Features
 - In a prod setting, I would need to ensure that payload data is stored separately (e.g. in S3 or a noSQL db - the claim-check pattern), or otherwise 'garbage collected'. Without these techniques, long conversations will fill up the workflow's conversation history, and start to breach Temporal event history payload limits.

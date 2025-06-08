@@ -190,7 +190,7 @@ For detailed architecture information, see [architecture.md](architecture.md).
 - Ensure tests pass before submitting: `poetry run pytest --workflow-environment=time-skipping`
 
 ## Additional Resources
-- **Setup Guide**: [SETUP.md](SETUP.md) - Detailed configuration instructions
+- **Setup Guide**: [setup.md](setup.md) - Detailed configuration instructions
 - **Architecture Decisions**: [architecture-decisions.md](architecture-decisions.md) - Why Temporal for AI agents
 - **Demo Video**: [5-minute YouTube overview](https://www.youtube.com/watch?v=GEXllEH2XiQ)
 - **Multi-Agent Demo**: [Advanced multi-agent execution](https://www.youtube.com/watch?v=8Dc_0dC14yY)

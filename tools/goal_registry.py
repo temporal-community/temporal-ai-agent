@@ -311,7 +311,7 @@ goal_fin_check_account_balances = AgentGoal(
 )
 
 # this tool checks account balances, and uses ./data/customer_account_data.json as dummy data
-# it also uses a separate workflow/tool, see ./SETUP.md for details
+# it also uses a separate workflow/tool, see ./setup.md for details
 goal_fin_move_money = AgentGoal(
     id="goal_fin_move_money",
     category_tag="fin",
@@ -351,7 +351,7 @@ goal_fin_move_money = AgentGoal(
 )
 
 # this starts a loan approval process
-# it also uses a separate workflow/tool, see ./SETUP.md for details
+# it also uses a separate workflow/tool, see ./setup.md for details
 goal_fin_loan_application = AgentGoal(
     id="goal_fin_loan_application",
     category_tag="fin",
