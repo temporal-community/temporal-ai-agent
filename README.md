@@ -39,7 +39,7 @@ For a deeper dive into this, check out the [architecture guide](./architecture.m
 
 This agent acts as an **MCP (Model Context Protocol) client**, enabling seamless integration with external services and tools. The system supports two types of tools:
 - **Native Tools**: Custom tools implemented directly in the codebase (in `/tools/`)
-- **MCP Tools**: External tools accessed via Model Context Protocol (MCP) servers like Stripe, databases, or APIs
+- **MCP Tools**: External tools accessed via Model Context Protocol (MCP) servers like Stripe, databases, or APIs. Configuration is covered in [the Setup guide](./setup.md)
 - Set `AGENT_GOAL=goal_food_ordering` with `SHOW_CONFIRM=False` in `.env` for an example of a goal that calls MCP Tools (Stripe).
 
 ## Setup and Configuration
