@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 from litellm import completion
 from temporalio import activity
 from temporalio.common import RawValue
-from temporalio.converter import PayloadConverter
 from temporalio.exceptions import ApplicationError
 
 from models.data_types import (
@@ -134,10 +133,14 @@ class ToolActivities:
             response = completion(**completion_kwargs)
 
             response_content = response.choices[0].message.content
-            activity.logger.info(f"LLM response: {response_content}")
+            activity.logger.info(f"Raw LLM response: {repr(response_content)}")
+            activity.logger.info(f"LLM response content: {response_content}")
+            activity.logger.info(f"LLM response type: {type(response_content)}")
+            activity.logger.info(f"LLM response length: {len(response_content) if response_content else 'None'}")
 
             # Use the new sanitize function
             response_content = self.sanitize_json_response(response_content)
+            activity.logger.info(f"Sanitized response: {repr(response_content)}")
 
             return self.parse_json_response(response_content)
         except Exception as e:
@@ -217,10 +220,18 @@ class ToolActivities:
                 ) as (read, write):
                     async with ClientSession(read, write) as session:
                         # Initialize the session
+                        activity.logger.info(f"Initializing MCP session for {tool_name}")
                         await session.initialize()
+                        activity.logger.info(f"MCP session initialized for {tool_name}")
 
                         # Call the tool
-                        result = await session.call_tool(tool_name, arguments=tool_args)
+                        activity.logger.info(f"Calling MCP tool {tool_name} with args: {tool_args}")
+                        try:
+                            result = await session.call_tool(tool_name, arguments=tool_args)
+                            activity.logger.info(f"MCP tool {tool_name} returned result: {result}")
+                        except Exception as tool_exc:
+                            activity.logger.error(f"MCP tool {tool_name} call failed: {type(tool_exc).__name__}: {tool_exc}")
+                            raise
 
                         normalized_result = _normalize_result(result)
                         activity.logger.info(f"Tool {tool_name} completed successfully")
@@ -236,16 +247,27 @@ class ToolActivities:
                 raise ApplicationError("TCP connections not yet implemented")
 
             else:
-                raise ApplicationError(f"Unsupported connection type: {connection['type']}")
+                raise ApplicationError(
+                    f"Unsupported connection type: {connection['type']}"
+                )
 
         except Exception as e:
-            activity.logger.error(f"MCP tool {tool_name} failed: {str(e)}")
+            # Handle ExceptionGroup specifically (Python 3.11+ async errors)
+            if hasattr(e, 'exceptions'):
+                # This is an ExceptionGroup - log all sub-exceptions
+                activity.logger.error(f"MCP tool {tool_name} failed with ExceptionGroup:")
+                for i, sub_exc in enumerate(e.exceptions):
+                    activity.logger.error(f"  Sub-exception {i}: {type(sub_exc).__name__}: {sub_exc}")
+                error_msg = f"Multiple errors: {'; '.join(str(ex) for ex in e.exceptions)}"
+            else:
+                activity.logger.error(f"MCP tool {tool_name} failed: {type(e).__name__}: {str(e)}")
+                error_msg = str(e)
 
             # Return error information
             return {
                 "tool": tool_name,
                 "success": False,
-                "error": str(e),
+                "error": error_msg,
                 "error_type": type(e).__name__,
             }
 
@@ -260,11 +282,11 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
 
     # Check if this is an MCP tool call by looking for server_definition in args
     server_definition = tool_args.pop("server_definition", None)
-    
+
     if server_definition:
         # This is an MCP tool call - handle it directly
         activity.logger.info(f"Executing MCP tool: {tool_name}")
-        
+
         connection = _build_connection(server_definition)
 
         try:
@@ -277,13 +299,23 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
                 ) as (read, write):
                     async with ClientSession(read, write) as session:
                         # Initialize the session
+                        activity.logger.info(f"Initializing MCP session for {tool_name}")
                         await session.initialize()
+                        activity.logger.info(f"MCP session initialized for {tool_name}")
 
                         # Call the tool
-                        result = await session.call_tool(tool_name, arguments=tool_args)
+                        activity.logger.info(f"Calling MCP tool {tool_name} with args: {tool_args}")
+                        try:
+                            result = await session.call_tool(tool_name, arguments=tool_args)
+                            activity.logger.info(f"MCP tool {tool_name} returned result: {result}")
+                        except Exception as tool_exc:
+                            activity.logger.error(f"MCP tool {tool_name} call failed: {type(tool_exc).__name__}: {tool_exc}")
+                            raise
 
                         normalized_result = _normalize_result(result)
-                        activity.logger.info(f"MCP tool {tool_name} completed successfully")
+                        activity.logger.info(
+                            f"MCP tool {tool_name} completed successfully"
+                        )
 
                         return {
                             "tool": tool_name,
@@ -293,10 +325,12 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
 
             elif connection["type"] == "tcp":
                 # Handle TCP connection (placeholder for future implementation)
-                raise ApplicationError(f"TCP connections not yet implemented")
+                raise ApplicationError("TCP connections not yet implemented")
 
             else:
-                raise ApplicationError(f"Unsupported connection type: {connection['type']}")
+                raise ApplicationError(
+                    f"Unsupported connection type: {connection['type']}"
+                )
 
         except Exception as e:
             activity.logger.error(f"MCP tool {tool_name} failed: {str(e)}")

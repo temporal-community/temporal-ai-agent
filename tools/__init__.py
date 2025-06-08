@@ -8,6 +8,7 @@ from .fin.get_account_balances import get_account_balance
 from .fin.move_money import move_money
 from .fin.submit_loan_application import submit_loan_application
 from .find_events import find_events
+from .food.add_to_cart import add_to_cart
 from .give_hint import give_hint
 from .guess_location import guess_location
 from .hr.book_pto import book_pto
@@ -66,5 +67,7 @@ def get_handler(tool_name: str):
         return give_hint
     if tool_name == "GuessLocation":
         return guess_location
+    if tool_name == "AddToCart":
+        return add_to_cart
 
     raise ValueError(f"Unknown tool: {tool_name}")

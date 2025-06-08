@@ -41,6 +41,7 @@ def is_mcp_tool(tool_name: str, goal: AgentGoal) -> bool:
         financial_move_money,
         financial_submit_loan_approval,
         find_events_tool,
+        food_add_to_cart_tool,
         future_pto_calc_tool,
         give_hint_tool,
         guess_location_tool,
@@ -73,6 +74,7 @@ def is_mcp_tool(tool_name: str, goal: AgentGoal) -> bool:
         ecomm_list_orders.name,
         ecomm_get_order.name,
         ecomm_track_package.name,
+        food_add_to_cart_tool.name,
     }
 
     return tool_name not in static_tool_names
@@ -106,7 +108,7 @@ async def handle_tool_execution(
                 retry_policy=RetryPolicy(
                     initial_interval=timedelta(seconds=5), backoff_coefficient=1
                 ),
-                summary=f"{current_tool}",
+                summary="MCP Tool ({goal.mcp_server_definition.name})",
             )
         else:
             # Handle regular tools

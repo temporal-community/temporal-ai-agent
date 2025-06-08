@@ -52,7 +52,7 @@ async def main():
             print("===========================================================\n")
 
     print("Worker ready to process tasks!")
-    logging.basicConfig(level=logging.WARN)
+    logging.basicConfig(level=logging.INFO)
 
     # Run the worker
     with concurrent.futures.ThreadPoolExecutor(max_workers=100) as activity_executor:

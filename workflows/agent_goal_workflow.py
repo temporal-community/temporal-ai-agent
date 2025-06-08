@@ -411,7 +411,9 @@ class AgentGoalWorkflow:
         if not self.goal.mcp_server_definition:
             return
 
-        workflow.logger.info(f"Loading MCP tools from server: {self.goal.mcp_server_definition.name}")
+        workflow.logger.info(
+            f"Loading MCP tools from server: {self.goal.mcp_server_definition.name}"
+        )
 
         # Get the list of tools to include (if specified)
         include_tools = self.goal.mcp_server_definition.included_tools
@@ -424,6 +426,7 @@ class AgentGoalWorkflow:
             retry_policy=RetryPolicy(
                 initial_interval=timedelta(seconds=5), backoff_coefficient=1
             ),
+            summary=f"{self.goal.mcp_server_definition.name}",
         )
 
         if mcp_tools_result.get("success", False):
@@ -435,6 +438,7 @@ class AgentGoalWorkflow:
 
             # Convert MCP tools to ToolDefinition objects and add to goal
             from tools.tool_registry import create_mcp_tool_definitions
+
             mcp_tool_definitions = create_mcp_tool_definitions(tools_info)
             self.goal.tools.extend(mcp_tool_definitions)
 
