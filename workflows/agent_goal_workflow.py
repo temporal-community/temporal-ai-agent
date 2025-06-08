@@ -21,9 +21,9 @@ from workflows.workflow_helpers import (
 
 with workflow.unsafe.imports_passed_through():
     from activities.tool_activities import ToolActivities, mcp_list_tools
+    from goals import goal_list
     from models.data_types import CombinedInput, ToolPromptInput
     from prompts.agent_prompt_generators import generate_genai_prompt
-    from goals import goal_list
     from tools.tool_registry import create_mcp_tool_definitions
 
 # Constants

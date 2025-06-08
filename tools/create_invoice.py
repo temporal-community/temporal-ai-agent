@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 
@@ -7,7 +8,7 @@ def ensure_customer_exists(
 ) -> str:
     """Ensure a Stripe customer exists; create one if not."""
     import stripe
-    
+
     if customer_id:
         try:
             stripe.Customer.retrieve(customer_id)
@@ -24,11 +25,11 @@ def ensure_customer_exists(
 def create_invoice(args: dict) -> dict:
     """Create and finalize a Stripe invoice."""
     import stripe
-    
+
     # Load environment variables and configure stripe
     load_dotenv(override=True)
     stripe.api_key = os.getenv("STRIPE_API_KEY")
-    
+
     # If an API key exists in the env file, find or create customer
     if stripe.api_key is not None and stripe.api_key != "":
         customer_id = ensure_customer_exists(

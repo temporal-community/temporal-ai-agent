@@ -1,15 +1,15 @@
 import os
 from typing import List
 
-from goals.agent_selection import agent_selection_goals
-from goals.travel import travel_goals
-from goals.hr import hr_goals
-from goals.finance import finance_goals
-from goals.ecommerce import ecommerce_goals
-from goals.stripe_mcp import mcp_goals
-from goals.food import food_goals
-from models.tool_definitions import AgentGoal
 import tools.tool_registry as tool_registry
+from goals.agent_selection import agent_selection_goals
+from goals.ecommerce import ecommerce_goals
+from goals.finance import finance_goals
+from goals.food import food_goals
+from goals.hr import hr_goals
+from goals.stripe_mcp import mcp_goals
+from goals.travel import travel_goals
+from models.tool_definitions import AgentGoal
 
 goal_list: List[AgentGoal] = []
 goal_list.extend(agent_selection_goals)

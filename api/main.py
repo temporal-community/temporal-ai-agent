@@ -9,9 +9,9 @@ from temporalio.api.enums.v1 import WorkflowExecutionStatus
 from temporalio.client import Client
 from temporalio.exceptions import TemporalError
 
+from goals import goal_list
 from models.data_types import AgentGoalWorkflowParams, CombinedInput
 from shared.config import TEMPORAL_TASK_QUEUE, get_temporal_client
-from goals import goal_list
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 
 app = FastAPI()

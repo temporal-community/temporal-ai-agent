@@ -58,12 +58,15 @@ async def test_flight_booking(client: Client):
 
         @activity.defn(name="mcp_list_tools")
         async def mock_mcp_list_tools(
-            server_definition: MCPServerDefinition, include_tools: Optional[List[str]] = None
+            server_definition: MCPServerDefinition,
+            include_tools: Optional[List[str]] = None,
         ) -> Dict[str, Any]:
             return {"success": True, "tools": {}, "server_name": "test"}
 
         @activity.defn(name="mcp_tool_activity")
-        async def mock_mcp_tool_activity(tool_name: str, tool_args: Dict[str, Any]) -> Dict[str, Any]:
+        async def mock_mcp_tool_activity(
+            tool_name: str, tool_args: Dict[str, Any]
+        ) -> Dict[str, Any]:
             return {"success": True, "result": "Mock MCP tool result"}
 
         @activity.defn(name="dynamic_tool_activity", dynamic=True)

@@ -3,9 +3,7 @@ from typing import List
 import tools.tool_registry as tool_registry
 from models.tool_definitions import AgentGoal
 
-starter_prompt_generic = (
-    "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job."
-)
+starter_prompt_generic = "Welcome me, give me a description of what you can do, then ask me for the details you need to do your job."
 
 goal_fin_check_account_balances = AgentGoal(
     id="goal_fin_check_account_balances",

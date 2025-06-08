@@ -1,10 +1,11 @@
 from dataclasses import dataclass
-from typing import List, Optional, Dict
+from typing import Dict, List, Optional
 
 
 @dataclass
 class MCPServerDefinition:
     """Definition for an MCP (Model Context Protocol) server connection"""
+
     name: str
     command: str
     args: List[str]

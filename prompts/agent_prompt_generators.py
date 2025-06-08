@@ -52,13 +52,19 @@ def generate_genai_prompt(
     # Add MCP server context if present
     if agent_goal.mcp_server_definition:
         prompt_lines.append("=== MCP Server Information ===")
-        prompt_lines.append(f"Connected to MCP Server: {agent_goal.mcp_server_definition.name}")
+        prompt_lines.append(
+            f"Connected to MCP Server: {agent_goal.mcp_server_definition.name}"
+        )
         if mcp_tools_info and mcp_tools_info.get("success", False):
             tools = mcp_tools_info.get("tools", {})
             server_name = mcp_tools_info.get("server_name", "Unknown")
-            prompt_lines.append(f"MCP Tools loaded from {server_name} ({len(tools)} tools):")
+            prompt_lines.append(
+                f"MCP Tools loaded from {server_name} ({len(tools)} tools):"
+            )
             for tool_name, tool_info in tools.items():
-                prompt_lines.append(f"  - {tool_name}: {tool_info.get('description', 'No description')}")
+                prompt_lines.append(
+                    f"  - {tool_name}: {tool_info.get('description', 'No description')}"
+                )
         else:
             prompt_lines.append("Additional tools available via MCP integration:")
         prompt_lines.append("")
