@@ -108,7 +108,7 @@ async def handle_tool_execution(
                 retry_policy=RetryPolicy(
                     initial_interval=timedelta(seconds=5), backoff_coefficient=1
                 ),
-                summary=f"MCP Tool ({goal.mcp_server_definition.name})",
+                summary=f"{goal.mcp_server_definition.name} (MCP Tool)",
             )
         else:
             # Handle regular tools
