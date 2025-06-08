@@ -13,6 +13,7 @@ If you want to show confirmations/enable the debugging UI that shows tool args, 
 ```bash
 SHOW_CONFIRM=True
 ```
+We recommend setting this to `False` in most cases, as it can clutter the conversation with confirmation messages.
 
 ### Quick Start with Makefile
 
@@ -43,7 +44,7 @@ make help
 
 ### Manual Setup (Alternative to Makefile)
 
-If you prefer to run commands manually, follow these steps:
+If you prefer to run commands manually, see the sections below for detailed instructions on setting up the backend, frontend, and other components.
 
 ### Agent Goal Configuration
 
@@ -53,6 +54,13 @@ If the first goal is `goal_choose_agent_type` the agent will support multiple go
 ```bash
 GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
 ```
+
+To set a single goal, set `AGENT_GOAL` to the desired goal name. For example:
+```bash
+AGENT_GOAL=goal_event_flight_invoice
+```
+
+MCP (Model Context Protocol) tools are available for enhanced integration with external services. See the [MCP Tools Configuration](#mcp-tools-configuration) section for setup details.
 
 See the section Goal-Specific Tool Configuration below for tool configuration for specific goals.
 
@@ -169,6 +177,35 @@ npx vite
 Access the UI at `http://localhost:5173`
 
 
+## MCP Tools Configuration
+
+MCP (Model Context Protocol) tools enable integration with external services without custom implementation. The system automatically handles MCP server lifecycle and tool discovery.
+
+### Adding MCP Tools to Goals
+Configure MCP servers in your goal definitions using either:
+1. Predefined configurations from `shared/mcp_config.py`
+2. Custom `MCPServerDefinition` objects
+
+Example using Stripe MCP Server:
+```python
+from shared.mcp_config import get_stripe_mcp_server_definition
+
+mcp_server_definition=get_stripe_mcp_server_definition(
+    included_tools=["list_products", "create_customer", "create_invoice"]
+)
+```
+
+See the file `goals/stripe_mcp.py` for an example of how to use MCP tools in a an `AgentGoal`.
+
+### MCP Environment Variables
+Set required API keys and configuration in your `.env` file:
+```bash
+# For Stripe MCP Server
+STRIPE_API_KEY=sk_test_your_stripe_key_here
+```
+
+For detailed guidance on adding MCP tools, see [adding-goals-and-tools.md](./adding-goals-and-tools.md).
+
 ## Goal-Specific Tool Configuration
 Here is configuration guidance for specific goals. Travel and financial goals have configuration & setup as below.
 ### Goal: Find an event in Australia / New Zealand, book flights to it and invoice the user for the cost
@@ -250,12 +287,18 @@ Make sure you have the mock users you want in (such as yourself) in [the PTO moc
 #### Goals: Ecommerce
 Make sure you have the mock orders you want in (such as those with real tracking numbers) in [the mock orders file](./tools/data/customer_order_data.json).
 
+### Goal: Food Ordering with MCP Integration (Stripe Payment Processing)
+- `AGENT_GOAL=goal_food_ordering` - Demonstrates food ordering with Stripe payment processing via MCP
+    - Uses Stripe's MCP Server ([Agent Toolkit](https://github.com/stripe/agent-toolkit/tree/main/modelcontextprotocol)) for payment operations
+    - Requires `STRIPE_API_KEY` in your `.env` file
+    - Example of MCP tool integration without custom implementation
+    - This is an excellent demonstration of MCP (Model Context Protocol) capabilities
+
 
 ## Customizing the Agent Further
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
-- `goal_registry.py` contains descriptions of goals and the tools used to achieve them
+- `goals/` contains descriptions of goals and the tools used to achieve them
 - The tools themselves are defined in their own files in `/tools`
-- Note the mapping in `tools/__init__.py` to each tool
 
 For more details, check out [adding goals and tools guide](./adding-goals-and-tools.md).
 

@@ -1,10 +1,6 @@
 # Temporal AI Agent
 
-This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The purpose of the agent is to collect information towards a goal, running tools along the way. 
-
-The system supports two types of tools:
-- **Native Tools**: Custom tools implemented directly in the codebase (in `/tools/`)
-- **MCP Tools**: External tools accessed via Model Context Protocol (MCP) servers like Stripe, databases, or APIs
+This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The purpose of the agent is to collect information towards a goal, running tools along the way. The agent supports both native tools and Model Context Protocol (MCP) tools, allowing it to interact with external services.
 
 Goals are organized in the `/goals/` directory by category (finance, HR, travel, ecommerce, etc.) and can leverage both native and MCP tools.
 
@@ -38,6 +34,12 @@ These are the key elements of an agentic framework:
 7. Ideally high durability (done in this system with Temporal Workflow and Activities)
 
 For a deeper dive into this, check out the [architecture guide](./architecture.md).
+
+## 🔧 MCP Tool Calling Support
+
+This agent acts as an **MCP (Model Context Protocol) client**, enabling seamless integration with external services and tools. The system supports two types of tools:
+- **Native Tools**: Custom tools implemented directly in the codebase (in `/tools/`)
+- **MCP Tools**: External tools accessed via Model Context Protocol (MCP) servers like Stripe, databases, or APIs
 
 ## Setup and Configuration
 See [the Setup guide](./SETUP.md) for detailed instructions. The basic configuration requires just two environment variables:
