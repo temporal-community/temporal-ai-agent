@@ -1,6 +1,6 @@
 import os
 
-import tools.goal_registry as goals
+import goals
 
 
 def list_agents(args: dict) -> dict:

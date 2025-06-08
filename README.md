@@ -1,6 +1,12 @@
 # Temporal AI Agent
 
-This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The purpose of the agent is to collect information towards a goal, running tools along the way. There's a simple DSL input for collecting information (currently set up to use mock functions to search for public events, search for flights around those events, then create a test Stripe invoice for the trip).
+This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The purpose of the agent is to collect information towards a goal, running tools along the way. 
+
+The system supports two types of tools:
+- **Native Tools**: Custom tools implemented directly in the codebase (in `/tools/`)
+- **MCP Tools**: External tools accessed via Model Context Protocol (MCP) servers like Stripe, databases, or APIs
+
+Goals are organized in the `/goals/` directory by category (finance, HR, travel, ecommerce, etc.) and can leverage both native and MCP tools.
 
 The AI will respond with clarifications and ask for any missing information to that goal. You can configure it to use any LLM supported by [LiteLLM](https://docs.litellm.ai/docs/providers), including:
 - OpenAI models (GPT-4, GPT-3.5)
@@ -41,7 +47,9 @@ LLM_KEY=your-api-key-here
 ```
 
 ## Customizing Interaction & Tools
-See [the guide to adding goals and tools](./adding-goals-and-tools.md).
+See [the guide to adding goals and tools](./adding-goals-and-tools.md). 
+
+The system supports MCP (Model Context Protocol) for easy integration with external services. MCP server configurations are managed in `shared/mcp_config.py`, and goals are organized by category in the `/goals/` directory.
 
 ## Architecture
 See [the architecture guide](./architecture.md).

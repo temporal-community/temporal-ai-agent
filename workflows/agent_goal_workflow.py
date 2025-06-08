@@ -23,7 +23,8 @@ with workflow.unsafe.imports_passed_through():
     from activities.tool_activities import ToolActivities, mcp_list_tools
     from models.data_types import CombinedInput, ToolPromptInput
     from prompts.agent_prompt_generators import generate_genai_prompt
-    from tools.goal_registry import goal_list
+    from goals import goal_list
+    from tools.tool_registry import create_mcp_tool_definitions
 
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
@@ -437,8 +438,6 @@ class AgentGoalWorkflow:
             self.mcp_tools_info = mcp_tools_result
 
             # Convert MCP tools to ToolDefinition objects and add to goal
-            from tools.tool_registry import create_mcp_tool_definitions
-
             mcp_tool_definitions = create_mcp_tool_definitions(tools_info)
             self.goal.tools.extend(mcp_tool_definitions)
 

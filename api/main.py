@@ -11,7 +11,7 @@ from temporalio.exceptions import TemporalError
 
 from models.data_types import AgentGoalWorkflowParams, CombinedInput
 from shared.config import TEMPORAL_TASK_QUEUE, get_temporal_client
-from tools.goal_registry import goal_list
+from goals import goal_list
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 
 app = FastAPI()

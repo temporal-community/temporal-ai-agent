@@ -206,8 +206,9 @@ class ToolActivities:
         """MCP Tool"""
         activity.logger.info(f"Executing MCP tool: {tool_name} with args: {tool_args}")
 
-        # Extract server definition
+        # Extract server definition and convert argument types
         server_definition = tool_args.pop("server_definition", None)
+        converted_args = _convert_args_types(tool_args)
         connection = _build_connection(server_definition)
 
         try:
@@ -225,9 +226,9 @@ class ToolActivities:
                         activity.logger.info(f"MCP session initialized for {tool_name}")
 
                         # Call the tool
-                        activity.logger.info(f"Calling MCP tool {tool_name} with args: {tool_args}")
+                        activity.logger.info(f"Calling MCP tool {tool_name} with args: {converted_args}")
                         try:
-                            result = await session.call_tool(tool_name, arguments=tool_args)
+                            result = await session.call_tool(tool_name, arguments=converted_args)
                             activity.logger.info(f"MCP tool {tool_name} returned result: {result}")
                         except Exception as tool_exc:
                             activity.logger.error(f"MCP tool {tool_name} call failed: {type(tool_exc).__name__}: {tool_exc}")
@@ -287,6 +288,8 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
         # This is an MCP tool call - handle it directly
         activity.logger.info(f"Executing MCP tool: {tool_name}")
 
+        # Convert argument types for MCP tools
+        converted_args = _convert_args_types(tool_args)
         connection = _build_connection(server_definition)
 
         try:
@@ -304,9 +307,9 @@ async def dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
                         activity.logger.info(f"MCP session initialized for {tool_name}")
 
                         # Call the tool
-                        activity.logger.info(f"Calling MCP tool {tool_name} with args: {tool_args}")
+                        activity.logger.info(f"Calling MCP tool {tool_name} with args: {converted_args}")
                         try:
-                            result = await session.call_tool(tool_name, arguments=tool_args)
+                            result = await session.call_tool(tool_name, arguments=converted_args)
                             activity.logger.info(f"MCP tool {tool_name} returned result: {result}")
                         except Exception as tool_exc:
                             activity.logger.error(f"MCP tool {tool_name} call failed: {type(tool_exc).__name__}: {tool_exc}")
@@ -394,6 +397,36 @@ def _normalize_result(result: Any) -> Any:
             ]
         return str(result.content)
     return result
+
+
+def _convert_args_types(tool_args: Dict[str, Any]) -> Dict[str, Any]:
+    """Convert string arguments to appropriate types for MCP tools"""
+    converted_args = {}
+    
+    for key, value in tool_args.items():
+        if key == "server_definition":
+            # Skip server_definition - it's metadata
+            continue
+            
+        if isinstance(value, str):
+            # Try to convert string values to appropriate types
+            if value.isdigit():
+                # Convert numeric strings to integers
+                converted_args[key] = int(value)
+            elif value.replace('.', '').isdigit() and value.count('.') == 1:
+                # Convert decimal strings to floats
+                converted_args[key] = float(value)
+            elif value.lower() in ('true', 'false'):
+                # Convert boolean strings
+                converted_args[key] = value.lower() == 'true'
+            else:
+                # Keep as string
+                converted_args[key] = value
+        else:
+            # Keep non-string values as-is
+            converted_args[key] = value
+    
+    return converted_args
 
 
 @asynccontextmanager

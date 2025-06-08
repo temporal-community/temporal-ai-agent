@@ -16,7 +16,7 @@ Even if you don't intend to use the goal in a multi-goal scenario, goal categori
 4. Use it in your Goal definition, see below.
 
 ## Adding a Goal
-1.  Open [/tools/goal_registry.py](tools/goal_registry.py) - this file contains descriptions of goals and the tools used to achieve them
+1. Create a new Python file in the `/goals/` directory (e.g., `goals/my_category.py`) - these files contain descriptions of goals and the tools used to achieve them
 2. Pick a name for your goal! (such as "goal_hr_schedule_pto")
 3. Fill out the required elements:
 -  `id`: needs to be the same as the name
@@ -33,11 +33,14 @@ tools=[
     tool_registry.book_pto_tool,
 ]
 ```
-- `mcp_server_definition`: (Optional) MCP server configuration for external tools. See [MCP Tools section](#adding-mcp-tools) below.
+- `mcp_server_definition`: (Optional) MCP server configuration for external tools. Can use predefined configurations from `shared/mcp_config.py` or define custom ones. See [MCP Tools section](#adding-mcp-tools) below.
 - `description`: LLM-facing description of the goal that lists all tools (native and MCP) by name and purpose.
 - `starter_prompt`: LLM-facing first prompt given to begin the scenario. This field can contain instructions that are different from other goals, like "begin by providing the output of the first tool" rather than waiting on user confirmation. (See [goal_choose_agent_type](tools/goal_registry.py) for an example.)
 - `example_conversation_history`: LLM-facing sample conversation/interaction regarding the goal. See the existing goals for how to structure this.
-4. Add your new goal to the `goal_list` at the bottom using `goal_list.append(your_super_sweet_new_goal)`
+4. Add your new goal to a list variable (e.g., `my_category_goals: List[AgentGoal] = [your_super_sweet_new_goal]`)
+5. Import and extend the goal list in `goals/__init__.py` by adding:
+   - Import: `from goals.my_category import my_category_goals`
+   - Extend: `goal_list.extend(my_category_goals)`
 
 ## Adding Native Tools
 
@@ -87,7 +90,18 @@ if tool_name == "CurrentPTO":
 MCP (Model Context Protocol) tools are external tools provided by MCP servers. They're useful for integrating with third-party services like Stripe, databases, or APIs without implementing custom code.
 
 ### Configure MCP Server Definition
-Add an `mcp_server_definition` to your goal in [tools/goal_registry.py](tools/goal_registry.py):
+You can either use predefined MCP server configurations from `shared/mcp_config.py` or define custom ones. 
+
+#### Using Predefined Configurations
+```python
+from shared.mcp_config import get_stripe_mcp_server_definition
+
+# In your goal definition:
+mcp_server_definition=get_stripe_mcp_server_definition(included_tools=["list_products", "create_customer"])
+```
+
+#### Custom MCP Server Definition
+Add an `mcp_server_definition` to your goal:
 
 ```python
 mcp_server_definition=MCPServerDefinition(
@@ -142,9 +156,10 @@ I recommend exploring all three. For a demo, I would decide if you want the Argu
 ## Add a Goal & Tools Checklist
 
 ### For All Goals:
-- [ ] Add goal in [/tools/goal_registry.py](tools/goal_registry.py)
+- [ ] Create goal file in `/goals/` directory (e.g., `goals/my_category.py`)
+- [ ] Add goal to the category's goal list in the file
+- [ ] Import and extend the goal list in `goals/__init__.py`
 - [ ] If a new category, add Goal Category to [.env](./.env) and [.env.example](./.env.example)
-- [ ] Don't forget to add the goal to `goal_list` at the bottom of [goal_registry.py](tools/goal_registry.py)
 
 ### For Native Tools:
 - [ ] Add native tools to [tool_registry.py](tools/tool_registry.py)
@@ -153,9 +168,10 @@ I recommend exploring all three. For a demo, I would decide if you want the Argu
 - [ ] Add tool names to static tools list in [workflows/workflow_helpers.py](workflows/workflow_helpers.py)
 
 ### For MCP Tools:
-- [ ] Add `mcp_server_definition` to your goal configuration
+- [ ] Add `mcp_server_definition` to your goal configuration (use `shared/mcp_config.py` for common servers)
 - [ ] Ensure MCP server is available and properly configured
 - [ ] Set required environment variables (API keys, etc.)
 - [ ] Test MCP server connectivity before running the agent
+- [ ] If creating new MCP server configs, add them to `shared/mcp_config.py` for reuse
 
 And that's it! Happy AI Agent building!
