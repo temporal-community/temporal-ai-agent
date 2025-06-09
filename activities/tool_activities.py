@@ -210,7 +210,7 @@ class ToolActivities:
 
         # Extract server definition
         server_definition = tool_args.pop("server_definition", None)
-        
+
         return await _execute_mcp_tool(tool_name, tool_args, server_definition)
 
 
@@ -314,11 +314,13 @@ def _convert_args_types(tool_args: Dict[str, Any]) -> Dict[str, Any]:
 
 
 async def _execute_mcp_tool(
-    tool_name: str, tool_args: Dict[str, Any], server_definition: MCPServerDefinition | Dict[str, Any] | None
+    tool_name: str,
+    tool_args: Dict[str, Any],
+    server_definition: MCPServerDefinition | Dict[str, Any] | None,
 ) -> Dict[str, Any]:
     """Execute an MCP tool with the given arguments and server definition"""
     activity.logger.info(f"Executing MCP tool: {tool_name}")
-    
+
     # Convert argument types for MCP tools
     converted_args = _convert_args_types(tool_args)
     connection = _build_connection(server_definition)
@@ -333,9 +335,7 @@ async def _execute_mcp_tool(
             ) as (read, write):
                 async with ClientSession(read, write) as session:
                     # Initialize the session
-                    activity.logger.info(
-                        f"Initializing MCP session for {tool_name}"
-                    )
+                    activity.logger.info(f"Initializing MCP session for {tool_name}")
                     await session.initialize()
                     activity.logger.info(f"MCP session initialized for {tool_name}")
 
@@ -357,9 +357,7 @@ async def _execute_mcp_tool(
                         raise
 
                     normalized_result = _normalize_result(result)
-                    activity.logger.info(
-                        f"MCP tool {tool_name} completed successfully"
-                    )
+                    activity.logger.info(f"MCP tool {tool_name} completed successfully")
 
                     return {
                         "tool": tool_name,
@@ -372,9 +370,7 @@ async def _execute_mcp_tool(
             raise ApplicationError("TCP connections not yet implemented")
 
         else:
-            raise ApplicationError(
-                f"Unsupported connection type: {connection['type']}"
-            )
+            raise ApplicationError(f"Unsupported connection type: {connection['type']}")
 
     except Exception as e:
         activity.logger.error(f"MCP tool {tool_name} failed: {str(e)}")

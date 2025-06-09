@@ -115,7 +115,7 @@ def generate_genai_prompt(
         "  }\n"
         "}\n\n"
         "INVALID EXAMPLE: 'Thank you for providing... {\"response\": ...}'\n"
-        "VALID EXAMPLE: '{\"response\": \"Thank you for providing...\", \"next\": ...}'"
+        'VALID EXAMPLE: \'{"response": "Thank you for providing...", "next": ...}\''
     )
     prompt_lines.append(
         "DECISION LOGIC (follow this exact order):\n"
@@ -170,7 +170,9 @@ def generate_genai_prompt(
     prompt_lines.append("RESPOND WITH VALID JSON ONLY. NO ADDITIONAL TEXT.")
     prompt_lines.append("")
     if raw_json is not None:
-        prompt_lines.append("Validate the provided JSON and return ONLY corrected JSON.")
+        prompt_lines.append(
+            "Validate the provided JSON and return ONLY corrected JSON."
+        )
     else:
         prompt_lines.append(
             "Return ONLY a valid JSON response. Start with '{' and end with '}'."
