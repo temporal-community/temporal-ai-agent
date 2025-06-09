@@ -79,15 +79,20 @@ Default URLs:
 Copy `.env.example` to `.env` and configure:
 ```bash
 # Required: LLM Configuration
-LLM_MODEL=openai/gpt-4o          # or anthropic/claude-3-sonnet, etc.
+LLM_MODEL=openai/gpt-4o
 LLM_KEY=your-api-key-here
+# LLM_MODEL=anthropic/claude-3-5-sonnet-20240620
+# LLM_KEY=${ANTHROPIC_API_KEY}
+# LLM_MODEL=gemini/gemini-2.5-flash-preview-04-17
+# LLM_KEY=${GOOGLE_API_KEY}
 
 # Optional: Agent Goals and Categories  
 AGENT_GOAL=goal_choose_agent_type
-GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
+GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin,ecommerce,mcp-integrations,food
 
 # Optional: Tool-specific APIs
 STRIPE_API_KEY=sk_test_...       # For invoice creation
+# `goal_event_flight_invoice` works without this key – it falls back to a mock invoice if unset
 FOOTBALL_DATA_API_KEY=...        # For real football fixtures
 ```
 

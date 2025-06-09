@@ -65,7 +65,8 @@ The agent also supports an experimental multi-agent mode where users can choose 
 AGENT_GOAL=goal_choose_agent_type
 ```
 
-When using multi-agent mode, you can control which agent categories are available using `GOAL_CATEGORIES` in your .env file. If unset, all categories are shown. We recommend starting with `fin`:
+When using multi-agent mode, you can control which agent categories are available using `GOAL_CATEGORIES` in your `.env` file. If unset, all categories are shown. Available categories include `hr`, `travel-flights`, `travel-trains`, `fin`, `ecommerce`, `mcp-integrations`, and `food`.
+We recommend starting with `fin`:
 ```bash
 GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
 ```
@@ -215,6 +216,10 @@ Set required API keys and configuration in your `.env` file:
 # For Stripe MCP Server
 STRIPE_API_KEY=sk_test_your_stripe_key_here
 ```
+`goal_event_flight_invoice` does not require a Stripe key. If `STRIPE_API_KEY` is unset, that scenario falls back to a mock invoice.
+
+#### Accessing Your Test API Keys
+It's free to sign up for a Stripe account and generate test keys (no real money is involved). Use the Developers Dashboard to create, reveal, delete, and rotate API keys. Navigate to the API Keys tab in your dashboard or visit [https://dashboard.stripe.com/test/apikeys](https://dashboard.stripe.com/test/apikeys) directly.
 
 For detailed guidance on adding MCP tools, see [adding-goals-and-tools.md](./adding-goals-and-tools.md).
 
@@ -232,10 +237,10 @@ Here is configuration guidance for specific goals. Travel and financial goals ha
         * It's free to sign up at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
         * This API might be slow to respond, so you may want to increase the start to close timeout, `TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT` in `workflows/workflow_helpers.py`
     * The smart generation creates realistic pricing (e.g., US-Australia routes $1200-1800, domestic flights $200-800) with appropriate airlines for each region
-* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
-    * It's free to sign up and get a key at [Stripe](https://stripe.com/)
+* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in `.env`
+* It's free to sign up and get a key at [Stripe](https://stripe.com/) (test mode only, no real money)
         * Set permissions for read-write on: `Credit Notes, Invoices, Customers and Customer Sessions`
-    * If you don't have a Stripe key, comment out the STRIPE_API_KEY in the .env file, and a dummy invoice will be created rather than a Stripe invoice. The function can be found in `tools/create_invoice.py`
+* If you don't have a Stripe key, comment out the `STRIPE_API_KEY` in the `.env` file, and a dummy invoice will be created rather than a Stripe invoice. The function can be found in `tools/create_invoice.py` – this is the default behavior for `goal_event_flight_invoice`.
 
 ### Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost (Replay 2025 Keynote)
 - `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
@@ -246,8 +251,9 @@ NOTE: This goal was developed for an on-stage demo and has failure (and its reso
 * Omit `FOOTBALL_DATA_API_KEY` from .env for the `SearchFixtures` tool to automatically return mock Premier League fixtures. Finding a real match requires a key from [Football Data](https://www.football-data.org). Sign up for a free account, then see the 'My Account' page to get your API token.
 * We use a mock function to search for trains. Start the train API server to use the real API: `python thirdparty/train_api.py`
 * * The train activity is 'enterprise' so it's written in C# and requires a .NET runtime. See the [.NET backend](#net-(enterprise)-backend) section for details on running it.
-* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
-    * It's free to sign up and get a key at [Stripe](https://stripe.com/)
+* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in `.env`
+    * It's free to sign up and get a key at [Stripe](https://stripe.com/) (test mode only)
+    * If the key is missing this goal won't generate a real invoice – only `goal_event_flight_invoice` falls back to a mock invoice
     * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
 
 ##### Python Search Trains API
