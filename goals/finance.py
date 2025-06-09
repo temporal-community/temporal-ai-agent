@@ -31,7 +31,7 @@ goal_fin_check_account_balances = AgentGoal(
             "agent: Your account balances are as follows: \\n "
             "Checking: $875.40. \\n "
             "Savings: $3200.15. \\n "
-            "Bitcoint: 0.1378 \\n "
+            "Bitcoin: 0.1378 \\n "
             "Thanks for being a customer since 2014!",
         ]
     ),
