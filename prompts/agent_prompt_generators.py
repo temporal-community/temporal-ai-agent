@@ -23,7 +23,8 @@ def generate_genai_prompt(
     # Intro / Role
     prompt_lines.append(
         "You are an AI agent that helps fill required arguments for the tools described below. "
-        "You must respond with valid JSON ONLY, using the schema provided in the instructions."
+        "CRITICAL: You must respond with ONLY valid JSON using the exact schema provided. "
+        "DO NOT include any text before or after the JSON. Your entire response must be parseable JSON."
     )
 
     # Main Conversation History
@@ -97,9 +98,12 @@ def generate_genai_prompt(
     )
 
     # JSON Format Instructions
-    prompt_lines.append("=== Instructions for JSON Generation ===")
+    prompt_lines.append("=== CRITICAL: JSON-ONLY RESPONSE FORMAT ===")
     prompt_lines.append(
-        "Your JSON format must be:\n"
+        "MANDATORY: Your response must be ONLY valid JSON with NO additional text.\n"
+        "NO explanations, NO comments, NO text before or after the JSON.\n"
+        "Your entire response must start with '{' and end with '}'.\n\n"
+        "Required JSON format:\n"
         "{\n"
         '  "response": "<plain text>",\n'
         '  "next": "<question|confirm|pick-new-goal|done>",\n'
@@ -109,7 +113,9 @@ def generate_genai_prompt(
         '    "<arg2>": "<value2 or null>",\n'
         "    ...\n"
         "  }\n"
-        "}"
+        "}\n\n"
+        "INVALID EXAMPLE: 'Thank you for providing... {\"response\": ...}'\n"
+        "VALID EXAMPLE: '{\"response\": \"Thank you for providing...\", \"next\": ...}'"
     )
     prompt_lines.append(
         "DECISION LOGIC (follow this exact order):\n"
@@ -129,6 +135,8 @@ def generate_genai_prompt(
         f"   - If complete -> {generate_toolchain_complete_guidance()}\n"
         "   - If not complete -> identify next needed tool, go to step 2\n\n"
         "CRITICAL RULES:\n"
+        "• RESPOND WITH JSON ONLY - NO TEXT BEFORE OR AFTER THE JSON OBJECT\n"
+        "• Your response must start with '{' and end with '}' - nothing else\n"
         "• NEVER set next='question' without asking an actual question in your response\n"
         "• NEVER set tool=null when you're announcing you'll run a specific tool\n"
         "• If response contains 'let's proceed to get pricing' -> next='confirm', tool='list_prices'\n"
@@ -158,11 +166,14 @@ def generate_genai_prompt(
 
     # Prompt Start
     prompt_lines.append("")
+    prompt_lines.append("=== FINAL REMINDER ===")
+    prompt_lines.append("RESPOND WITH VALID JSON ONLY. NO ADDITIONAL TEXT.")
+    prompt_lines.append("")
     if raw_json is not None:
-        prompt_lines.append("Begin by validating the provided JSON if necessary.")
+        prompt_lines.append("Validate the provided JSON and return ONLY corrected JSON.")
     else:
         prompt_lines.append(
-            "Begin by producing a valid JSON response for the next tool or question."
+            "Return ONLY a valid JSON response. Start with '{' and end with '}'."
         )
 
     return "\n".join(prompt_lines)
