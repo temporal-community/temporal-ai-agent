@@ -119,7 +119,7 @@ poetry run pytest --cov=workflows --cov=activities
 - ✅ **Integration Tests**: End-to-end workflow and activity execution
 
 **Documentation:**
-- **Quick Start**: [TESTING.md](TESTING.md) - Simple commands to run tests
+- **Quick Start**: [testing.md](docs/testing.md) - Simple commands to run tests
 - **Comprehensive Guide**: [tests/README.md](tests/README.md) - Detailed testing patterns and best practices
 
 ## Linting and Code Quality
@@ -169,11 +169,11 @@ Goals can use:
 - **Native Tools**: Custom implementations in `/tools/` directory
 - **MCP Tools**: External tools via Model Context Protocol servers (configured in `shared/mcp_config.py`)
 
-See [adding-goals-and-tools.md](adding-goals-and-tools.md) for detailed customization guide.
+See [adding-goals-and-tools.md](docs/adding-goals-and-tools.md) for detailed customization guide.
 
 ## Architecture
 
-This system implements "Agentic AI" with these key components:
+This system implements agentic AI—autonomous systems that pursue goals through iterative tool use and human feedback—with these key components:
 1. **Goals** - High-level objectives accomplished through tool sequences (organized in `/goals/` by category)
 2. **Native & MCP Tools** - Custom implementations and external service integrations
 3. **Agent Loops** - LLM execution → tool calls → human input → repeat until goal completion
@@ -181,7 +181,7 @@ This system implements "Agentic AI" with these key components:
 5. **Conversation Management** - LLM-powered input validation and history summarization
 6. **Durability** - Temporal workflows ensure reliable execution across failures
 
-For detailed architecture information, see [architecture.md](architecture.md).
+For detailed architecture information, see [architecture.md](docs/architecture.md).
 
 ## Commit Messages and Pull Requests
 - Use clear commit messages describing the change purpose
@@ -190,7 +190,7 @@ For detailed architecture information, see [architecture.md](architecture.md).
 - Ensure tests pass before submitting: `poetry run pytest --workflow-environment=time-skipping`
 
 ## Additional Resources
-- **Setup Guide**: [setup.md](setup.md) - Detailed configuration instructions
-- **Architecture Decisions**: [architecture-decisions.md](architecture-decisions.md) - Why Temporal for AI agents
+- **Setup Guide**: [setup.md](docs/setup.md) - Detailed configuration instructions
+- **Architecture Decisions**: [architecture-decisions.md](docs/architecture-decisions.md) - Why Temporal for AI agents
 - **Demo Video**: [5-minute YouTube overview](https://www.youtube.com/watch?v=GEXllEH2XiQ)
 - **Multi-Agent Demo**: [Advanced multi-agent execution](https://www.youtube.com/watch?v=8Dc_0dC14yY)

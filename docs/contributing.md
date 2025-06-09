@@ -1,6 +1,6 @@
 # Contributing to the Temporal AI Agent Project
 
-This document provides guidelines for contributing to `temporal-ai-agent`. All setup and installation instructions can be found in [./setup.md](./setup.md).
+This document provides guidelines for contributing to `temporal-ai-agent`. All setup and installation instructions can be found in [setup.md](./setup.md).
 
 ## Getting Started
 
@@ -45,8 +45,8 @@ Comprehensive testing is crucial for this project. We use `pytest` and Temporal'
     ```
 
 For detailed information on test categories, running specific tests, test environments, coverage, and troubleshooting, please refer to:
--   [TESTING.md](./TESTING.md) (Quick Start and overview)
--   [tests/README.md](./tests/README.md) (Comprehensive guide, patterns, and best practices)
+-   [testing.md](./testing.md) (Quick Start and overview)
+-   [tests/README.md](../tests/README.md) (Comprehensive guide, patterns, and best practices)
 
 **Ensure all tests pass before submitting a pull request.**
 
@@ -57,7 +57,7 @@ If you're looking to extend the agent's capabilities:
 1.  Create your tool implementation in the `tools/` directory.
 2.  Register your tool and associate it with relevant goals.
 For detailed instructions, please see:
--   [Agent Customization in agents.md](./agents.md#agent-customization)
+-   [Agent Customization in AGENTS.md](../AGENTS.md#agent-customization)
 -   [Adding Goals and Tools Guide](./adding-goals-and-tools.md)
 
 ### General Code Changes
@@ -96,10 +96,10 @@ We welcome suggestions for new features or improvements!
     -   Include any potential implementation ideas if you have them.
 
 ## Key Resources
--   **Project Overview**: [README.md](./README.md)
--   **Detailed Contribution & Development Guide**: [agents.md](./agents.md)
+-   **Project Overview**: [README.md](../README.md)
+-   **Detailed Contribution & Development Guide**: [AGENTS.md](../AGENTS.md)
 -   **Setup Instructions**: [setup.md](./setup.md)
--   **Comprehensive Testing Guide**: [TESTING.md](./TESTING.md) and [tests/README.md](./tests/README.md)
+-   **Comprehensive Testing Guide**: [testing.md](./testing.md) and [tests/README.md](../tests/README.md)
 -   **System Architecture**: [architecture.md](./architecture.md)
 -   **Architecture Decisions**: [architecture-decisions.md](./architecture-decisions.md)
 -   **Customizing Agent Tools and Goals**: [adding-goals-and-tools.md](./adding-goals-and-tools.md)
