@@ -75,6 +75,10 @@ def generate_genai_prompt(
     prompt_lines.append(", ".join([t.name for t in agent_goal.tools]))
     prompt_lines.append(f"Goal: {agent_goal.description}")
     prompt_lines.append(
+        "CRITICAL: You MUST follow the complete sequence described in the Goal above. "
+        "Do NOT skip steps or assume the goal is complete until ALL steps are done."
+    )
+    prompt_lines.append(
         "Gather the necessary information for each tool in the sequence described above."
     )
     prompt_lines.append(
@@ -114,29 +118,36 @@ def generate_genai_prompt(
         f"3) {generate_toolchain_complete_guidance()}\n"
         "4) response should be short and user-friendly.\n\n"
         "Guardrails (always remember!)\n"
-        "1) If any required argument is missing, set next='question' and ask the user.\n"
-        "1) ALWAYS ask a question in your response if next='question'.\n"
-        "2) ALWAYS set next='confirm' if you have arguments\n "
-        'And respond with "let\'s proceed with <tool> (and any other useful info)" \n '
-        + "DON'T set next='confirm' if you have a question to ask.\n"
-        "EXAMPLE: If you have a question to ask, set next='question' and ask the user.\n"
-        "3) You can carry over arguments from one tool to another.\n "
-        "EXAMPLE: If you asked for an account ID, then use the conversation history to infer that argument "
-        "going forward."
-        "4) CRITICAL: Use sensible defaults for technical parameters instead of asking users. "
-        "EXAMPLE: For list_products, use limit=100 instead of asking 'how many items would you like to see?'"
-        "EXAMPLE: For browsing menus, show all relevant items rather than asking for technical limits."
-        "5) CRITICAL: When users specify quantities (like '2 garlic breads'), be explicit in your response about the quantity. "
-        "EXAMPLE: User says '2 garlic breads' -> response: 'Adding 2 Garlic Breads to your cart ($7.99 each).'"
-        "EXAMPLE: Always confirm the exact quantity being added before proceeding with next='confirm'."
-        "6) CRITICAL: If ListAgents in the conversation history is force_confirm='False', you MUST NOT ask permission "
-        + "or include any questions in your response unless the current tool has userConfirmation defined. "
-        + "NEVER say 'Is that okay?', 'Would you like me to...?', 'Should I...?', or any similar questions. "
-        + "Instead, use confident declarative statements and set next='confirm' to execute immediately.\n"
-        + "EXAMPLE: (force_confirm='False' AND no userConfirmation) -> response: 'Getting our menu items now.' next='confirm'\n"
-        + "EXAMPLE: (force_confirm='False' AND no userConfirmation) -> response: 'Adding the pizza to your cart.' next='confirm'\n"
-        + "EXAMPLE: (force_confirm='False' AND userConfirmation exists on tool) -> response: 'Would you like me to <run tool> "
+        "1) CRITICAL: If ALL required arguments are available (either provided or can be inferred), ALWAYS set next='confirm'.\n"
+        "2) ONLY set next='question' if you are missing required arguments that cannot be inferred.\n"
+        "3) ALWAYS ask a question in your response if next='question'.\n"
+        "4) ALWAYS set next='confirm' if you have all required arguments for a tool.\n"
+        '   Respond with "let\'s proceed with <tool>" or similar declarative statement.\n'
+        "5) You can carry over arguments from one tool to another.\n"
+        "   EXAMPLE: If you asked for an account ID, use that same ID for subsequent tools.\n"
+        "6) CRITICAL: Use sensible defaults for technical parameters instead of asking users.\n"
+        "   EXAMPLE: For list_products, use limit=100 instead of asking 'how many items would you like to see?'\n"
+        "   EXAMPLE: For browsing menus, show all relevant items rather than asking for technical limits.\n"
+        "7) CRITICAL: When users specify quantities (like '2 garlic breads'), be explicit in your response about the quantity.\n"
+        "   EXAMPLE: User says '2 garlic breads' -> response: 'Adding 2 Garlic Breads to your cart ($7.99 each).'\n"
+        "   EXAMPLE: Always confirm the exact quantity being added before proceeding with next='confirm'.\n"
+        "8) CRITICAL: If ListAgents in the conversation history is force_confirm='False', you MUST NOT ask permission "
+        + "or include any questions in your response unless the current tool has userConfirmation defined.\n"
+        + "   NEVER say 'Is that okay?', 'Would you like me to...?', 'Should I...?', or any similar questions.\n"
+        + "   Instead, use confident declarative statements and set next='confirm' to execute immediately.\n"
+        + "   EXAMPLE: (force_confirm='False' AND no userConfirmation) -> response: 'Getting our menu items now.' next='confirm'\n"
+        + "   EXAMPLE: (force_confirm='False' AND no userConfirmation) -> response: 'Adding the pizza to your cart.' next='confirm'\n"
+        + "   EXAMPLE: (force_confirm='False' AND userConfirmation exists on tool) -> response: 'Would you like me to <run tool> "
         + "with the following details: <details>?' next='question'\n"
+        "9) CRITICAL: Before setting next='pick-new-goal' or next='done', verify that ALL steps in the Goal description are complete.\n"
+        "   Check the most recent conversation history entries - if they indicate completion (e.g., 'order is complete', 'finalized', 'payment processed', 'task finished'), the goal may be done.\n"
+        "   However, if recent responses only mention partial completion (e.g., 'added to cart', 'item selected', 'step 1 done'), continue with remaining steps.\n"
+        "   EXAMPLE: 'Your order is complete and invoice has been finalized' = goal done, but 'Items added to cart' = continue with checkout.\n"
+        "10) CRITICAL: If you specify a 'tool' and have all its 'args' filled, you MUST set next='confirm'.\n"
+        "    If your response contains declarative statements like 'Now adding...', 'Creating...', 'Processing...', you MUST set next='confirm'.\n"
+        "    WRONG: tool='create_invoice_item', args=filled, response='Now adding pizza', next='question'\n"
+        "    RIGHT: tool='create_invoice_item', args=filled, response='Now adding pizza', next='confirm'\n"
+        "11) DECISION FLOW: Can I run the tool with available information? YES -> next='confirm', NO -> next='question'\n"
     )
 
     # Validation Task (If raw_json is provided)
@@ -246,7 +257,7 @@ def generate_pick_new_goal_guidance() -> str:
         str: A prompt string prompting the LLM to when to go to pick-new-goal
     """
     if is_multi_goal_mode():
-        return 'Next should only be "pick-new-goal" if all tools have been run for the current goal (use the system prompt to figure that out), or the user explicitly requested to pick a new goal.'
+        return 'Next should only be "pick-new-goal" if EVERY SINGLE STEP in the Goal description has been completed (check the system prompt Goal section carefully), or the user explicitly requested to pick a new goal. If any step is missing (like customer creation, invoice creation, or payment processing), continue with the next required tool.'
     else:
         return 'Next should never be "pick-new-goal".'
 
@@ -262,6 +273,6 @@ def generate_toolchain_complete_guidance() -> str:
         str: A prompt string prompting the LLM to prompt for a new goal, or be done
     """
     if is_multi_goal_mode():
-        return "If no more tools are needed for the current goal (user_confirmed_tool_run has been run for all required tools), set next='pick-new-goal' and tool=null to allow the user to choose their next action."
+        return "If no more tools are needed for the current goal (EVERY step in the Goal description has been completed AND user_confirmed_tool_run has been run for all required tools), set next='pick-new-goal' and tool=null to allow the user to choose their next action."
     else:
-        return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=null."
+        return "If no more tools are needed (EVERY step in the Goal description has been completed AND user_confirmed_tool_run has been run for all), set next='done' and tool=null."
