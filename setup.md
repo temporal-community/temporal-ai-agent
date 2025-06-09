@@ -291,6 +291,7 @@ Make sure you have the mock orders you want in (such as those with real tracking
 - `AGENT_GOAL=goal_food_ordering` - Demonstrates food ordering with Stripe payment processing via MCP
     - Uses Stripe's MCP Server ([Agent Toolkit](https://github.com/stripe/agent-toolkit/tree/main/modelcontextprotocol)) for payment operations
     - Requires `STRIPE_API_KEY` in your `.env` file
+    - Requires products in Stripe with metadata key `use_case=food_ordering_demo`. Run `tools/food/setup/create_stripe_products.py` to set up pizza menu items
     - Example of MCP tool integration without custom implementation
     - This is an excellent demonstration of MCP (Model Context Protocol) capabilities
 
