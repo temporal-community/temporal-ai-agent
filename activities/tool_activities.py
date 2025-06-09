@@ -208,89 +208,10 @@ class ToolActivities:
         """MCP Tool"""
         activity.logger.info(f"Executing MCP tool: {tool_name} with args: {tool_args}")
 
-        # Extract server definition and convert argument types
+        # Extract server definition
         server_definition = tool_args.pop("server_definition", None)
-        converted_args = _convert_args_types(tool_args)
-        connection = _build_connection(server_definition)
-
-        try:
-            if connection["type"] == "stdio":
-                # Handle stdio connection
-                async with _stdio_connection(
-                    command=connection.get("command", "python"),
-                    args=connection.get("args", ["server.py"]),
-                    env=connection.get("env", {}),
-                ) as (read, write):
-                    async with ClientSession(read, write) as session:
-                        # Initialize the session
-                        activity.logger.info(
-                            f"Initializing MCP session for {tool_name}"
-                        )
-                        await session.initialize()
-                        activity.logger.info(f"MCP session initialized for {tool_name}")
-
-                        # Call the tool
-                        activity.logger.info(
-                            f"Calling MCP tool {tool_name} with args: {converted_args}"
-                        )
-                        try:
-                            result = await session.call_tool(
-                                tool_name, arguments=converted_args
-                            )
-                            activity.logger.info(
-                                f"MCP tool {tool_name} returned result: {result}"
-                            )
-                        except Exception as tool_exc:
-                            activity.logger.error(
-                                f"MCP tool {tool_name} call failed: {type(tool_exc).__name__}: {tool_exc}"
-                            )
-                            raise
-
-                        normalized_result = _normalize_result(result)
-                        activity.logger.info(f"Tool {tool_name} completed successfully")
-
-                        return {
-                            "tool": tool_name,
-                            "success": True,
-                            "content": normalized_result,
-                        }
-
-            elif connection["type"] == "tcp":
-                # Handle TCP connection (placeholder for future implementation)
-                raise ApplicationError("TCP connections not yet implemented")
-
-            else:
-                raise ApplicationError(
-                    f"Unsupported connection type: {connection['type']}"
-                )
-
-        except Exception as e:
-            # Handle ExceptionGroup specifically (Python 3.11+ async errors)
-            if hasattr(e, "exceptions"):
-                # This is an ExceptionGroup - log all sub-exceptions
-                activity.logger.error(
-                    f"MCP tool {tool_name} failed with ExceptionGroup:"
-                )
-                for i, sub_exc in enumerate(e.exceptions):
-                    activity.logger.error(
-                        f"  Sub-exception {i}: {type(sub_exc).__name__}: {sub_exc}"
-                    )
-                error_msg = (
-                    f"Multiple errors: {'; '.join(str(ex) for ex in e.exceptions)}"
-                )
-            else:
-                activity.logger.error(
-                    f"MCP tool {tool_name} failed: {type(e).__name__}: {str(e)}"
-                )
-                error_msg = str(e)
-
-            # Return error information
-            return {
-                "tool": tool_name,
-                "success": False,
-                "error": error_msg,
-                "error_type": type(e).__name__,
-            }
+        
+        return await _execute_mcp_tool(tool_name, tool_args, server_definition)
 
 
 @activity.defn(dynamic=True)
@@ -390,6 +311,81 @@ def _convert_args_types(tool_args: Dict[str, Any]) -> Dict[str, Any]:
             converted_args[key] = value
 
     return converted_args
+
+
+async def _execute_mcp_tool(
+    tool_name: str, tool_args: Dict[str, Any], server_definition: MCPServerDefinition | Dict[str, Any] | None
+) -> Dict[str, Any]:
+    """Execute an MCP tool with the given arguments and server definition"""
+    activity.logger.info(f"Executing MCP tool: {tool_name}")
+    
+    # Convert argument types for MCP tools
+    converted_args = _convert_args_types(tool_args)
+    connection = _build_connection(server_definition)
+
+    try:
+        if connection["type"] == "stdio":
+            # Handle stdio connection
+            async with _stdio_connection(
+                command=connection.get("command", "python"),
+                args=connection.get("args", ["server.py"]),
+                env=connection.get("env", {}),
+            ) as (read, write):
+                async with ClientSession(read, write) as session:
+                    # Initialize the session
+                    activity.logger.info(
+                        f"Initializing MCP session for {tool_name}"
+                    )
+                    await session.initialize()
+                    activity.logger.info(f"MCP session initialized for {tool_name}")
+
+                    # Call the tool
+                    activity.logger.info(
+                        f"Calling MCP tool {tool_name} with args: {converted_args}"
+                    )
+                    try:
+                        result = await session.call_tool(
+                            tool_name, arguments=converted_args
+                        )
+                        activity.logger.info(
+                            f"MCP tool {tool_name} returned result: {result}"
+                        )
+                    except Exception as tool_exc:
+                        activity.logger.error(
+                            f"MCP tool {tool_name} call failed: {type(tool_exc).__name__}: {tool_exc}"
+                        )
+                        raise
+
+                    normalized_result = _normalize_result(result)
+                    activity.logger.info(
+                        f"MCP tool {tool_name} completed successfully"
+                    )
+
+                    return {
+                        "tool": tool_name,
+                        "success": True,
+                        "content": normalized_result,
+                    }
+
+        elif connection["type"] == "tcp":
+            # Handle TCP connection (placeholder for future implementation)
+            raise ApplicationError("TCP connections not yet implemented")
+
+        else:
+            raise ApplicationError(
+                f"Unsupported connection type: {connection['type']}"
+            )
+
+    except Exception as e:
+        activity.logger.error(f"MCP tool {tool_name} failed: {str(e)}")
+
+        # Return error information
+        return {
+            "tool": tool_name,
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__,
+        }
 
 
 @asynccontextmanager
