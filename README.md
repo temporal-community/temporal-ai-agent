@@ -2,6 +2,8 @@
 
 This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The purpose of the agent is to collect information towards a goal, running tools along the way. The agent supports both native tools and Model Context Protocol (MCP) tools, allowing it to interact with external services.
 
+The agent operates in single-agent mode by default, focusing on one specific goal. It also supports experimental multi-agent/multi-goal mode where users can choose between different agent types and switch between them during conversations.
+
 Goals are organized in the `/goals/` directory by category (finance, HR, travel, ecommerce, etc.) and can leverage both native and MCP tools.
 
 The AI will respond with clarifications and ask for any missing information to that goal. You can configure it to use any LLM supported by [LiteLLM](https://docs.litellm.ai/docs/providers), including:

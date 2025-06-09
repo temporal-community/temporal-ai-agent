@@ -1,5 +1,5 @@
 # Customizing the Agent
-The agent is set up to have multiple agents, each with their own goal. It supports switching back to choosing a new goal at the end of every successful goal (or even mid-goal). 
+The agent operates in single-agent mode by default, focusing on one specific goal. It also supports an experimental multi-agent mode where users can have multiple agents, each with their own goal, and supports switching back to choosing a new goal at the end of every successful goal (or even mid-goal). 
 
 A goal can use two types of tools:
 - **Native Tools**: Custom tools implemented directly in the codebase (in `/tools/`)
@@ -8,8 +8,8 @@ A goal can use two types of tools:
 It may be helpful to review the [architecture](./architecture.md) for a guide and definition of goals, tools, etc.
 
 ## Adding a New Goal Category
-Goal Categories lets you pick which groups of goals to show. Set via an .env setting, `GOAL_CATEGORIES`. 
-Even if you don't intend to use the goal in a multi-goal scenario, goal categories are useful for others.
+Goal Categories lets you pick which groups of goals to show in multi-agent mode. Set via an .env setting, `GOAL_CATEGORIES`. 
+Even if you don't intend to use the goal in a multi-agent scenario, goal categories are useful for organization and discovery.
 1. Pick a unique one that has some business meaning
 2. Use it in your [.env](./.env) file
 3. Add to [.env.example](./.env.example)

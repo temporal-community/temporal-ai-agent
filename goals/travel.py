@@ -63,7 +63,7 @@ goal_event_flight_invoice = AgentGoal(
         tool_registry.create_invoice_tool,
     ],
     description="Help the user gather args for these tools in order: "
-    "1. FindEvents: Find an event to travel to "
+    "1. FindEvents: Find an event in Australia or New Zealand to travel to "
     "2. SearchFlights: search for a flight around the event dates "
     "3. CreateInvoice: Create a simple invoice for the cost of that flight ",
     starter_prompt=starter_prompt_generic,

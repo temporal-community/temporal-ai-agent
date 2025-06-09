@@ -23,14 +23,14 @@ goal_list.extend(food_goals)
 # for multi-goal, just set list agents as the last tool
 first_goal_value = os.getenv("AGENT_GOAL")
 if first_goal_value is None:
-    multi_goal_mode = True  # default if unset
+    multi_goal_mode = False  # default to single agent mode if unset
 elif (
     first_goal_value is not None
-    and first_goal_value.lower() != "goal_choose_agent_type"
+    and first_goal_value.lower() == "goal_choose_agent_type"
 ):
-    multi_goal_mode = False
-else:
     multi_goal_mode = True
+else:
+    multi_goal_mode = False
 
 if multi_goal_mode:
     for goal in goal_list:

@@ -24,8 +24,8 @@ load_dotenv()
 def get_initial_agent_goal():
     """Get the agent goal from environment variables."""
     env_goal = os.getenv(
-        "AGENT_GOAL", "goal_choose_agent_type"
-    )  # if no goal is set in the env file, default to choosing an agent
+        "AGENT_GOAL", "goal_event_flight_invoice"
+    )  # if no goal is set in the env file, default to single agent mode
     for listed_goal in goal_list:
         if listed_goal.id == env_goal:
             return listed_goal

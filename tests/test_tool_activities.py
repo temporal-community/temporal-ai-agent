@@ -194,7 +194,7 @@ class TestToolActivities:
 
             assert isinstance(result, EnvLookupOutput)
             assert result.show_confirm is True  # default value
-            assert result.multi_goal_mode is True  # default value
+            assert result.multi_goal_mode is False  # default value (single agent mode)
 
     @pytest.mark.asyncio
     async def test_get_wf_env_vars_custom_values(self):

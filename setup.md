@@ -48,17 +48,29 @@ If you prefer to run commands manually, see the sections below for detailed inst
 
 ### Agent Goal Configuration
 
-The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. If unset, default is `goal_choose_agent_type`.
+The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. 
 
-If the first goal is `goal_choose_agent_type` the agent will support multiple goals using goal categories defined by `GOAL_CATEGORIES` in your .env file. If unset, default is all. We recommend starting with `fin`.
+**Single Agent Mode (Default)**
+By default, the agent operates in single-agent mode using a specific goal. If unset, the default is `goal_event_flight_invoice`.
+
+To set a specific single goal:
+```bash
+AGENT_GOAL=goal_event_flight_invoice
+```
+
+**Multi-Agent Mode (Experimental)**
+The agent also supports an experimental multi-agent mode where users can choose between different agent types during the conversation. To enable this mode:
+
+```bash
+AGENT_GOAL=goal_choose_agent_type
+```
+
+When using multi-agent mode, you can control which agent categories are available using `GOAL_CATEGORIES` in your .env file. If unset, all categories are shown. We recommend starting with `fin`:
 ```bash
 GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
 ```
 
-To set a single goal, set `AGENT_GOAL` to the desired goal name. For example:
-```bash
-AGENT_GOAL=goal_event_flight_invoice
-```
+**Note:** Multi-agent mode is experimental and allows switching between different agents mid-conversation, but single-agent mode provides a more focused experience.
 
 MCP (Model Context Protocol) tools are available for enhanced integration with external services. See the [MCP Tools Configuration](#mcp-tools-configuration) section for setup details.
 
@@ -214,10 +226,12 @@ Here is configuration guidance for specific goals. Travel and financial goals ha
 
 #### Configuring Agent Goal: goal_event_flight_invoice
 * The agent uses a mock function to search for events. This has zero configuration.
-* By default the agent uses a mock function to search for flights.
-    * If you want to use the real flights API, go to `tools/search_flights.py` and replace the `search_flights` function with `search_flights_real_api` that exists in the same file.
-    * It's free to sign up at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
-    * This api might be slow to respond, so you may want to increase the start to close timeout, `TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT` in `workflows/workflow_helpers.py`
+* **Flight Search**: The agent intelligently handles flight searches:
+    * **Default behavior**: If no `RAPIDAPI_KEY` is set, the agent generates realistic flight data with smart pricing based on route type (domestic, international, trans-Pacific)
+    * **Real API (optional)**: To use live flight data, set `RAPIDAPI_KEY` in your `.env` file
+        * It's free to sign up at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
+        * This API might be slow to respond, so you may want to increase the start to close timeout, `TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT` in `workflows/workflow_helpers.py`
+    * The smart generation creates realistic pricing (e.g., US-Australia routes $1200-1800, domestic flights $200-800) with appropriate airlines for each region
 * Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
     * It's free to sign up and get a key at [Stripe](https://stripe.com/)
         * Set permissions for read-write on: `Credit Notes, Invoices, Customers and Customer Sessions`

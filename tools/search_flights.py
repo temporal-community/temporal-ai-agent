@@ -1,6 +1,7 @@
 import http.client
 import json
 import os
+import random
 import urllib.parse
 
 from dotenv import load_dotenv
@@ -174,45 +175,166 @@ def search_flights_real_api(
     }
 
 
+def generate_smart_flights(origin: str, destination: str) -> list:
+    """
+    Generate realistic flight options with smart pricing based on origin and destination.
+    """
+    # Common airlines for different regions
+    airlines_by_region = {
+        "domestic_us": [
+            {"name": "American Airlines", "code": "AA"},
+            {"name": "United Airlines", "code": "UA"},
+            {"name": "Delta Airlines", "code": "DL"},
+            {"name": "Southwest Airlines", "code": "WN"},
+        ],
+        "us_international": [
+            {"name": "American Airlines", "code": "AA"},
+            {"name": "United Airlines", "code": "UA"},
+            {"name": "Delta Airlines", "code": "DL"},
+            {"name": "Virgin Atlantic", "code": "VS"},
+        ],
+        "australia_nz": [
+            {"name": "Qantas", "code": "QF"},
+            {"name": "Jetstar", "code": "JQ"},
+            {"name": "Virgin Australia", "code": "VA"},
+            {"name": "Air New Zealand", "code": "NZ"},
+        ],
+        "international": [
+            {"name": "American Airlines", "code": "AA"},
+            {"name": "United Airlines", "code": "UA"},
+            {"name": "Delta Airlines", "code": "DL"},
+            {"name": "Air New Zealand", "code": "NZ"},
+            {"name": "Qantas", "code": "QF"},
+            {"name": "Singapore Airlines", "code": "SQ"},
+        ],
+    }
+
+    # Determine route type and base pricing
+    origin_lower = origin.lower()
+    dest_lower = destination.lower()
+
+    # Australia/NZ cities
+    anz_cities = [
+        "sydney",
+        "melbourne",
+        "syd",
+        "mel",
+        "auckland",
+        "akl",
+        "wellington",
+        "wlg",
+        "brisbane",
+        "bne",
+        "perth",
+        "per",
+    ]
+    # US cities
+    us_cities = [
+        "los angeles",
+        "lax",
+        "san francisco",
+        "sfo",
+        "new york",
+        "nyc",
+        "jfk",
+        "chicago",
+        "ord",
+        "miami",
+        "mia",
+    ]
+
+    is_origin_anz = any(city in origin_lower for city in anz_cities)
+    is_dest_anz = any(city in dest_lower for city in anz_cities)
+    is_origin_us = any(city in origin_lower for city in us_cities)
+    is_dest_us = any(city in dest_lower for city in us_cities)
+
+    # Determine airline pool and base price
+    if (is_origin_us and is_dest_anz) or (is_origin_anz and is_dest_us):
+        # Trans-Pacific routes
+        airline_pool = airlines_by_region["international"]
+        base_price = random.randint(1200, 1800)
+    elif is_origin_anz and is_dest_anz:
+        # Australia/NZ domestic
+        airline_pool = airlines_by_region["australia_nz"]
+        base_price = random.randint(300, 600)
+    elif is_origin_us and is_dest_us:
+        # US domestic
+        airline_pool = airlines_by_region["domestic_us"]
+        base_price = random.randint(200, 800)
+    else:
+        # General international
+        airline_pool = airlines_by_region["international"]
+        base_price = random.randint(800, 1500)
+
+    # Generate 3-4 flight options
+    num_flights = random.randint(3, 4)
+    results = []
+    used_airlines = set()
+
+    for i in range(num_flights):
+        # Pick unique airline
+        available_airlines = [a for a in airline_pool if a["name"] not in used_airlines]
+        if not available_airlines:
+            available_airlines = airline_pool  # Reset if we run out
+
+        airline = random.choice(available_airlines)
+        used_airlines.add(airline["name"])
+
+        # Generate flight numbers
+        outbound_num = random.randint(100, 999)
+        return_num = random.randint(100, 999)
+
+        # Price variation (cheaper airlines get lower prices)
+        price_multiplier = 1.0
+        if "Southwest" in airline["name"] or "Jetstar" in airline["name"]:
+            price_multiplier = 0.7
+        elif "Virgin" in airline["name"]:
+            price_multiplier = 0.85
+        elif "Singapore" in airline["name"]:
+            price_multiplier = 1.2
+
+        # Add some random variation
+        price_variation = random.uniform(0.9, 1.1)
+        final_price = round(base_price * price_multiplier * price_variation, 2)
+
+        results.append(
+            {
+                "operating_carrier": airline["name"],
+                "outbound_flight_code": f"{airline['code']}{outbound_num}",
+                "price": final_price,
+                "return_flight_code": f"{airline['code']}{return_num}",
+                "return_operating_carrier": airline["name"],
+            }
+        )
+
+    # Sort by price
+    results.sort(key=lambda x: x["price"])
+    return results
+
+
 def search_flights(args: dict) -> dict:
     """
-    Returns example flight search results in the requested JSON format.
+    Search for flights. Uses real API if RAPIDAPI_KEY is available, otherwise generates smart mock data.
     """
+    load_dotenv(override=True)
+    api_key = os.getenv("RAPIDAPI_KEY")
+
     origin = args.get("origin")
     destination = args.get("destination")
 
+    if not origin or not destination:
+        return {"error": "Both origin and destination are required"}
+
+    # If API key is available, use the real API
+    if api_key and api_key != "YOUR_DEFAULT_KEY":
+        return search_flights_real_api(args)
+
+    # Otherwise, generate smart mock data
+    results = generate_smart_flights(origin, destination)
+
     return {
         "currency": "USD",
-        "destination": f"{destination}",
-        "origin": f"{origin}",
-        "results": [
-            {
-                "operating_carrier": "American Airlines",
-                "outbound_flight_code": "AA203",
-                "price": 1262.51,
-                "return_flight_code": "AA202",
-                "return_operating_carrier": "American Airlines",
-            },
-            {
-                "operating_carrier": "Air New Zealand",
-                "outbound_flight_code": "NZ488",
-                "price": 1396.00,
-                "return_flight_code": "NZ527",
-                "return_operating_carrier": "Air New Zealand",
-            },
-            {
-                "operating_carrier": "United Airlines",
-                "outbound_flight_code": "UA100",
-                "price": 1500.00,
-                "return_flight_code": "UA101",
-                "return_operating_carrier": "United Airlines",
-            },
-            {
-                "operating_carrier": "Delta Airlines",
-                "outbound_flight_code": "DL200",
-                "price": 1600.00,
-                "return_flight_code": "DL201",
-                "return_operating_carrier": "Delta Airlines",
-            },
-        ],
+        "destination": destination,
+        "origin": origin,
+        "results": results,
     }
