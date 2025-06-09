@@ -20,10 +20,11 @@ from workflows.workflow_helpers import (
 )
 
 with workflow.unsafe.imports_passed_through():
-    from activities.tool_activities import ToolActivities
+    from activities.tool_activities import ToolActivities, mcp_list_tools
+    from goals import goal_list
     from models.data_types import CombinedInput, ToolPromptInput
     from prompts.agent_prompt_generators import generate_genai_prompt
-    from tools.goal_registry import goal_list
+    from tools.tool_registry import create_mcp_tool_definitions
 
 # Constants
 MAX_TURNS_BEFORE_CONTINUE = 250
@@ -59,6 +60,7 @@ class AgentGoalWorkflow:
         self.multi_goal_mode: bool = (
             False  # set from env file in activity lookup_wf_env_settings
         )
+        self.mcp_tools_info: Optional[dict] = None  # stores complete MCP tools result
 
     # see ../api/main.py#temporal_client.start_workflow() for how the input parameters are set
     @workflow.run
@@ -69,6 +71,10 @@ class AgentGoalWorkflow:
         self.goal = combined_input.agent_goal
 
         await self.lookup_wf_env_settings(combined_input)
+
+        # If the goal has an MCP server definition, dynamically load MCP tools
+        if self.goal.mcp_server_definition:
+            await self.load_mcp_tools()
 
         # add message from sample conversation provided in tools/goal_registry.py, if it exists
         if params and params.conversation_summary:
@@ -146,6 +152,7 @@ class AgentGoalWorkflow:
                     conversation_history=self.conversation_history,
                     multi_goal_mode=self.multi_goal_mode,
                     raw_json=self.tool_data,
+                    mcp_tools_info=self.mcp_tools_info,
                 )
 
                 prompt_input = ToolPromptInput(
@@ -368,6 +375,7 @@ class AgentGoalWorkflow:
             self.tool_results,
             self.add_message,
             self.prompt_queue,
+            self.goal,
         )
 
         # set new goal if we should
@@ -398,3 +406,43 @@ class AgentGoalWorkflow:
         else:
             print("no tool data initialized yet")
         print(f"self.confirmed: {self.confirmed}")
+
+    async def load_mcp_tools(self) -> None:
+        """Load MCP tools dynamically from the server definition"""
+        if not self.goal.mcp_server_definition:
+            return
+
+        workflow.logger.info(
+            f"Loading MCP tools from server: {self.goal.mcp_server_definition.name}"
+        )
+
+        # Get the list of tools to include (if specified)
+        include_tools = self.goal.mcp_server_definition.included_tools
+
+        # Call the MCP list tools activity
+        mcp_tools_result = await workflow.execute_activity(
+            mcp_list_tools,
+            args=[self.goal.mcp_server_definition, include_tools],
+            start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+            retry_policy=RetryPolicy(
+                initial_interval=timedelta(seconds=5), backoff_coefficient=1
+            ),
+            summary=f"{self.goal.mcp_server_definition.name}",
+        )
+
+        if mcp_tools_result.get("success", False):
+            tools_info = mcp_tools_result.get("tools", {})
+            workflow.logger.info(f"Successfully loaded {len(tools_info)} MCP tools")
+
+            # Store complete MCP tools result for use in prompt generation
+            self.mcp_tools_info = mcp_tools_result
+
+            # Convert MCP tools to ToolDefinition objects and add to goal
+            mcp_tool_definitions = create_mcp_tool_definitions(tools_info)
+            self.goal.tools.extend(mcp_tool_definitions)
+
+            workflow.logger.info(f"Added {len(mcp_tool_definitions)} MCP tools to goal")
+        else:
+            error_msg = mcp_tools_result.get("error", "Unknown error")
+            workflow.logger.error(f"Failed to load MCP tools: {error_msg}")
+            # Continue execution without MCP tools

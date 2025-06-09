@@ -1,0 +1,188 @@
+[
+    {
+        "id": "prod_SSWirxxS5A8gcT",
+        "object": "product",
+        "active": true,
+        "attributes": [],
+        "created": 1749360061,
+        "default_price": "price_1RXbfGKVZbzw7QA57Mj1akGI",
+        "description": "A large size bottle of cola.",
+        "images": [
+            "https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfbDJxckJKMDRnT1dDc253OHlZNWNkZkY5006Xg07kHT"
+        ],
+        "livemode": false,
+        "marketing_features": [],
+        "metadata": {
+            "use_case": "food_ordering_demo"
+        },
+        "name": "Soda",
+        "price_info": {
+            "amount": 349,
+            "currency": "usd"
+        },
+        "package_dimensions": null,
+        "shippable": null,
+        "statement_descriptor": null,
+        "tax_code": null,
+        "type": "service",
+        "unit_label": null,
+        "updated": 1749360062,
+        "url": null
+    },
+    {
+        "id": "prod_SSWhxv3tUy1YOG",
+        "object": "product",
+        "active": true,
+        "attributes": [],
+        "created": 1749359978,
+        "default_price": "price_1RXbdvKVZbzw7QA5ARomQvaf",
+        "description": "Our warm, crusty bread is generously spread with a savory garlic butter and toasted to golden perfection. It's the ideal aromatic and flavorful side to accompany your main course.",
+        "images": [
+            "https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfWTdIZTBkUjNZNFQ1ZEhSVG9nRnduY1pS00XVgLRRZD"
+        ],
+        "livemode": false,
+        "marketing_features": [],
+        "metadata": {
+            "use_case": "food_ordering_demo"
+        },
+        "name": "Garlic Bread",
+        "price_info": {
+            "amount": 799,
+            "currency": "usd"
+        },
+        "package_dimensions": null,
+        "shippable": null,
+        "statement_descriptor": null,
+        "tax_code": null,
+        "type": "service",
+        "unit_label": null,
+        "updated": 1749360084,
+        "url": null
+    },
+    {
+        "id": "prod_SSWgXa5bwUFCJs",
+        "object": "product",
+        "active": true,
+        "attributes": [],
+        "created": 1749359922,
+        "default_price": "price_1RXbd0KVZbzw7QA5Nq36vdLW",
+        "description": "A tribute to Italian simplicity, this pizza is topped with fresh mozzarella, a vibrant tomato sauce, and fragrant basil leaves. Each bite delivers a clean and authentic taste of Italy's most famous flavors.",
+        "images": [
+            "https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfamdmTXBFbzY0TW9rS2N0c2g0Tml2SERL00Evl60Ttq"
+        ],
+        "livemode": false,
+        "marketing_features": [],
+        "metadata": {
+            "use_case": "food_ordering_demo"
+        },
+        "name": "Margherita Pizza",
+        "price_info": {
+            "amount": 1699,
+            "currency": "usd"
+        },
+        "package_dimensions": null,
+        "shippable": null,
+        "statement_descriptor": null,
+        "tax_code": null,
+        "type": "service",
+        "unit_label": null,
+        "updated": 1749359998,
+        "url": null
+    },
+    {
+        "id": "prod_SSWf738UqIJzzi",
+        "object": "product",
+        "active": true,
+        "attributes": [],
+        "created": 1749359845,
+        "default_price": "price_1RXbbmKVZbzw7QA53EkjV2nB",
+        "description": "A timeless classic featuring a generous layer of savory pepperoni over rich tomato sauce and melted mozzarella cheese. It's the perfect choice for those who love a bold, meaty flavor on a perfectly baked crust.",
+        "images": [
+            "https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfcGRHc0c4cEZYWmR2bm0zOHBOa0FWMk5t008QmCJoWr"
+        ],
+        "livemode": false,
+        "marketing_features": [],
+        "metadata": {
+            "use_case": "food_ordering_demo"
+        },
+        "name": "Pepperoni Pizza",
+        "price_info": {
+            "amount": 2299,
+            "currency": "usd"
+        },
+        "package_dimensions": null,
+        "shippable": null,
+        "statement_descriptor": null,
+        "tax_code": null,
+        "type": "service",
+        "unit_label": null,
+        "updated": 1749359846,
+        "url": null
+    },
+    {
+        "id": "prod_SGMXBnatLlkJ4d",
+        "object": "product",
+        "active": true,
+        "attributes": [],
+        "created": 1746554502,
+        "default_price": "price_1RLpoJKVZbzw7QA5ra76Fk6g",
+        "description": null,
+        "images": [],
+        "livemode": false,
+        "marketing_features": [],
+        "metadata": {},
+        "name": "ACME Scooter Token",
+        "package_dimensions": null,
+        "shippable": null,
+        "statement_descriptor": null,
+        "tax_code": null,
+        "type": "service",
+        "unit_label": null,
+        "updated": 1746554503,
+        "url": null
+    },
+    {
+        "id": "prod_NxJPcqTWzXk45K",
+        "object": "product",
+        "active": true,
+        "attributes": [],
+        "created": 1684961969,
+        "default_price": null,
+        "description": "$12/Month subscription",
+        "images": [],
+        "livemode": false,
+        "marketing_features": [],
+        "metadata": {},
+        "name": "Starter Subscription",
+        "package_dimensions": null,
+        "shippable": null,
+        "statement_descriptor": null,
+        "tax_code": null,
+        "type": "service",
+        "unit_label": null,
+        "updated": 1684961969,
+        "url": null
+    },
+    {
+        "id": "prod_NxJ4KvyENd0uUu",
+        "object": "product",
+        "active": true,
+        "attributes": [],
+        "created": 1684960731,
+        "default_price": null,
+        "description": "Created with the Stripe CLI",
+        "images": [],
+        "livemode": false,
+        "marketing_features": [],
+        "metadata": {},
+        "name": "Temporal Money Transfer",
+        "package_dimensions": null,
+        "shippable": null,
+        "statement_descriptor": null,
+        "tax_code": null,
+        "type": "service",
+        "unit_label": null,
+        "updated": 1684960731,
+        "url": null
+    }
+]

@@ -13,6 +13,7 @@ If you want to show confirmations/enable the debugging UI that shows tool args, 
 ```bash
 SHOW_CONFIRM=True
 ```
+We recommend setting this to `False` in most cases, as it can clutter the conversation with confirmation messages.
 
 ### Quick Start with Makefile
 
@@ -43,16 +44,36 @@ make help
 
 ### Manual Setup (Alternative to Makefile)
 
-If you prefer to run commands manually, follow these steps:
+If you prefer to run commands manually, see the sections below for detailed instructions on setting up the backend, frontend, and other components.
 
 ### Agent Goal Configuration
 
-The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. If unset, default is `goal_choose_agent_type`.
+The agent can be configured to pursue different goals using the `AGENT_GOAL` environment variable in your `.env` file. 
 
-If the first goal is `goal_choose_agent_type` the agent will support multiple goals using goal categories defined by `GOAL_CATEGORIES` in your .env file. If unset, default is all. We recommend starting with `fin`.
+**Single Agent Mode (Default)**
+By default, the agent operates in single-agent mode using a specific goal. If unset, the default is `goal_event_flight_invoice`.
+
+To set a specific single goal:
+```bash
+AGENT_GOAL=goal_event_flight_invoice
+```
+
+**Multi-Agent Mode (Experimental)**
+The agent also supports an experimental multi-agent mode where users can choose between different agent types during the conversation. To enable this mode:
+
+```bash
+AGENT_GOAL=goal_choose_agent_type
+```
+
+When using multi-agent mode, you can control which agent categories are available using `GOAL_CATEGORIES` in your `.env` file. If unset, all categories are shown. Available categories include `hr`, `travel-flights`, `travel-trains`, `fin`, `ecommerce`, `mcp-integrations`, and `food`.
+We recommend starting with `fin`:
 ```bash
 GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
 ```
+
+**Note:** Multi-agent mode is experimental and allows switching between different agents mid-conversation, but single-agent mode provides a more focused experience.
+
+MCP (Model Context Protocol) tools are available for enhanced integration with external services. See the [MCP Tools Configuration](#mcp-tools-configuration) section for setup details.
 
 See the section Goal-Specific Tool Configuration below for tool configuration for specific goals.
 
@@ -169,6 +190,39 @@ npx vite
 Access the UI at `http://localhost:5173`
 
 
+## MCP Tools Configuration
+
+MCP (Model Context Protocol) tools enable integration with external services without custom implementation. The system automatically handles MCP server lifecycle and tool discovery.
+
+### Adding MCP Tools to Goals
+Configure MCP servers in your goal definitions using either:
+1. Predefined configurations from `shared/mcp_config.py`
+2. Custom `MCPServerDefinition` objects
+
+Example using Stripe MCP Server:
+```python
+from shared.mcp_config import get_stripe_mcp_server_definition
+
+mcp_server_definition=get_stripe_mcp_server_definition(
+    included_tools=["list_products", "create_customer", "create_invoice"]
+)
+```
+
+See the file `goals/stripe_mcp.py` for an example of how to use MCP tools in a an `AgentGoal`.
+
+### MCP Environment Variables
+Set required API keys and configuration in your `.env` file:
+```bash
+# For Stripe MCP Server
+STRIPE_API_KEY=sk_test_your_stripe_key_here
+```
+`goal_event_flight_invoice` does not require a Stripe key. If `STRIPE_API_KEY` is unset, that scenario falls back to a mock invoice.
+
+#### Accessing Your Test API Keys
+It's free to sign up for a Stripe account and generate test keys (no real money is involved). Use the Developers Dashboard to create, reveal, delete, and rotate API keys. Navigate to the API Keys tab in your dashboard or visit [https://dashboard.stripe.com/test/apikeys](https://dashboard.stripe.com/test/apikeys) directly.
+
+For detailed guidance on adding MCP tools, see [adding-goals-and-tools.md](./adding-goals-and-tools.md).
+
 ## Goal-Specific Tool Configuration
 Here is configuration guidance for specific goals. Travel and financial goals have configuration & setup as below.
 ### Goal: Find an event in Australia / New Zealand, book flights to it and invoice the user for the cost
@@ -177,14 +231,16 @@ Here is configuration guidance for specific goals. Travel and financial goals ha
 
 #### Configuring Agent Goal: goal_event_flight_invoice
 * The agent uses a mock function to search for events. This has zero configuration.
-* By default the agent uses a mock function to search for flights.
-    * If you want to use the real flights API, go to `tools/search_flights.py` and replace the `search_flights` function with `search_flights_real_api` that exists in the same file.
-    * It's free to sign up at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
-    * This api might be slow to respond, so you may want to increase the start to close timeout, `TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT` in `workflows/workflow_helpers.py`
-* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
-    * It's free to sign up and get a key at [Stripe](https://stripe.com/)
+* **Flight Search**: The agent intelligently handles flight searches:
+    * **Default behavior**: If no `RAPIDAPI_KEY` is set, the agent generates realistic flight data with smart pricing based on route type (domestic, international, trans-Pacific)
+    * **Real API (optional)**: To use live flight data, set `RAPIDAPI_KEY` in your `.env` file
+        * It's free to sign up at [RapidAPI](https://rapidapi.com/apiheya/api/sky-scrapper)
+        * This API might be slow to respond, so you may want to increase the start to close timeout, `TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT` in `workflows/workflow_helpers.py`
+    * The smart generation creates realistic pricing (e.g., US-Australia routes $1200-1800, domestic flights $200-800) with appropriate airlines for each region
+* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in `.env`
+* It's free to sign up and get a key at [Stripe](https://stripe.com/) (test mode only, no real money)
         * Set permissions for read-write on: `Credit Notes, Invoices, Customers and Customer Sessions`
-    * If you don't have a Stripe key, comment out the STRIPE_API_KEY in the .env file, and a dummy invoice will be created rather than a Stripe invoice. The function can be found in `tools/create_invoice.py`
+* If you don't have a Stripe key, comment out the `STRIPE_API_KEY` in the `.env` file, and a dummy invoice will be created rather than a Stripe invoice. The function can be found in `tools/create_invoice.py` – this is the default behavior for `goal_event_flight_invoice`.
 
 ### Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost (Replay 2025 Keynote)
 - `AGENT_GOAL=goal_match_train_invoice` - Focuses on Premier League match attendance with train booking and invoice generation
@@ -195,8 +251,9 @@ NOTE: This goal was developed for an on-stage demo and has failure (and its reso
 * Omit `FOOTBALL_DATA_API_KEY` from .env for the `SearchFixtures` tool to automatically return mock Premier League fixtures. Finding a real match requires a key from [Football Data](https://www.football-data.org). Sign up for a free account, then see the 'My Account' page to get your API token.
 * We use a mock function to search for trains. Start the train API server to use the real API: `python thirdparty/train_api.py`
 * * The train activity is 'enterprise' so it's written in C# and requires a .NET runtime. See the [.NET backend](#net-(enterprise)-backend) section for details on running it.
-* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in .env
-    * It's free to sign up and get a key at [Stripe](https://stripe.com/)
+* Requires a Stripe key for the `create_invoice` tool. Set this in the `STRIPE_API_KEY` environment variable in `.env`
+    * It's free to sign up and get a key at [Stripe](https://stripe.com/) (test mode only)
+    * If the key is missing this goal won't generate a real invoice – only `goal_event_flight_invoice` falls back to a mock invoice
     * If you're lazy go to `tools/create_invoice.py` and replace the `create_invoice` function with the mock `create_invoice_example` that exists in the same file.
 
 ##### Python Search Trains API
@@ -250,12 +307,19 @@ Make sure you have the mock users you want in (such as yourself) in [the PTO moc
 #### Goals: Ecommerce
 Make sure you have the mock orders you want in (such as those with real tracking numbers) in [the mock orders file](./tools/data/customer_order_data.json).
 
+### Goal: Food Ordering with MCP Integration (Stripe Payment Processing)
+- `AGENT_GOAL=goal_food_ordering` - Demonstrates food ordering with Stripe payment processing via MCP
+    - Uses Stripe's MCP Server ([Agent Toolkit](https://github.com/stripe/agent-toolkit/tree/main/modelcontextprotocol)) for payment operations
+    - Requires `STRIPE_API_KEY` in your `.env` file
+    - Requires products in Stripe with metadata key `use_case=food_ordering_demo`. Run `tools/food/setup/create_stripe_products.py` to set up pizza menu items
+    - Example of MCP tool integration without custom implementation
+    - This is an excellent demonstration of MCP (Model Context Protocol) capabilities
+
 
 ## Customizing the Agent Further
 - `tool_registry.py` contains the mapping of tool names to tool definitions (so the AI understands how to use them)
-- `goal_registry.py` contains descriptions of goals and the tools used to achieve them
+- `goals/` contains descriptions of goals and the tools used to achieve them
 - The tools themselves are defined in their own files in `/tools`
-- Note the mapping in `tools/__init__.py` to each tool
 
 For more details, check out [adding goals and tools guide](./adding-goals-and-tools.md).
 

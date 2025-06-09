@@ -1,9 +1,11 @@
 import concurrent.futures
 import uuid
 from contextlib import contextmanager
+from typing import Any, Dict, List, Optional, Sequence
 
 from temporalio import activity
 from temporalio.client import Client, WorkflowExecutionStatus
+from temporalio.common import RawValue
 from temporalio.worker import Worker
 
 from api.main import get_initial_agent_goal
@@ -16,6 +18,7 @@ from models.data_types import (
     ValidationInput,
     ValidationResult,
 )
+from models.tool_definitions import MCPServerDefinition
 from workflows.agent_goal_workflow import AgentGoalWorkflow
 
 
@@ -53,6 +56,23 @@ async def test_flight_booking(client: Client):
         async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
             return {"next": "done", "response": "Test response from LLM"}
 
+        @activity.defn(name="mcp_list_tools")
+        async def mock_mcp_list_tools(
+            server_definition: MCPServerDefinition,
+            include_tools: Optional[List[str]] = None,
+        ) -> Dict[str, Any]:
+            return {"success": True, "tools": {}, "server_name": "test"}
+
+        @activity.defn(name="mcp_tool_activity")
+        async def mock_mcp_tool_activity(
+            tool_name: str, tool_args: Dict[str, Any]
+        ) -> Dict[str, Any]:
+            return {"success": True, "result": "Mock MCP tool result"}
+
+        @activity.defn(name="dynamic_tool_activity", dynamic=True)
+        async def mock_dynamic_tool_activity(args: Sequence[RawValue]) -> dict:
+            return {"success": True, "result": "Mock dynamic tool result"}
+
         with concurrent.futures.ThreadPoolExecutor(
             max_workers=100
         ) as activity_executor:
@@ -64,6 +84,9 @@ async def test_flight_booking(client: Client):
                     mock_get_wf_env_vars,
                     mock_agent_validatePrompt,
                     mock_agent_toolPlanner,
+                    mock_mcp_list_tools,
+                    mock_mcp_tool_activity,
+                    mock_dynamic_tool_activity,
                 ],
                 activity_executor=activity_executor,
             )

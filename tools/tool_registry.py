@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from models.tool_definitions import ToolArgument, ToolDefinition
 
 # ----- System tools -----
@@ -397,3 +399,75 @@ ecomm_track_package = ToolDefinition(
         ),
     ],
 )
+
+
+# ----- Food Ordering Use Case Tools -----
+food_add_to_cart_tool = ToolDefinition(
+    name="AddToCart",
+    description="Add a menu item to the customer's cart using item details from Stripe.",
+    arguments=[
+        ToolArgument(
+            name="customer_email",
+            type="string",
+            description="Email address of the customer",
+        ),
+        ToolArgument(
+            name="item_name",
+            type="string",
+            description="Name of the menu item (e.g., 'Margherita Pizza', 'Caesar Salad')",
+        ),
+        ToolArgument(
+            name="item_price",
+            type="number",
+            description="Price of the item in dollars (e.g., 14.99)",
+        ),
+        ToolArgument(
+            name="quantity",
+            type="number",
+            description="Quantity of the item to add (defaults to 1)",
+        ),
+        ToolArgument(
+            name="stripe_product_id",
+            type="string",
+            description="Stripe product ID for reference (optional)",
+        ),
+    ],
+)
+
+# MCP Integration Functions
+
+
+def create_mcp_tool_definitions(
+    mcp_tools_info: Dict[str, Dict],
+) -> List[ToolDefinition]:
+    """Convert MCP tool info to ToolDefinition objects"""
+    tool_definitions = []
+
+    for tool_name, tool_info in mcp_tools_info.items():
+        # Extract input schema properties
+        input_schema = tool_info.get("inputSchema", {})
+        properties = (
+            input_schema.get("properties", {}) if isinstance(input_schema, dict) else {}
+        )
+
+        # Convert properties to ToolArgument objects
+        arguments = []
+        for param_name, param_info in properties.items():
+            if isinstance(param_info, dict):
+                arguments.append(
+                    ToolArgument(
+                        name=param_name,
+                        type=param_info.get("type", "string"),
+                        description=param_info.get("description", ""),
+                    )
+                )
+
+        # Create ToolDefinition
+        tool_def = ToolDefinition(
+            name=tool_info["name"],
+            description=tool_info.get("description", ""),
+            arguments=arguments,
+        )
+        tool_definitions.append(tool_def)
+
+    return tool_definitions

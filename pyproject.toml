@@ -40,6 +40,7 @@ requests = "^2.32.3"
 pandas = "^2.2.3"
 stripe = "^11.4.1"
 gtfs-kit = "^10.1.1"
+fastmcp = "^2.7.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.2"

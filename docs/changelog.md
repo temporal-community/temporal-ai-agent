@@ -8,12 +8,12 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 - **Multi‑goal agent architecture** with dynamic goal switching (`goal_choose_agent_type`, `ListAgents`, `ChangeGoal`).
-    - See [the architecture guide](./architecture.md) and [setup guide](./SETUP.md).
+    - See [the architecture guide](./architecture.md) and [setup guide](./setup.md).
 - **New goal categories & agents**: HR PTO scheduling/checking, paycheck integration, Financial (balances, money movement, loan application), E‑commerce order tracking.
     - See [the guide for adding goals and tools](./adding-goals-and-tools.md).
 - **Force Confirmation**: `SHOW_CONFIRM` will show a confirmation box before allowing the agent to run a tool.
 - **Grok (`x.ai`) LLM provider** support via `GROK_API_KEY`.
-- Extensive **docs**: `SETUP.md`, `architecture.md`, `architecture-decisions.md`, `adding-goals-and-tools.md`, plus new diagrams & assets.
+- Extensive **docs**: `setup.md`, `architecture.md`, `architecture-decisions.md`, `adding-goals-and-tools.md`, plus new diagrams & assets.
 
 ### Changed
 - **UI Confirmation Box** is less 'debug' looking and prettier.

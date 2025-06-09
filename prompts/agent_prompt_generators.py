@@ -11,6 +11,7 @@ def generate_genai_prompt(
     conversation_history: str,
     multi_goal_mode: bool,
     raw_json: Optional[str] = None,
+    mcp_tools_info: Optional[dict] = None,
 ) -> str:
     """
     Generates a concise prompt for producing or validating JSON instructions
@@ -22,7 +23,8 @@ def generate_genai_prompt(
     # Intro / Role
     prompt_lines.append(
         "You are an AI agent that helps fill required arguments for the tools described below. "
-        "You must respond with valid JSON ONLY, using the schema provided in the instructions."
+        "CRITICAL: You must respond with ONLY valid JSON using the exact schema provided. "
+        "DO NOT include any text before or after the JSON. Your entire response must be parseable JSON."
     )
 
     # Main Conversation History
@@ -48,11 +50,35 @@ def generate_genai_prompt(
         prompt_lines.append("END EXAMPLE")
         prompt_lines.append("")
 
+    # Add MCP server context if present
+    if agent_goal.mcp_server_definition:
+        prompt_lines.append("=== MCP Server Information ===")
+        prompt_lines.append(
+            f"Connected to MCP Server: {agent_goal.mcp_server_definition.name}"
+        )
+        if mcp_tools_info and mcp_tools_info.get("success", False):
+            tools = mcp_tools_info.get("tools", {})
+            server_name = mcp_tools_info.get("server_name", "Unknown")
+            prompt_lines.append(
+                f"MCP Tools loaded from {server_name} ({len(tools)} tools):"
+            )
+            for tool_name, tool_info in tools.items():
+                prompt_lines.append(
+                    f"  - {tool_name}: {tool_info.get('description', 'No description')}"
+                )
+        else:
+            prompt_lines.append("Additional tools available via MCP integration:")
+        prompt_lines.append("")
+
     # Tools Definitions
     prompt_lines.append("=== Tools Definitions ===")
     prompt_lines.append(f"There are {len(agent_goal.tools)} available tools:")
     prompt_lines.append(", ".join([t.name for t in agent_goal.tools]))
     prompt_lines.append(f"Goal: {agent_goal.description}")
+    prompt_lines.append(
+        "CRITICAL: You MUST follow the complete sequence described in the Goal above. "
+        "Do NOT skip steps or assume the goal is complete until ALL steps are done."
+    )
     prompt_lines.append(
         "Gather the necessary information for each tool in the sequence described above."
     )
@@ -72,9 +98,12 @@ def generate_genai_prompt(
     )
 
     # JSON Format Instructions
-    prompt_lines.append("=== Instructions for JSON Generation ===")
+    prompt_lines.append("=== CRITICAL: JSON-ONLY RESPONSE FORMAT ===")
     prompt_lines.append(
-        "Your JSON format must be:\n"
+        "MANDATORY: Your response must be ONLY valid JSON with NO additional text.\n"
+        "NO explanations, NO comments, NO text before or after the JSON.\n"
+        "Your entire response must start with '{' and end with '}'.\n\n"
+        "Required JSON format:\n"
         "{\n"
         '  "response": "<plain text>",\n'
         '  "next": "<question|confirm|pick-new-goal|done>",\n'
@@ -84,29 +113,43 @@ def generate_genai_prompt(
         '    "<arg2>": "<value2 or null>",\n'
         "    ...\n"
         "  }\n"
-        "}"
+        "}\n\n"
+        "INVALID EXAMPLE: 'Thank you for providing... {\"response\": ...}'\n"
+        'VALID EXAMPLE: \'{"response": "Thank you for providing...", "next": ...}\''
     )
     prompt_lines.append(
-        "1) If any required argument is missing, set next='question' and ask the user.\n"
-        "2) If all required arguments are known, set next='confirm' and specify the tool.\n"
-        "   The user will confirm before the tool is run.\n"
-        f"3) {generate_toolchain_complete_guidance()}\n"
-        "4) response should be short and user-friendly.\n\n"
-        "Guardrails (always remember!)\n"
-        "1) If any required argument is missing, set next='question' and ask the user.\n"
-        "1) ALWAYS ask a question in your response if next='question'.\n"
-        "2) ALWAYS set next='confirm' if you have arguments\n "
-        'And respond with "let\'s proceed with <tool> (and any other useful info)" \n '
-        + "DON'T set next='confirm' if you have a question to ask.\n"
-        "EXAMPLE: If you have a question to ask, set next='question' and ask the user.\n"
-        "3) You can carry over arguments from one tool to another.\n "
-        "EXAMPLE: If you asked for an account ID, then use the conversation history to infer that argument "
-        "going forward."
-        "4) If ListAgents in the conversation history is force_confirm='False', you MUST check "
-        + "if the current tool contains userConfirmation. If it does, please ask the user to confirm details "
-        + "with the user. userConfirmation overrides force_confirm='False'.\n"
-        + "EXAMPLE: (force_confirm='False' AND userConfirmation exists on tool) Would you like me to <run tool> "
-        + "with the following details: <details>?\n"
+        "DECISION LOGIC (follow this exact order):\n"
+        "1) Do I need to run a tool next?\n"
+        "   - If your response says 'let's get/proceed/check/add/create/finalize...' -> YES, you need a tool\n"
+        "   - If you're announcing what you're about to do -> YES, you need a tool\n"
+        "   - If no more steps needed for current goal -> NO, go to step 3\n\n"
+        "2) If YES to step 1: Do I have all required arguments?\n"
+        "   - Check tool definition for required args\n"
+        "   - Can I fill missing args from conversation history?\n"
+        "   - Can I use sensible defaults (limit=100, etc.)?\n"
+        "   - If ALL args available/inferrable -> set next='confirm', specify tool and args\n"
+        "   - If missing required args -> set next='question', ask for missing args, tool=null\n\n"
+        "3) If NO to step 1: Is the entire goal complete?\n"
+        "   - Check Goal description in system prompt - are ALL steps done?\n"
+        "   - Check recent conversation for completion indicators ('finalized', 'complete', etc.)\n"
+        f"   - If complete -> {generate_toolchain_complete_guidance()}\n"
+        "   - If not complete -> identify next needed tool, go to step 2\n\n"
+        "CRITICAL RULES:\n"
+        "• RESPOND WITH JSON ONLY - NO TEXT BEFORE OR AFTER THE JSON OBJECT\n"
+        "• Your response must start with '{' and end with '}' - nothing else\n"
+        "• NEVER set next='question' without asking an actual question in your response\n"
+        "• NEVER set tool=null when you're announcing you'll run a specific tool\n"
+        "• If response contains 'let's proceed to get pricing' -> next='confirm', tool='list_prices'\n"
+        "• If response contains 'Now adding X' -> next='confirm', tool='create_invoice_item'\n"
+        "• Use conversation history to infer arguments (customer IDs, product IDs, etc.)\n"
+        "• Use sensible defaults rather than asking users for technical parameters\n"
+        "• Carry forward arguments between tools (same customer, same invoice, etc.)\n"
+        "• If force_confirm='False' in history, be declarative, don't ask permission\n\n"
+        "EXAMPLES:\n"
+        "WRONG: response='let\\'s get pricing', next='question', tool=null\n"
+        "RIGHT: response='let\\'s get pricing', next='confirm', tool='list_prices'\n"
+        "WRONG: response='adding pizza', next='question', tool='create_invoice_item'\n"
+        "RIGHT: response='adding pizza', next='confirm', tool='create_invoice_item'\n"
     )
 
     # Validation Task (If raw_json is provided)
@@ -123,11 +166,16 @@ def generate_genai_prompt(
 
     # Prompt Start
     prompt_lines.append("")
+    prompt_lines.append("=== FINAL REMINDER ===")
+    prompt_lines.append("RESPOND WITH VALID JSON ONLY. NO ADDITIONAL TEXT.")
+    prompt_lines.append("")
     if raw_json is not None:
-        prompt_lines.append("Begin by validating the provided JSON if necessary.")
+        prompt_lines.append(
+            "Validate the provided JSON and return ONLY corrected JSON."
+        )
     else:
         prompt_lines.append(
-            "Begin by producing a valid JSON response for the next tool or question."
+            "Return ONLY a valid JSON response. Start with '{' and end with '}'."
         )
 
     return "\n".join(prompt_lines)
@@ -216,7 +264,7 @@ def generate_pick_new_goal_guidance() -> str:
         str: A prompt string prompting the LLM to when to go to pick-new-goal
     """
     if is_multi_goal_mode():
-        return 'Next should only be "pick-new-goal" if all tools have been run for the current goal (use the system prompt to figure that out), or the user explicitly requested to pick a new goal.'
+        return 'Next should only be "pick-new-goal" if EVERY SINGLE STEP in the Goal description has been completed (check the system prompt Goal section carefully), or the user explicitly requested to pick a new goal. If any step is missing (like customer creation, invoice creation, or payment processing), continue with the next required tool.'
     else:
         return 'Next should never be "pick-new-goal".'
 
@@ -232,6 +280,6 @@ def generate_toolchain_complete_guidance() -> str:
         str: A prompt string prompting the LLM to prompt for a new goal, or be done
     """
     if is_multi_goal_mode():
-        return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='confirm' and tool='ListAgents'."
+        return "If no more tools are needed for the current goal (EVERY step in the Goal description has been completed AND user_confirmed_tool_run has been run for all required tools), set next='pick-new-goal' and tool=null to allow the user to choose their next action."
     else:
-        return "If no more tools are needed (user_confirmed_tool_run has been run for all), set next='done' and tool=''."
+        return "If no more tools are needed (EVERY step in the Goal description has been completed AND user_confirmed_tool_run has been run for all), set next='done' and tool=null."

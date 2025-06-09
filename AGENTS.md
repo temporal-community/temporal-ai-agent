@@ -3,7 +3,9 @@
 ## Repository Layout
 - `workflows/` - Temporal workflows including the main AgentGoalWorkflow for multi-turn AI conversations
 - `activities/` - Temporal activities for tool execution and LLM interactions  
-- `tools/` - AI agent tools organized by category (finance, HR, ecommerce, travel, etc.)
+- `tools/` - Native AI agent tool implementations organized by category (finance, HR, ecommerce, travel, etc.)
+- `goals/` - Agent goal definitions organized by category, supporting both native and MCP tools
+- `shared/` - Shared configuration including MCP server definitions
 - `models/` - Data types and tool definitions used throughout the system
 - `prompts/` - Agent prompt generators and templates
 - `api/` - FastAPI server that exposes REST endpoints to interact with workflows
@@ -77,15 +79,20 @@ Default URLs:
 Copy `.env.example` to `.env` and configure:
 ```bash
 # Required: LLM Configuration
-LLM_MODEL=openai/gpt-4o          # or anthropic/claude-3-sonnet, etc.
+LLM_MODEL=openai/gpt-4o
 LLM_KEY=your-api-key-here
+# LLM_MODEL=anthropic/claude-3-5-sonnet-20240620
+# LLM_KEY=${ANTHROPIC_API_KEY}
+# LLM_MODEL=gemini/gemini-2.5-flash-preview-04-17
+# LLM_KEY=${GOOGLE_API_KEY}
 
 # Optional: Agent Goals and Categories  
 AGENT_GOAL=goal_choose_agent_type
-GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin
+GOAL_CATEGORIES=hr,travel-flights,travel-trains,fin,ecommerce,mcp-integrations,food
 
 # Optional: Tool-specific APIs
 STRIPE_API_KEY=sk_test_...       # For invoice creation
+# `goal_event_flight_invoice` works without this key – it falls back to a mock invoice if unset
 FOOTBALL_DATA_API_KEY=...        # For real football fixtures
 ```
 
@@ -117,7 +124,7 @@ poetry run pytest --cov=workflows --cov=activities
 - ✅ **Integration Tests**: End-to-end workflow and activity execution
 
 **Documentation:**
-- **Quick Start**: [TESTING.md](TESTING.md) - Simple commands to run tests
+- **Quick Start**: [testing.md](docs/testing.md) - Simple commands to run tests
 - **Comprehensive Guide**: [tests/README.md](tests/README.md) - Detailed testing patterns and best practices
 
 ## Linting and Code Quality
@@ -136,31 +143,50 @@ poetry run mypy --check-untyped-defs --namespace-packages .
 
 ## Agent Customization
 
-### Adding New Tools
+### Adding New Goals and Tools
+
+#### For Native Tools:
 1. Create tool implementation in `tools/` directory
 2. Add tool function mapping in `tools/__init__.py`  
 3. Register tool definition in `tools/tool_registry.py`
-4. Associate with goals in `tools/goal_registry.py`
+4. Add tool names to static tools list in `workflows/workflow_helpers.py`
+5. Create or update goal definition in appropriate file in `goals/` directory
+
+#### For MCP Tools:
+1. Configure MCP server definition in `shared/mcp_config.py` (for reusable servers)
+2. Create or update goal definition in appropriate file in `goals/` directory with `mcp_server_definition`
+3. Set required environment variables (API keys, etc.)
+
+#### For Goals:
+1. Create goal file in `goals/` directory (e.g., `goals/my_category.py`)
+2. Import and extend the goal list in `goals/__init__.py`
 
 ### Configuring Goals
-The agent supports multiple goal categories:
-- **Financial**: Money transfers, loan applications (`fin/`)
-- **HR**: PTO booking, payroll status (`hr/`)  
-- **Travel**: Flight/train booking, event finding
-- **Ecommerce**: Order tracking, package management (`ecommerce/`)
+The agent supports multiple goal categories organized in `goals/`:
+- **Financial**: Money transfers, loan applications (`goals/finance.py`)
+- **HR**: PTO booking, payroll status (`goals/hr.py`)  
+- **Travel**: Flight/train booking, event finding (`goals/travel.py`)
+- **Ecommerce**: Order tracking, package management (`goals/ecommerce.py`)
+- **Food**: Restaurant ordering and cart management (`goals/food.py`)
+- **MCP Integrations**: External service integrations like Stripe (`goals/stripe_mcp.py`)
 
-See [adding-goals-and-tools.md](adding-goals-and-tools.md) for detailed customization guide.
+Goals can use:
+- **Native Tools**: Custom implementations in `/tools/` directory
+- **MCP Tools**: External tools via Model Context Protocol servers (configured in `shared/mcp_config.py`)
+
+See [adding-goals-and-tools.md](docs/adding-goals-and-tools.md) for detailed customization guide.
 
 ## Architecture
 
-This system implements "Agentic AI" with these key components:
-1. **Goals** - High-level objectives accomplished through tool sequences
-2. **Agent Loops** - LLM execution → tool calls → human input → repeat until goal completion
-3. **Tool Approval** - Human confirmation for sensitive operations
-4. **Conversation Management** - LLM-powered input validation and history summarization
-5. **Durability** - Temporal workflows ensure reliable execution across failures
+This system implements agentic AI—autonomous systems that pursue goals through iterative tool use and human feedback—with these key components:
+1. **Goals** - High-level objectives accomplished through tool sequences (organized in `/goals/` by category)
+2. **Native & MCP Tools** - Custom implementations and external service integrations
+3. **Agent Loops** - LLM execution → tool calls → human input → repeat until goal completion
+4. **Tool Approval** - Human confirmation for sensitive operations
+5. **Conversation Management** - LLM-powered input validation and history summarization
+6. **Durability** - Temporal workflows ensure reliable execution across failures
 
-For detailed architecture information, see [architecture.md](architecture.md).
+For detailed architecture information, see [architecture.md](docs/architecture.md).
 
 ## Commit Messages and Pull Requests
 - Use clear commit messages describing the change purpose
@@ -169,7 +195,7 @@ For detailed architecture information, see [architecture.md](architecture.md).
 - Ensure tests pass before submitting: `poetry run pytest --workflow-environment=time-skipping`
 
 ## Additional Resources
-- **Setup Guide**: [SETUP.md](SETUP.md) - Detailed configuration instructions
-- **Architecture Decisions**: [architecture-decisions.md](architecture-decisions.md) - Why Temporal for AI agents
+- **Setup Guide**: [setup.md](docs/setup.md) - Detailed configuration instructions
+- **Architecture Decisions**: [architecture-decisions.md](docs/architecture-decisions.md) - Why Temporal for AI agents
 - **Demo Video**: [5-minute YouTube overview](https://www.youtube.com/watch?v=GEXllEH2XiQ)
 - **Multi-Agent Demo**: [Advanced multi-agent execution](https://www.youtube.com/watch?v=8Dc_0dC14yY)

@@ -2,8 +2,6 @@
 
 ## General Agent Enhancements
 
-[ ] MCP: There is a plan to add MCP (Model Context Protocol) to the agent. This really really really needs to be done and is scheduled to be done by @steveandroulakis some time in June 2025.
-
 [ ] Google's A2A is emerging as the standard way to hand off agents to other agents. We should examine implementing this soon.
 
 [ ] Custom metrics/tracing is important for AI specific aspects such as number of LLM calls, number of bad LLM responses that require retrying, number of bad chat outcomes. We should add this.

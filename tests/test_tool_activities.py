@@ -6,7 +6,11 @@ import pytest
 from temporalio.client import Client
 from temporalio.testing import ActivityEnvironment
 
-from activities.tool_activities import ToolActivities, dynamic_tool_activity
+from activities.tool_activities import (
+    MCPServerDefinition,
+    ToolActivities,
+    dynamic_tool_activity,
+)
 from models.data_types import (
     EnvLookupInput,
     EnvLookupOutput,
@@ -190,7 +194,7 @@ class TestToolActivities:
 
             assert isinstance(result, EnvLookupOutput)
             assert result.show_confirm is True  # default value
-            assert result.multi_goal_mode is True  # default value
+            assert result.multi_goal_mode is False  # default value (single agent mode)
 
     @pytest.mark.asyncio
     async def test_get_wf_env_vars_custom_values(self):
@@ -443,3 +447,132 @@ class TestEdgeCases:
             )
 
             assert result.show_confirm
+
+
+class TestMCPIntegration:
+    @pytest.mark.asyncio
+    async def test_convert_args_types(self):
+        from activities.tool_activities import _convert_args_types
+
+        args = {
+            "int_val": "123",
+            "float_val": "123.45",
+            "bool_true": "true",
+            "bool_false": "False",
+            "string": "text",
+            "other": 5,
+        }
+        converted = _convert_args_types(args)
+        assert converted["int_val"] == 123
+        assert converted["float_val"] == 123.45
+        assert converted["bool_true"] is True
+        assert converted["bool_false"] is False
+        assert converted["string"] == "text"
+        assert converted["other"] == 5
+
+    @pytest.mark.asyncio
+    async def test_dynamic_tool_activity_mcp_call(self):
+        mcp_def = MCPServerDefinition(
+            name="stripe", command="python", args=["server.py"]
+        )
+        payload = MagicMock()
+        payload.payload = b'{"server_definition": null, "amount": "10", "flag": "true"}'
+        mock_info = MagicMock()
+        mock_info.activity_type = "list_products"
+
+        from contextlib import asynccontextmanager
+
+        @asynccontextmanager
+        async def dummy_conn(*args, **kwargs):
+            yield (None, None)
+
+        class DummySession:
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, tb):
+                pass
+
+            async def initialize(self):
+                pass
+
+            async def call_tool(self, tool_name, arguments=None):
+                self.called_tool = tool_name
+                self.called_args = arguments
+                return MagicMock(content="ok")
+
+        mock_payload_converter = MagicMock()
+        mock_payload_converter.from_payload.return_value = {
+            "server_definition": mcp_def,
+            "amount": "10",
+            "flag": "true",
+        }
+
+        with patch("activities.tool_activities._stdio_connection", dummy_conn), patch(
+            "activities.tool_activities.ClientSession", return_value=DummySession()
+        ), patch(
+            "activities.tool_activities._build_connection",
+            return_value={
+                "type": "stdio",
+                "command": "python",
+                "args": ["server.py"],
+                "env": {},
+            },
+        ), patch(
+            "temporalio.activity.info", return_value=mock_info
+        ), patch(
+            "temporalio.activity.payload_converter", return_value=mock_payload_converter
+        ):
+            result = await ActivityEnvironment().run(dynamic_tool_activity, [payload])
+
+        assert result["success"] is True
+        assert result["tool"] == "list_products"
+
+    @pytest.mark.asyncio
+    async def test_mcp_tool_activity_failure(self):
+        tool_activities = ToolActivities()
+        mcp_def = MCPServerDefinition(
+            name="stripe", command="python", args=["server.py"]
+        )
+
+        async def dummy_conn(*args, **kwargs):
+            from contextlib import asynccontextmanager
+
+            @asynccontextmanager
+            async def cm():
+                yield (None, None)
+
+            return cm()
+
+        class DummySession:
+            async def __aenter__(self):
+                return self
+
+            async def __aexit__(self, exc_type, exc, tb):
+                pass
+
+            async def initialize(self):
+                pass
+
+            async def call_tool(self, tool_name, arguments=None):
+                raise TypeError("boom")
+
+        with patch("activities.tool_activities._stdio_connection", dummy_conn), patch(
+            "activities.tool_activities.ClientSession", return_value=DummySession()
+        ), patch(
+            "activities.tool_activities._build_connection",
+            return_value={
+                "type": "stdio",
+                "command": "python",
+                "args": ["server.py"],
+                "env": {},
+            },
+        ):
+            result = await ActivityEnvironment().run(
+                tool_activities.mcp_tool_activity,
+                "list_products",
+                {"server_definition": mcp_def, "amount": "10"},
+            )
+
+        assert result["success"] is False
+        assert result["error_type"] == "TypeError"
