@@ -25,7 +25,7 @@ const MessageBubble = memo(({ message, fallback = "", isUser = false }) => {
                         key={index}
                         src={imageUrl}
                         alt={altText}
-                        className="max-w-full h-auto rounded mt-2 mb-2"
+                        className="max-w-full h-auto rounded mt-2 mb-2 mx-auto block border border-gray-300 dark:border-gray-600"
                         style={{ maxHeight: '200px' }}
                         loading="lazy"
                     />
