@@ -8,26 +8,54 @@ const MessageBubble = memo(({ message, fallback = "", isUser = false }) => {
     }
 
     const renderTextWithLinks = (text) => {
+        // First handle image markdown: ![alt text](url)
+        const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
         const urlRegex = /(https?:\/\/[^\s]+)/g;
-        const parts = text.split(urlRegex);
-
-        return parts.map((part, index) => {
-            if (urlRegex.test(part)) {
+        
+        // Split by image markdown first
+        const imageParts = text.split(imageRegex);
+        
+        return imageParts.map((part, index) => {
+            // Every third element (starting from index 2) is an image URL
+            if (index > 0 && (index - 2) % 3 === 0) {
+                const altText = imageParts[index - 1];
+                const imageUrl = part;
                 return (
-                    <a
+                    <img
                         key={index}
-                        href={part}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:text-blue-600 underline"
-                        aria-label={`External link to ${part}`}
-                    >
-                        {part}
-                    </a>
+                        src={imageUrl}
+                        alt={altText}
+                        className="max-w-full h-auto rounded mt-2 mb-2"
+                        style={{ maxHeight: '200px' }}
+                        loading="lazy"
+                    />
                 );
             }
-            return part;
-        });
+            // Skip alt text parts (every second element after first)
+            if (index > 0 && (index - 1) % 3 === 0) {
+                return null;
+            }
+            
+            // Handle regular text and links
+            const linkParts = part.split(urlRegex);
+            return linkParts.map((linkPart, linkIndex) => {
+                if (urlRegex.test(linkPart)) {
+                    return (
+                        <a
+                            key={`${index}-${linkIndex}`}
+                            href={linkPart}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-500 hover:text-blue-600 underline"
+                            aria-label={`External link to ${linkPart}`}
+                        >
+                            {linkPart}
+                        </a>
+                    );
+                }
+                return linkPart;
+            });
+        }).filter(Boolean);
     };
 
     return (
