@@ -23,7 +23,7 @@ goal_food_ordering = AgentGoal(
         ]
     ),
     description="The user wants to order food from Tony's Pizza Palace. "
-    "First, help the user browse the menu by calling list_products. "
+    "First, help the user browse the menu by calling list_products. You can refer to this data throughout the conversation to answer questions (without re-calling this tool). If menu items contain links to images, you can use markdown to display them e.g. ![Pepperoni Pizza](https://...)"
     "When they express interest in items, get pricing using list_prices. "
     "Add items to their cart using AddToCart as they decide - the order doesn't matter, multiple items can be added. "
     "After they're done selecting items, get their customer details and create a Stripe customer. "
