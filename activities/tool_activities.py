@@ -19,6 +19,7 @@ from models.data_types import (
     ValidationResult,
 )
 from models.tool_definitions import MCPServerDefinition
+from shared.mcp_client_manager import MCPClientManager
 
 # Import MCP client libraries
 try:
@@ -34,14 +35,17 @@ load_dotenv(override=True)
 
 
 class ToolActivities:
-    def __init__(self):
-        """Initialize LLM client using LiteLLM."""
+    def __init__(self, mcp_client_manager: MCPClientManager = None):
+        """Initialize LLM client using LiteLLM and optional MCP client manager"""
         self.llm_model = os.environ.get("LLM_MODEL", "openai/gpt-4")
         self.llm_key = os.environ.get("LLM_KEY")
         self.llm_base_url = os.environ.get("LLM_BASE_URL")
+        self.mcp_client_manager = mcp_client_manager
         print(f"Initializing ToolActivities with LLM model: {self.llm_model}")
         if self.llm_base_url:
             print(f"Using custom base URL: {self.llm_base_url}")
+        if self.mcp_client_manager:
+            print("MCP client manager enabled for connection pooling")
 
     @activity.defn
     async def agent_validatePrompt(
@@ -205,13 +209,54 @@ class ToolActivities:
     async def mcp_tool_activity(
         self, tool_name: str, tool_args: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """MCP Tool"""
+        """MCP Tool - now using pooled connections"""
         activity.logger.info(f"Executing MCP tool: {tool_name} with args: {tool_args}")
 
         # Extract server definition
         server_definition = tool_args.pop("server_definition", None)
 
-        return await _execute_mcp_tool(tool_name, tool_args, server_definition)
+        if self.mcp_client_manager:
+            # Use pooled connection
+            return await self._execute_mcp_tool_pooled(
+                tool_name, tool_args, server_definition
+            )
+        else:
+            # Fallback to original implementation
+            return await _execute_mcp_tool(tool_name, tool_args, server_definition)
+
+    async def _execute_mcp_tool_pooled(
+        self,
+        tool_name: str,
+        tool_args: Dict[str, Any],
+        server_definition: MCPServerDefinition | Dict[str, Any] | None,
+    ) -> Dict[str, Any]:
+        """Execute MCP tool using pooled client connection"""
+        activity.logger.info(f"Executing MCP tool with pooled connection: {tool_name}")
+
+        # Convert argument types for MCP tools
+        converted_args = _convert_args_types(tool_args)
+
+        try:
+            # Get pooled client
+            client = await self.mcp_client_manager.get_client(server_definition)
+
+            # Call the tool using existing client session
+            result = await client.call_tool(tool_name, arguments=converted_args)
+            normalized_result = _normalize_result(result)
+
+            return {
+                "tool": tool_name,
+                "success": True,
+                "content": normalized_result,
+            }
+        except Exception as e:
+            activity.logger.error(f"MCP tool {tool_name} failed: {str(e)}")
+            return {
+                "tool": tool_name,
+                "success": False,
+                "error": str(e),
+                "error_type": type(e).__name__,
+            }
 
 
 @activity.defn(dynamic=True)
