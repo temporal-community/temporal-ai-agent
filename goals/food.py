@@ -23,7 +23,7 @@ goal_food_ordering = AgentGoal(
         ]
     ),
     description="The user wants to order food from Tony's Pizza Palace. "
-    "First, help the user browse the menu by calling list_products. "
+    "First, help the user browse the menu by calling list_products. You can refer to this data throughout the conversation to answer questions (without re-calling this tool). If menu items contain links to images, you can use markdown to display them e.g. ![Pepperoni Pizza](https://...)"
     "When they express interest in items, get pricing using list_prices. "
     "Add items to their cart using AddToCart as they decide - the order doesn't matter, multiple items can be added. "
     "After they're done selecting items, get their customer details and create a Stripe customer. "
@@ -35,8 +35,8 @@ goal_food_ordering = AgentGoal(
             "user: I want to order food.",
             "agent: Welcome to Tony's Pizza Palace! I can help you browse our menu, add items to your cart, and process payment. Let me show you what we have available.",
             "user_confirmed_tool_run: <user clicks confirm on list_products tool with limit=100 and product.metadata.use_case == 'food_ordering_demo'>",
-            'tool_result: {"products": [{"id": "prod_pepperoni", "name": "Pepperoni Pizza", "description": "A timeless classic featuring pepperoni"}, {"id": "prod_margherita", "name": "Margherita Pizza", "description": "Fresh mozzarella and basil"}, {"id": "prod_garlic_bread", "name": "Garlic Bread", "description": "Warm crusty bread with garlic butter"}, {"id": "prod_soda", "name": "Soda", "description": "A large bottle of cola"}]}',
-            "agent: We have Pepperoni Pizza, Margherita Pizza, Garlic Bread, and Soda available. What would you like to order?",
+            'tool_result: {"products": [{"id": "prod_pepperoni", "name": "Pepperoni Pizza", "description": "A timeless classic featuring pepperoni", "images": ["https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfcGRHc0c4cEZYWmR2bm0zOHBOa0FWMk5t008QmCJoWr"]}, {"id": "prod_margherita", "name": "Margherita Pizza", "description": "Fresh mozzarella and basil", "images": ["https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfamdmTXBFbzY0TW9rS2N0c2g0Tml2SERL00Evl60Ttq"]}, {"id": "prod_garlic_bread", "name": "Garlic Bread", "description": "Warm crusty bread with garlic butter", "images": ["https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfWTdIZTBkUjNZNFQ1ZEhSVG9nRnduY1pS00XVgLRRZD"]}, {"id": "prod_soda", "name": "Soda", "description": "A large bottle of cola", "images": ["https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfbDJxckJKMDRnT1dDc243OHlZNWNkZkY5006Xg07kHT"]}]}',
+            "agent: Welcome to our menu! Here's what we have available:\\n\\n**Pepperoni Pizza** - A timeless classic featuring pepperoni\\n![Pepperoni Pizza](https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfcGRHc0c4cEZYWmR2bm0zOHBOa0FWMk5t008QmCJoWr)\\n\\n**Margherita Pizza** - Fresh mozzarella and basil\\n![Margherita Pizza](https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfamdmTXBFbzY0TW9rS2N0c2g0Tml2SERL00Evl60Ttq)\\n\\n**Garlic Bread** - Warm crusty bread with garlic butter\\n![Garlic Bread](https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfWTdIZTBkUjNZNFQ1ZEhSVG9nRnduY1pS00XVgLRRZD)\\n\\n**Soda** - A large bottle of cola\\n![Soda](https://files.stripe.com/links/MDB8YWNjdF8xTkJPTHVLVlpienc3UUE1fGZsX3Rlc3RfbDJxckJKMDRnT1dDc243OHlZNWNkZkY5006Xg07kHT)\\n\\nWhat would you like to order?",
             "user: I'd like 2 pepperoni pizzas and a soda.",
             "agent: Excellent! Let me get the pricing for the pepperoni pizzas first so you know the cost.",
             "user_confirmed_tool_run: <user clicks confirm on list_prices tool with product='prod_pepperoni'>",
