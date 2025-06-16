@@ -65,7 +65,7 @@ async def get_tool_data():
             return {}
 
         # Query the workflow
-        tool_data = await handle.query("get_tool_data")
+        tool_data = await handle.query("get_latest_tool_data")
         return tool_data
     except TemporalError as e:
         # Workflow not found; return an empty response
