@@ -23,6 +23,8 @@
 
 [ ] enable user to list agents at any time - like end conversation - probably with a next step<br />
 
+[ ] get this on the Model Context Protocol site's list of MCP clients https://modelcontextprotocol.io/clients
+
 ## Ideas for more goals and tools
 
 [ ] Add fintech goals <br />
