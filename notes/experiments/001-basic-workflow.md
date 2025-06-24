@@ -1,16 +1,18 @@
-# Experiment 001: Basic Workflow Setup
+# Experiment 001: Setup and run locally out of the box demo
 
-**Date**: 
+**Date**:
 
 ## Objective
-To understand and implement a basic workflow using the Temporal AI Agent system, establishing a foundation for more complex experiments.
+To understand what's involved in setting up and running the Temporal AI Agent locally out of the box demo.
 
 ## Setup
 
 ### Environment
 - [ ] Local development environment
-- [ ] Dependencies installed
+  - I'm using asdf (already installed)to manage python versions
+  - Temporal is already installed using brew, `brew install temporal`
 - [ ] Temporal server running
+  - Start server using make commands: `make setup-temporal-mac`
 
 ### Configuration
 ```yaml
@@ -82,4 +84,4 @@ To understand and implement a basic workflow using the Temporal AI Agent system,
 - Important note 2
 
 ---
-Last Updated: 
+Last Updated:
