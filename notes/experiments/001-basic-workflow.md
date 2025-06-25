@@ -5,6 +5,30 @@
 ## Objective
 To understand what's involved in setting up and running the Temporal AI Agent locally out of the box demo.
 
+## State
+Can start everything up back create a new chat.
+Looking through Temporal serves messages, I see warnings about "Activity failure size exceeds limit for mutable state"
+
+The LLM provider isn't configured in the .env file. For that matter I don't event have a .env failure
+
+**Try**
+ - Create a .env file by copying `.env.example` and configure, and see what happens
+ - Configured LLM using NF key
+**Result**
+- NF key is crap, it is always out of tokens
+
+**Try**
+ - Configure with LLama to not burn tokens while testing
+ - NOt working, needs some code changes to get Ollama to working
+
+**Try**
+- Configure using my Anthropic key
+**Result**
+  - Starts up okay, and I can interact with chat bot
+  - I get 10 "welcome" messages though
+
+
+
 ## Setup
 
 ### Environment
@@ -12,7 +36,7 @@ To understand what's involved in setting up and running the Temporal AI Agent lo
   - I'm using asdf (already installed)to manage python versions
   - Temporal is already installed using brew, `brew install temporal`
 - [ ] Temporal server running
-  - Start server using make commands: `make setup-temporal-mac`
+  - Start server using make commands: `make start-temporal-server `
 
 ### Configuration
 ```yaml
