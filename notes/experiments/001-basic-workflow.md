@@ -1,38 +1,40 @@
-# Experiment 001: Basic Workflow Setup
+# Experiment 001: Setup and run locally out of the box demo
 
-**Date**: 
+**Date**:
 
 ## Objective
-To understand and implement a basic workflow using the Temporal AI Agent system, establishing a foundation for more complex experiments.
+To understand what's involved in setting up and running the Temporal AI Agent locally out of the box demo.
 
 ## Setup
 
 ### Environment
-- [ ] Local development environment
-- [ ] Dependencies installed
-- [ ] Temporal server running
+- Local development environment
+  - I'm using asdf (already installed)to manage python versions
+  - Temporal is already installed using brew, `brew install temporal`
+
+- Temporal server running
+  - Start server using make commands: `make start-temporal-server `
 
 ### Configuration
-```yaml
-# Add any relevant configuration here
-```
+Copy `.env.example` to `.env` and configure
+- Set `LLM_KEY=YOUR_API_KEY`
+- Set `LLM_MODEL=YOUR_MODEL_NAME`, e.g `anthropic/claude-3-5-sonnet-20240620`
+- Set `STRIPE_API_KEY=` to generate mock data, use your Stripe API key if you have one
+
 
 ## Implementation Steps
 
-1. **Initial Setup**
-   - [ ] Task
-   - Notes:
+Start local Temporal server
+`make start-temporal-server`
 
-2. **Workflow Definition**
-   - [ ] Task
-   - Code changes:
-   ```python
-   # Add code snippets here
-   ```
+Start api, workers, workflow and UI
+`make run-dev`
 
-3. **Agent Integration**
-   - [ ] Task
-   - Notes:
+Temporal workflow monitor
+- URL is displayed in the output when server is started
+
+Application UI
+
 
 ## Observations
 
@@ -82,4 +84,4 @@ To understand and implement a basic workflow using the Temporal AI Agent system,
 - Important note 2
 
 ---
-Last Updated: 
+Last Updated:
