@@ -39,8 +39,8 @@ Application UI
 ## Observations
 
 ### What Worked Well
-- Point 1
-- Point 2
+- Demo runs when using Antrhopic and my personal key. NF key is always out of capacity
+- Demo fails when running with Ollama locally. Will need some code changes to support Ollama
 
 ### Challenges Encountered
 - Challenge 1
