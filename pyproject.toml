@@ -1,23 +1,40 @@
-[tool.poetry]
+[project]
 name = "temporal_AI_agent"
 version = "0.2.0"
 description = "Temporal AI Agent"
-license = "MIT"
 authors = [
-    "Steve Androulakis <steve.androulakis@temporal.io>",
-    "Laine Smith <lainecaseysmith@gmail.com>",
-    "Joshua Smith <josh.smith@temporal.io>"
+    { name = "Steve Androulakis", email = "steve.androulakis@temporal.io" },
+    { name = "Laine Smith", email = "lainecaseysmith@gmail.com" },
+    { name = "Joshua Smith", email = "josh.smith@temporal.io" },
 ]
+requires-python = ">=3.10,<4.0"
 readme = "README.md"
-
-# By default, Poetry will find packages automatically,
-# but explicitly including them is fine:
-packages = [
-  { include = "**/*.py", from = "." }
+license = "MIT"
+dependencies = [
+    "temporalio>=1.8.0,<2",
+    "litellm>=1.70.0,<2",
+    "pyyaml>=6.0.2,<7",
+    "fastapi>=0.115.6,<0.116",
+    "uvicorn>=0.34.0,<0.35",
+    "python-dotenv>=1.0.1,<2",
+    "requests>=2.32.3,<3",
+    "pandas>=2.2.3,<3",
+    "stripe>=11.4.1,<12",
+    "gtfs-kit>=10.1.1,<11",
+    "fastmcp>=2.7.0,<3",
 ]
 
-[tool.poetry.urls]
+[project.urls]
 "Bug Tracker" = "https://github.com/temporal-community/temporal-ai-agent/issues"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.26.0,<0.27",
+    "black~=23.7",
+    "isort~=5.12",
+    "mypy>=1.16.0,<2",
+]
 
 [tool.poe.tasks]
 format = [{cmd = "black ."}, {cmd = "isort ."}]
@@ -25,33 +42,18 @@ lint = [{cmd = "black --check ."}, {cmd = "isort --check-only ."}, {ref = "lint-
 lint-types = "mypy --check-untyped-defs --namespace-packages ."
 test = "pytest"
 
-[tool.poetry.dependencies]
-python = ">=3.10,<4.0"
-temporalio = "^1.8.0"
+[tool.hatch.build.targets.sdist]
+include = ["./**/*.py"]
 
-# Standard library modules (e.g. asyncio, collections) don't need to be added
-# since they're built-in for Python 3.8+.
-litellm = "^1.70.0"
-pyyaml = "^6.0.2"
-fastapi = "^0.115.6"
-uvicorn = "^0.34.0"
-python-dotenv = "^1.0.1"
-requests = "^2.32.3"
-pandas = "^2.2.3"
-stripe = "^11.4.1"
-gtfs-kit = "^10.1.1"
-fastmcp = "^2.7.0"
+[tool.hatch.build.targets.wheel]
+include = ["./**/*.py"]
 
-[tool.poetry.group.dev.dependencies]
-pytest = ">=8.2"
-pytest-asyncio = "^0.26.0"
-black = "^23.7"
-isort = "^5.12"
-mypy = "^1.16.0"
+[tool.hatch.build.targets.wheel.sources]
+"./**/*.py" = "**/*.py"
 
 [build-system]
-requires = ["poetry-core>=1.4.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
