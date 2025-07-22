@@ -5,5 +5,6 @@ export default defineConfig({
   plugins: [react()],
   server: {
     open: true,
+    host: process.env.VITE_HOST ?? 'localhost',
   },
 });
