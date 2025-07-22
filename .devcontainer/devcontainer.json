@@ -1,0 +1,20 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "name": "Temporal AI Agentic Demo",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers-extra/features/poetry:2": {},
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers-extra/features/temporal-cli:1": {},
+    "ghcr.io/mrsimonemms/devcontainers/tcld:1": {}
+  },
+  "forwardPorts": [
+    5173,
+	  7233,
+    8000,
+	  8233
+  ],
+  "containerEnv": {
+    "VITE_HOST": "0.0.0.0"
+  }
+}
