@@ -8,40 +8,32 @@ This document provides guidelines for contributing to `temporal-ai-agent`. All s
 We use `black` for code formatting and `isort` for import sorting to maintain a consistent codebase.
 -   **Format code:**
     ```bash
-    poetry run poe format
-    ```
-    Or manually:
-    ```bash
-    poetry run black .
-    poetry run isort .
+    uv run black .
+    uv run isort .
     ```
     Please format your code before committing.
 
 ### Linting & Type Checking
-We use `mypy` for static type checking and other linters configured via `poe the poet`.
--   **Run linters and type checks:**
+We use `mypy` for static type checking.
+-   **Run type checks:**
     ```bash
-    poetry run poe lint
-    ```
-    Or manually for type checking:
-    ```bash
-    poetry run mypy --check-untyped-defs --namespace-packages .
+    uv run mypy --check-untyped-defs --namespace-packages .
     ```
     Ensure all linting and type checks pass before submitting a pull request.
 
 ## Testing
 Comprehensive testing is crucial for this project. We use `pytest` and Temporal's testing framework.
--   **Install test dependencies** (if not already done with `poetry install --with dev`):
+-   **Install test dependencies:**
     ```bash
-    poetry install --with dev
+    uv sync
     ```
 -   **Run all tests:**
     ```bash
-    poetry run pytest
+    uv run pytest
     ```
 -   **Run tests with time-skipping (recommended for faster execution, especially in CI):**
     ```bash
-    poetry run pytest --workflow-environment=time-skipping
+    uv run pytest --workflow-environment=time-skipping
     ```
 
 For detailed information on test categories, running specific tests, test environments, coverage, and troubleshooting, please refer to:
@@ -73,7 +65,7 @@ When you're ready to submit your changes:
 1.  Push your branch to the remote repository.
 2.  Open a Pull Request (PR) against the `main` branch.
 3.  **Describe your changes:** Clearly explain what you changed and why. Reference any related issues.
-4.  **Ensure tests pass:** All CI checks, including tests and linters, must pass. The command `poetry run pytest --workflow-environment=time-skipping` is a good one to run locally.
+4.  **Ensure tests pass:** All CI checks, including tests and linters, must pass. The command `uv run pytest --workflow-environment=time-skipping` is a good one to run locally.
 5.  **Request review:** Request a review from one or more maintainers.
 
 ## Reporting Bugs

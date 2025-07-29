@@ -6,17 +6,17 @@ This guide provides instructions for running the comprehensive test suite for th
 
 1. **Install dependencies**:
    ```bash
-   poetry install --with dev
+   uv sync
    ```
 
 2. **Run all tests**:
    ```bash
-   poetry run pytest
+   uv run pytest
    ```
 
 3. **Run with time-skipping for faster execution**:
    ```bash
-   poetry run pytest --workflow-environment=time-skipping
+   uv run pytest --workflow-environment=time-skipping
    ```
 
 ## Test Categories
@@ -39,33 +39,33 @@ This guide provides instructions for running the comprehensive test suite for th
 
 ```bash
 # Run only activity tests
-poetry run pytest tests/test_tool_activities.py -v
+uv run pytest tests/test_tool_activities.py -v
 
 # Run only workflow tests  
-poetry run pytest tests/test_agent_goal_workflow.py -v
+uv run pytest tests/test_agent_goal_workflow.py -v
 
 # Run a specific test
-poetry run pytest tests/test_tool_activities.py::TestToolActivities::test_sanitize_json_response -v
+uv run pytest tests/test_tool_activities.py::TestToolActivities::test_sanitize_json_response -v
 
 # Run tests matching a pattern
-poetry run pytest -k "validation" -v
+uv run pytest -k "validation" -v
 ```
 
 ## Test Environment Options
 
 ### Local Environment (Default)
 ```bash
-poetry run pytest --workflow-environment=local
+uv run pytest --workflow-environment=local
 ```
 
 ### Time-Skipping Environment (Recommended for CI)
 ```bash
-poetry run pytest --workflow-environment=time-skipping
+uv run pytest --workflow-environment=time-skipping
 ```
 
 ### External Temporal Server
 ```bash
-poetry run pytest --workflow-environment=localhost:7233
+uv run pytest --workflow-environment=localhost:7233
 ```
 
 ## Environment Variables
@@ -122,7 +122,7 @@ tests/test_tool_activities.py::TestToolActivities::test_get_wf_env_vars_default_
 
 ### Common Issues
 
-1. **Module not found errors**: Run `poetry install --with dev`
+1. **Module not found errors**: Run `uv sync`
 2. **Async warnings**: These are expected with pytest-asyncio and can be ignored  
 3. **Test timeouts**: Use `--workflow-environment=time-skipping` for faster execution
 4. **Import errors**: Check that you're running tests from the project root directory
@@ -131,19 +131,19 @@ tests/test_tool_activities.py::TestToolActivities::test_get_wf_env_vars_default_
 
 Enable verbose logging:
 ```bash
-poetry run pytest --log-cli-level=DEBUG -s
+uv run pytest --log-cli-level=DEBUG -s
 ```
 
 Run with coverage:
 ```bash
-poetry run pytest --cov=workflows --cov=activities
+uv run pytest --cov=workflows --cov=activities
 ```
 
 ## Continuous Integration
 
 For CI environments, use:
 ```bash
-poetry run pytest --workflow-environment=time-skipping --tb=short
+uv run pytest --workflow-environment=time-skipping --tb=short
 ```
 
 ## Additional Resources
