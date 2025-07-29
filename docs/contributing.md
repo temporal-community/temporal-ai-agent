@@ -8,14 +8,22 @@ This document provides guidelines for contributing to `temporal-ai-agent`. All s
 We use `black` for code formatting and `isort` for import sorting to maintain a consistent codebase.
 -   **Format code:**
     ```bash
+    uv run poe format
+    ```
+    Or manually
+    ```
     uv run black .
     uv run isort .
     ```
     Please format your code before committing.
 
 ### Linting & Type Checking
-We use `mypy` for static type checking.
--   **Run type checks:**
+We use `mypy` for static type checking and other linters configured via `poe`.
+-   **Run linters and type checks:**
+    ```bash
+    uv run poe lint
+    ```
+    Or manually for type checking:
     ```bash
     uv run mypy --check-untyped-defs --namespace-packages .
     ```

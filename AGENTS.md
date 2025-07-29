@@ -129,17 +129,15 @@ uv run pytest --cov=workflows --cov=activities
 ## Linting and Code Quality
 
 ```bash
-# Format code
+# Using poe tasks
+uv run poe format    # Format code with black and isort
+uv run poe lint      # Check code style and types
+uv run poe test      # Run test suite
+
+# Manual commands
 uv run black .
 uv run isort .
-
-# Check code style and types
-uv run black --check .
-uv run isort --check-only .
 uv run mypy --check-untyped-defs --namespace-packages .
-
-# Run test suite
-uv run pytest
 ```
 
 ## Agent Customization
