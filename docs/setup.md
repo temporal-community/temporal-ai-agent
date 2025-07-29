@@ -167,7 +167,7 @@ Run the following commands in separate terminal windows:
 
 1. Start the Temporal worker:
 ```bash
-uv run python scripts/run_worker.py
+uv run scripts/run_worker.py
 ```
 
 2. Start the API server:
@@ -257,7 +257,7 @@ NOTE: This goal was developed for an on-stage demo and has failure (and its reso
 
 Required to search and book trains!
 ```bash
-uv run python thirdparty/train_api.py
+uv run thirdparty/train_api.py
 
 # example url
 # http://localhost:8080/api/search?from=london&to=liverpool&outbound_time=2025-04-18T09:00:00&inbound_time=2025-04-20T09:00:00
@@ -269,7 +269,7 @@ uv run python thirdparty/train_api.py
  These are Python activities that fail (raise NotImplemented) to show how Temporal handles a failure. You can run these activities with.
 
  ```bash
- uv run python scripts/run_legacy_worker.py
+ uv run scripts/run_legacy_worker.py
  ```
 
  The activity will fail and be retried infinitely. To rescue the activity (and its corresponding workflows), kill the worker and run the .NET one in the section below.
@@ -324,7 +324,7 @@ For more details, check out [adding goals and tools guide](./adding-goals-and-to
 [  ] Select an LLM and add your API key to `.env` <br />
 [  ] (Optional) set your starting goal and goal category in  `.env` <br />
 [  ] (Optional) configure your Temporal Cloud settings in  `.env` <br />
-[  ] `uv run python scripts/run_worker.py` <br />
+[  ] `uv run scripts/run_worker.py` <br />
 [  ] `uv run uvicorn api.main:app --reload` <br />
 [  ] `cd frontend`, `npm install`, `npx vite` <br />
 [ ] Access the UI at `http://localhost:5173` <br />

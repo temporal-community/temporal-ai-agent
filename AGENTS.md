@@ -50,7 +50,7 @@ Default URLs:
    
    # Or manually:
    uv sync
-   uv run python scripts/run_worker.py    # In one terminal
+   uv run scripts/run_worker.py    # In one terminal
    uv run uvicorn api.main:app --reload   # In another terminal
    ```
 

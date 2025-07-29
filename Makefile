@@ -6,7 +6,7 @@ setup:
 
 # Run commands
 run-worker:
-	uv run python scripts/run_worker.py
+	uv run scripts/run_worker.py
 
 run-api:
 	uv run uvicorn api.main:app --reload
@@ -15,10 +15,10 @@ run-frontend:
 	cd frontend && npx vite
 
 run-train-api:
-	uv run python thirdparty/train_api.py
+	uv run thirdparty/train_api.py
 
 run-legacy-worker:
-	uv run python scripts/run_legacy_worker.py
+	uv run scripts/run_legacy_worker.py
 
 run-enterprise:
 	cd enterprise && dotnet build && dotnet run
