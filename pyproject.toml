@@ -42,14 +42,11 @@ lint = [{cmd = "black --check ."}, {cmd = "isort --check-only ."}, {ref = "lint-
 lint-types = "mypy --check-untyped-defs --namespace-packages ."
 test = "pytest"
 
-[tool.hatch.build.targets.sdist]
-include = ["./**/*.py"]
+[tool.hatch.metadata]
+allow-direct-references = true
 
-[tool.hatch.build.targets.wheel]
-include = ["./**/*.py"]
-
-[tool.hatch.build.targets.wheel.sources]
-"./**/*.py" = "**/*.py"
+[tool.hatch.build]
+packages = ["activities", "api", "goals", "models", "prompts", "shared", "tools", "workflows"]
 
 [build-system]
 requires = ["hatchling"]
