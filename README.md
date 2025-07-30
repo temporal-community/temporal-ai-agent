@@ -65,13 +65,13 @@ The project includes comprehensive tests for workflows and activities using Temp
 
 ```bash
 # Install dependencies including test dependencies
-poetry install --with dev
+uv sync
 
 # Run all tests
-poetry run pytest
+uv run pytest
 
 # Run with time-skipping for faster execution
-poetry run pytest --workflow-environment=time-skipping
+uv run pytest --workflow-environment=time-skipping
 ```
 
 **Test Coverage:**

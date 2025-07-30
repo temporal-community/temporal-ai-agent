@@ -2,17 +2,17 @@ services:
   api:
     volumes:
       - ./:/app:cached
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uv run uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
 
   worker:
     volumes:
       - ./:/app:cached
-    command: python scripts/run_worker.py
+    command: uv run scripts/run_worker.py
 
   train-api:
     volumes:
       - ./:/app:cached
-    command: python thirdparty/train_api.py
+    command: uv run thirdparty/train_api.py
 
   frontend:
     volumes:

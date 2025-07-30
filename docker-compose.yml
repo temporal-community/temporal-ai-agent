@@ -79,7 +79,7 @@ services:
       - .env
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
-    command: python scripts/run_worker.py
+    command: uv run scripts/run_worker.py
     networks:
       - temporal-network
 
@@ -94,7 +94,7 @@ services:
       - .env
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
-    command: python thirdparty/train_api.py
+    command: uv run thirdparty/train_api.py
     networks:
       - temporal-network
 

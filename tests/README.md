@@ -53,31 +53,31 @@ Provides shared test fixtures and configuration:
 Ensure you have the required dependencies installed:
 
 ```bash
-poetry install --with dev
+uv sync
 ```
 
 ### Basic Test Execution
 
 Run all tests:
 ```bash
-poetry run pytest
+uv run pytest
 ```
 
 Run specific test files:
 ```bash
 # Workflow tests only
-poetry run pytest tests/test_agent_goal_workflow.py
+uv run pytest tests/test_agent_goal_workflow.py
 
 # Activity tests only
-poetry run pytest tests/test_tool_activities.py
+uv run pytest tests/test_tool_activities.py
 
 # Legacy tests
-poetry run pytest tests/workflowtests/
+uv run pytest tests/workflowtests/
 ```
 
 Run with verbose output:
 ```bash
-poetry run pytest -v
+uv run pytest -v
 ```
 
 ### Test Environment Options
@@ -87,34 +87,34 @@ The tests support different Temporal environments via the `--workflow-environmen
 #### Local Environment (Default)
 Uses a local Temporal test server:
 ```bash
-poetry run pytest --workflow-environment=local
+uv run pytest --workflow-environment=local
 ```
 
 #### Time-Skipping Environment
 Uses Temporal's time-skipping test environment for faster execution:
 ```bash
-poetry run pytest --workflow-environment=time-skipping
+uv run pytest --workflow-environment=time-skipping
 ```
 
 #### External Server
 Connect to an existing Temporal server:
 ```bash
-poetry run pytest --workflow-environment=localhost:7233
+uv run pytest --workflow-environment=localhost:7233
 ```
 
 #### Setup Script for AI Agent environments such as OpenAI Codex
 ```bash
 export SHELL=/bin/bash
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
 ls
-poetry install --with dev
+uv sync
 cd frontend
 npm install
 cd ..
 
 # Pre-download the temporal test server binary
-poetry run python3 -c "
+uv run python -c "
 import asyncio
 import sys
 from temporalio.testing import WorkflowEnvironment
@@ -139,22 +139,22 @@ asyncio.run(predownload())
 Run tests by pattern:
 ```bash
 # Run only validation tests
-poetry run pytest -k "validation"
+uv run pytest -k "validation"
 
 # Run only workflow tests
-poetry run pytest -k "workflow"
+uv run pytest -k "workflow"
 
 # Run only activity tests
-poetry run pytest -k "activity"
+uv run pytest -k "activity"
 ```
 
 Run tests by marker (if you add custom markers):
 ```bash
 # Run only integration tests
-poetry run pytest -m integration
+uv run pytest -m integration
 
 # Skip slow tests
-poetry run pytest -m "not slow"
+uv run pytest -m "not slow"
 ```
 
 ## Test Configuration
@@ -276,7 +276,7 @@ The `sample_combined_input` fixture provides:
 
 Enable detailed logging:
 ```bash
-poetry run pytest --log-cli-level=DEBUG -s
+uv run pytest --log-cli-level=DEBUG -s
 ```
 
 ### Temporal Web UI
@@ -301,21 +301,18 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - run: pip install poetry
-      - run: poetry install --with dev
-      - run: poetry run pytest --workflow-environment=time-skipping
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync
+      - run: uv run pytest --workflow-environment=time-skipping
 ```
 
 ### Test Coverage
 
 Generate coverage reports:
 ```bash
-poetry add --group dev pytest-cov
-poetry run pytest --cov=workflows --cov=activities --cov-report=html
+uv add --group dev pytest-cov
+uv run pytest --cov=workflows --cov=activities --cov-report=html
 ```
 
 ## Best Practices
@@ -342,7 +339,7 @@ poetry run pytest --cov=workflows --cov=activities --cov-report=html
 
 - Check Temporal Python SDK documentation
 - Review existing test patterns in the codebase
-- Use `poetry run pytest --collect-only` to verify test discovery
+- Use `uv run pytest --collect-only` to verify test discovery
 - Run with `-v` flag for detailed output
 
 ## Legacy Tests

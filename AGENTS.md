@@ -34,11 +34,10 @@ Default URLs:
 
 1. **Prerequisites:**
    ```bash
-   # Install Poetry for Python dependency management
-   curl -sSL https://install.python-poetry.org | python3 -
-   
-   # Start Temporal server (Mac)
+   # Install uv and Temporal server (MacOS)
+   brew install uv
    brew install temporal
+
    temporal server start-dev
    ```
 
@@ -50,9 +49,9 @@ Default URLs:
    make run-api            # Starts the API server
    
    # Or manually:
-   poetry install
-   poetry run python scripts/run_worker.py    # In one terminal
-   poetry run uvicorn api.main:app --reload   # In another terminal
+   uv sync
+   uv run scripts/run_worker.py    # In one terminal
+   uv run uvicorn api.main:app --reload   # In another terminal
    ```
 
 3. **Frontend (React):**
@@ -102,20 +101,20 @@ The project includes comprehensive tests using Temporal's testing framework:
 
 ```bash
 # Install test dependencies
-poetry install --with dev
+uv sync
 
 # Run all tests
-poetry run pytest
+uv run pytest
 
 # Run with time-skipping for faster execution  
-poetry run pytest --workflow-environment=time-skipping
+uv run pytest --workflow-environment=time-skipping
 
 # Run specific test categories
-poetry run pytest tests/test_tool_activities.py -v     # Activity tests
-poetry run pytest tests/test_agent_goal_workflow.py -v # Workflow tests
+uv run pytest tests/test_tool_activities.py -v     # Activity tests
+uv run pytest tests/test_agent_goal_workflow.py -v # Workflow tests
 
 # Run with coverage
-poetry run pytest --cov=workflows --cov=activities
+uv run pytest --cov=workflows --cov=activities
 ```
 
 **Test Coverage:**
@@ -130,15 +129,15 @@ poetry run pytest --cov=workflows --cov=activities
 ## Linting and Code Quality
 
 ```bash
-# Using Poetry tasks
-poetry run poe format    # Format code with black and isort
-poetry run poe lint      # Check code style and types
-poetry run poe test      # Run test suite
+# Using poe tasks
+uv run poe format    # Format code with black and isort
+uv run poe lint      # Check code style and types
+uv run poe test      # Run test suite
 
-# Manual commands  
-poetry run black .
-poetry run isort .
-poetry run mypy --check-untyped-defs --namespace-packages .
+# Manual commands
+uv run black .
+uv run isort .
+uv run mypy --check-untyped-defs --namespace-packages .
 ```
 
 ## Agent Customization
@@ -192,7 +191,7 @@ For detailed architecture information, see [architecture.md](docs/architecture.m
 - Use clear commit messages describing the change purpose
 - Reference specific files and line numbers when relevant (e.g., `workflows/agent_goal_workflow.py:125`)
 - Open PRs describing **what changed** and **why**
-- Ensure tests pass before submitting: `poetry run pytest --workflow-environment=time-skipping`
+- Ensure tests pass before submitting: `uv run pytest --workflow-environment=time-skipping`
 
 ## Additional Resources
 - **Setup Guide**: [setup.md](docs/setup.md) - Detailed configuration instructions
