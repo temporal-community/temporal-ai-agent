@@ -22,7 +22,7 @@ It's really helpful to [watch the demo (5 minute YouTube video)](https://www.you
 See multi-agent execution in action [here](https://www.youtube.com/watch?v=8Dc_0dC14yY).
 
 ## Why Temporal?
-There are a lot of AI and Agentic AI tools out there, and more on the way. But why Temporal? Temporal gives this system reliablity, state management, a code-first approach that we really like, built-in observability and easy error handling.
+There are a lot of AI and Agentic AI tools out there, and more on the way. But why Temporal? Temporal gives this system reliability, state management, a code-first approach that we really like, built-in observability and easy error handling.
 For more, check out [architecture-decisions](docs/architecture-decisions.md).
 
 ## What is "Agentic AI"?
