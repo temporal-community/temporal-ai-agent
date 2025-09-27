@@ -157,7 +157,7 @@ async def send_prompt(prompt: str):
     workflow_id = "agent-workflow"
 
     # Start (or signal) the workflow
-    await temporal_client.start_workflow(
+    await temporal_client.start_workflow(  # type: ignore[misc]
         AgentGoalWorkflow.run,
         combined_input,
         id=workflow_id,
@@ -206,7 +206,7 @@ async def start_workflow():
     workflow_id = "agent-workflow"
 
     # Start the workflow with the starter prompt from the goal
-    await temporal_client.start_workflow(
+    await temporal_client.start_workflow(  # type: ignore[misc]
         AgentGoalWorkflow.run,
         combined_input,
         id=workflow_id,

@@ -80,8 +80,8 @@ class TestAgentGoalWorkflow:
         ) -> ValidationResult:
             return ValidationResult(validationResult=True, validationFailedReason={})
 
-        @activity.defn(name="agent_toolPlanner")
-        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+        @activity.defn(name="agent_tool_planner")
+        async def mock_agent_tool_planner(input: ToolPromptInput) -> dict:
             return {"next": "done", "response": "Test response from LLM"}
 
         async with Worker(
@@ -91,7 +91,7 @@ class TestAgentGoalWorkflow:
             activities=[
                 mock_get_wf_env_vars,
                 mock_agent_validatePrompt,
-                mock_agent_toolPlanner,
+                mock_agent_tool_planner,
             ],
         ):
             handle = await client.start_workflow(
@@ -145,8 +145,8 @@ class TestAgentGoalWorkflow:
         ) -> ValidationResult:
             return ValidationResult(validationResult=True, validationFailedReason={})
 
-        @activity.defn(name="agent_toolPlanner")
-        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+        @activity.defn(name="agent_tool_planner")
+        async def mock_agent_tool_planner(input: ToolPromptInput) -> dict:
             return {
                 "next": "confirm",
                 "tool": "TestTool",
@@ -165,7 +165,7 @@ class TestAgentGoalWorkflow:
             activities=[
                 mock_get_wf_env_vars,
                 mock_agent_validatePrompt,
-                mock_agent_toolPlanner,
+                mock_agent_tool_planner,
                 mock_test_tool,
             ],
         ):
@@ -486,8 +486,8 @@ class TestAgentGoalWorkflow:
         ) -> ValidationResult:
             return ValidationResult(validationResult=True, validationFailedReason={})
 
-        @activity.defn(name="agent_toolPlanner")
-        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+        @activity.defn(name="agent_tool_planner")
+        async def mock_agent_tool_planner(input: ToolPromptInput) -> dict:
             # Keep workflow running for multiple prompts
             return {"next": "question", "response": f"Processed: {input.prompt}"}
 
@@ -498,7 +498,7 @@ class TestAgentGoalWorkflow:
             activities=[
                 mock_get_wf_env_vars,
                 mock_agent_validatePrompt,
-                mock_agent_toolPlanner,
+                mock_agent_tool_planner,
             ],
         ):
             handle = await client.start_workflow(

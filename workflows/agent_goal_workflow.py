@@ -160,8 +160,9 @@ class AgentGoalWorkflow:
                 )
 
                 # connect to LLM and execute to get next steps
+                # noinspection PyTypeChecker
                 tool_data = await workflow.execute_activity_method(
-                    ToolActivities.agent_toolPlanner,
+                    ToolActivities.agent_tool_planner,
                     prompt_input,
                     schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
                     start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
@@ -345,6 +346,7 @@ class AgentGoalWorkflow:
             show_confirm_env_var_name="SHOW_CONFIRM",
             show_confirm_default=True,
         )
+        # noinspection PyTypeChecker
         env_output: EnvLookupOutput = await workflow.execute_activity_method(
             ToolActivities.get_wf_env_vars,
             env_lookup_input,

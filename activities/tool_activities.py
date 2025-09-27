@@ -19,6 +19,7 @@ from models.data_types import (
     ValidationResult,
 )
 from models.tool_definitions import MCPServerDefinition
+from shared.llm_manager import LLMManager
 from shared.mcp_client_manager import MCPClientManager
 
 # Import MCP client libraries
@@ -36,14 +37,17 @@ load_dotenv(override=True)
 
 class ToolActivities:
     def __init__(self, mcp_client_manager: MCPClientManager = None):
-        """Initialize LLM client using LiteLLM and optional MCP client manager"""
+        """Initialize LLM client using LLMManager with fallback support and optional MCP client manager"""
+        # Use LLMManager for automatic fallback support
+        self.llm_manager = LLMManager()
+
+        # Keep legacy attributes for backward compatibility
         self.llm_model = os.environ.get("LLM_MODEL", "openai/gpt-4")
         self.llm_key = os.environ.get("LLM_KEY")
         self.llm_base_url = os.environ.get("LLM_BASE_URL")
+
         self.mcp_client_manager = mcp_client_manager
-        print(f"Initializing ToolActivities with LLM model: {self.llm_model}")
-        if self.llm_base_url:
-            print(f"Using custom base URL: {self.llm_base_url}")
+        print(f"Initializing ToolActivities with LLMManager")
         if self.mcp_client_manager:
             print("MCP client manager enabled for connection pooling")
 
@@ -101,7 +105,7 @@ class ToolActivities:
             prompt=validation_prompt, context_instructions=context_instructions
         )
 
-        result = await self.agent_toolPlanner(prompt_input)
+        result = await self.agent_tool_planner(prompt_input)
 
         return ValidationResult(
             validationResult=result.get("validationResult", False),
@@ -109,7 +113,7 @@ class ToolActivities:
         )
 
     @activity.defn
-    async def agent_toolPlanner(self, input: ToolPromptInput) -> dict:
+    async def agent_tool_planner(self, input: ToolPromptInput) -> dict:
         messages = [
             {
                 "role": "system",
@@ -124,17 +128,9 @@ class ToolActivities:
         ]
 
         try:
-            completion_kwargs = {
-                "model": self.llm_model,
-                "messages": messages,
-                "api_key": self.llm_key,
-            }
+            # Use LLMManager for automatic fallback support
 
-            # Add base_url if configured
-            if self.llm_base_url:
-                completion_kwargs["base_url"] = self.llm_base_url
-
-            response = completion(**completion_kwargs)
+            response = await self.llm_manager.call_llm(messages)
 
             response_content = response.choices[0].message.content
             activity.logger.info(f"Raw LLM response: {repr(response_content)}")
@@ -142,6 +138,9 @@ class ToolActivities:
             activity.logger.info(f"LLM response type: {type(response_content)}")
             activity.logger.info(
                 f"LLM response length: {len(response_content) if response_content else 'None'}"
+            )
+            activity.logger.info(
+                f"Using LLM model: {self.llm_manager.get_current_model()}"
             )
 
             # Use the new sanitize function
@@ -151,6 +150,10 @@ class ToolActivities:
             return self.parse_json_response(response_content)
         except Exception as e:
             print(f"Error in LLM completion: {str(e)}")
+
+            # Log LLM manager status for debugging
+            status = self.llm_manager.get_status()
+            activity.logger.error(f"LLM Manager status: {status}")
             raise
 
     def parse_json_response(self, response_content: str) -> dict:
@@ -204,6 +207,39 @@ class ToolActivities:
             output.multi_goal_mode = False
 
         return output
+
+    def warm_up_ollama(self) -> bool:
+        """
+        Pre-load the Ollama model to avoid cold start latency.
+        Returns True if successful, False otherwise.
+        """
+        import time
+
+        try:
+            start_time = time.time()
+            print("Sending warm-up request to Ollama...")
+
+            # Make a simple completion request to load the model
+            response = completion(
+                model=self.llm_model,
+                messages=[{"role": "user", "content": "Hello"}],
+                api_key=self.llm_key,
+                base_url=self.llm_base_url,
+            )
+
+            end_time = time.time()
+            duration = end_time - start_time
+
+            if response and response.choices:
+                print(f"✅ Model loaded successfully in {duration:.1f} seconds")
+                return True
+            else:
+                print("❌ Model loading failed: No response received")
+                return False
+
+        except Exception as e:
+            print(f"❌ Model loading failed: {str(e)}")
+            return False
 
     @activity.defn
     async def mcp_tool_activity(

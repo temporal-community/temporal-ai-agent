@@ -244,7 +244,7 @@ async def test_mcp_tool_execution_flow(client: Client):
     async def mock_validate(prompt: ValidationInput) -> ValidationResult:
         return ValidationResult(validationResult=True, validationFailedReason={})
 
-    @activity.defn(name="agent_toolPlanner")
+    @activity.defn(name="agent_tool_planner")
     async def mock_planner(input: ToolPromptInput) -> dict:
         if "planner_called" not in captured:
             captured["planner_called"] = True
@@ -343,7 +343,7 @@ async def test_mcp_tool_failure_recorded(client: Client):
     async def mock_validate(prompt: ValidationInput) -> ValidationResult:
         return ValidationResult(validationResult=True, validationFailedReason={})
 
-    @activity.defn(name="agent_toolPlanner")
+    @activity.defn(name="agent_tool_planner")
     async def mock_planner(input: ToolPromptInput) -> dict:
         return {
             "next": "confirm",

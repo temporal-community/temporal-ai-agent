@@ -2,6 +2,44 @@
 
 This directory contains comprehensive tests for the Temporal AI Agent project. The tests cover workflows, activities, and integration scenarios using Temporal's testing framework.
 
+## Table of Contents
+
+- [Test Structure](#test-structure)
+- [Test Types](#test-types)
+  - [1. Workflow Tests (`test_agent_goal_workflow.py`)](#1-workflow-tests-test_agent_goal_workflowpy)
+  - [2. Activity Tests (`test_tool_activities.py`)](#2-activity-tests-test_tool_activitiespy)
+  - [3. Configuration Tests (`conftest.py`)](#3-configuration-tests-conftestpy)
+- [Running Tests](#running-tests)
+  - [Prerequisites](#prerequisites)
+  - [Basic Test Execution](#basic-test-execution)
+  - [Test Environment Options](#test-environment-options)
+  - [Filtering Tests](#filtering-tests)
+- [Test Configuration](#test-configuration)
+  - [Test Discovery](#test-discovery)
+  - [Environment Variables](#environment-variables)
+  - [Mocking Strategy](#mocking-strategy)
+- [Writing New Tests](#writing-new-tests)
+  - [Test Naming Convention](#test-naming-convention)
+  - [Using Fixtures](#using-fixtures)
+  - [Mocking External Dependencies](#mocking-external-dependencies)
+  - [Testing Workflow Signals and Queries](#testing-workflow-signals-and-queries)
+- [Test Data and Fixtures](#test-data-and-fixtures)
+  - [Sample Agent Goal](#sample-agent-goal)
+  - [Sample Conversation History](#sample-conversation-history)
+  - [Sample Combined Input](#sample-combined-input)
+- [Debugging Tests](#debugging-tests)
+  - [Verbose Logging](#verbose-logging)
+  - [Temporal Web UI](#temporal-web-ui)
+  - [Test Isolation](#test-isolation)
+- [Continuous Integration](#continuous-integration)
+  - [GitHub Actions Example](#github-actions-example)
+  - [Test Coverage](#test-coverage)
+- [Best Practices](#best-practices)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Getting Help](#getting-help)
+- [Legacy Tests](#legacy-tests)
+
 ## Test Structure
 
 ```
