@@ -6,6 +6,10 @@ import { apiService } from "../services/api";
 const POLL_INTERVAL = 600; // 0.6 seconds
 const INITIAL_ERROR_STATE = { visible: false, message: '' };
 const DEBOUNCE_DELAY = 300; // 300ms debounce for user input
+const CONVERSATION_FETCH_ERROR_DELAY_MS = 10000; // wait 10s before showing fetch errors
+const CONVERSATION_FETCH_ERROR_THRESHOLD = Math.ceil(
+    CONVERSATION_FETCH_ERROR_DELAY_MS / POLL_INTERVAL
+);
 
 function useDebounce(value, delay) {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -39,15 +43,36 @@ export default function App() {
     const debouncedUserInput = useDebounce(userInput, DEBOUNCE_DELAY);
 
     const errorTimerRef = useRef(null);
+    const conversationFetchErrorCountRef = useRef(0);
 
     const handleError = useCallback((error, context) => {
         console.error(`${context}:`, error);
-        
-        const isConversationFetchError = error.status === 404;
-        const errorMessage = isConversationFetchError 
-            ? "Error fetching conversation. Retrying..."  // Updated message
+
+        const isConversationFetchError =
+            context === "fetching conversation" && (error.status === 404 || error.status === 408);
+
+        if (isConversationFetchError) {
+            if (error.status === 404) {
+                conversationFetchErrorCountRef.current += 1;
+
+                const hasExceededThreshold =
+                    conversationFetchErrorCountRef.current >= CONVERSATION_FETCH_ERROR_THRESHOLD;
+
+                if (!hasExceededThreshold) {
+                    return;
+                }
+            } else {
+                // For timeouts or other connectivity errors surface immediately
+                conversationFetchErrorCountRef.current = CONVERSATION_FETCH_ERROR_THRESHOLD;
+            }
+        } else {
+            conversationFetchErrorCountRef.current = 0;
+        }
+
+        const errorMessage = isConversationFetchError
+            ? "Error fetching conversation. Retrying..."
             : `Error ${context.toLowerCase()}. Please try again.`;
-    
+
         setError(prevError => {
             // If the same 404 error is already being displayed, don't reset state (prevents flickering)
             if (prevError.visible && prevError.message === errorMessage) {
@@ -55,12 +80,12 @@ export default function App() {
             }
             return { visible: true, message: errorMessage };
         });
-    
+
         // Clear any existing timeout
         if (errorTimerRef.current) {
             clearTimeout(errorTimerRef.current);
         }
-    
+
         // Only auto-dismiss non-404 errors after 3 seconds
         if (!isConversationFetchError) {
             errorTimerRef.current = setTimeout(() => setError(INITIAL_ERROR_STATE), 3000);
@@ -72,6 +97,7 @@ export default function App() {
         if (errorTimerRef.current) {
             clearTimeout(errorTimerRef.current);
         }
+        conversationFetchErrorCountRef.current = 0;
         setError(INITIAL_ERROR_STATE);
     }, []);
     
