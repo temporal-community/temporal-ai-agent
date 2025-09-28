@@ -27,7 +27,7 @@ goal_food_ordering = AgentGoal(
     "When they express interest in items, get pricing using list_prices. "
     "Add items to their cart using AddToCart as they decide - the order doesn't matter, multiple items can be added. "
     "After they're done selecting items, get their customer details and create a Stripe customer. "
-    "For checkout: 1) create_invoice, 2) create_invoice_item for each individual item (IMPORTANT: create_invoice_item does NOT accept quantity parameter - call it once per item, so if user wants 2 pizzas, call create_invoice_item twice with the same price), "
+    "For checkout: 1) create_invoice (always include days_until_due so the invoice has a due date, e.g., days_until_due=7), 2) create_invoice_item for each individual item (IMPORTANT: create_invoice_item does NOT accept quantity parameter - call it once per item, so if user wants 2 pizzas, call create_invoice_item twice with the same price), "
     "3) finalize_invoice. The finalized invoice will contain a hosted_invoice_url for payment.",
     starter_prompt=starter_prompt_generic,
     example_conversation_history="\n ".join(
@@ -59,8 +59,8 @@ goal_food_ordering = AgentGoal(
             "agent: Thank you Jane! Creating your Stripe customer profile with name and email.",
             "user_confirmed_tool_run: <user clicks confirm on create_customer tool with name='Jane Smith' and email='jane.smith@example.com'>",
             'tool_result: {"customer": {"id": "cus_ExAmPlE12345", "name": "Jane Smith", "email": "jane.smith@example.com"}}',
-            "agent: Customer profile created! Now I'll create a draft invoice for your order.",
-            "user_confirmed_tool_run: <user clicks confirm on create_invoice tool with customer='cus_ExAmPlE12345'>",
+            "agent: Customer profile created! Now I'll create a draft invoice for your order with payment due in 7 days.",
+            "user_confirmed_tool_run: <user clicks confirm on create_invoice tool with customer='cus_ExAmPlE12345', days_until_due=7>",
             'tool_result: {"invoice": {"id": "in_InvOicE54321", "status": "draft", "customer": "cus_ExAmPlE12345"}}',
             "agent: Invoice created! Now adding your first Pepperoni Pizza to the invoice.",
             "user_confirmed_tool_run: <user clicks confirm on create_invoice_item tool with customer='cus_ExAmPlE12345', invoice='in_InvOicE54321', price='price_pepperoni_large'>",

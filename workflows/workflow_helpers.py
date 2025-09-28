@@ -1,4 +1,3 @@
-import inspect
 from datetime import timedelta
 from typing import Any, Deque, Dict
 
@@ -22,18 +21,19 @@ LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT = timedelta(minutes=30)
 
 
 def is_mcp_tool(tool_name: str, goal: AgentGoal) -> bool:
-    """Check if a tool is an MCP tool based on the goal's MCP server definition"""
+    """Check if a tool should be dispatched via MCP."""
     if not goal.mcp_server_definition:
         return False
 
-    # Identify MCP tools by checking if they're not in the original static tools
-    import tools.tool_registry
+    # Native tools are registered with tools.get_handler. If lookup succeeds,
+    # the tool should execute locally; otherwise treat it as MCP-provided.
+    from tools import get_handler
 
-    return not any(
-        tool.name == tool_name
-        for _, tool in inspect.getmembers(tools.tool_registry)
-        if isinstance(tool, ToolDefinition)
-    )
+    try:
+        get_handler(tool_name)
+        return False
+    except ValueError:
+        return True
 
 
 async def handle_tool_execution(
@@ -54,6 +54,13 @@ async def handle_tool_execution(
 
             # Add server definition to args for MCP tools
             mcp_args = tool_data["args"].copy()
+
+            # Stripe's MCP server enforces days_until_due when the collection
+            # method defaults to send_invoice. Provide a reasonable default when
+            # the planner omits it so invoice creation doesn't fail upstream.
+            if current_tool == "create_invoice" and "days_until_due" not in mcp_args:
+                mcp_args["days_until_due"] = 7
+
             mcp_args["server_definition"] = goal.mcp_server_definition
 
             dynamic_result = await workflow.execute_activity(
