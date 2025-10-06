@@ -142,7 +142,7 @@ For a complete list of supported models and providers, visit the [LiteLLM docume
 
 #### Fallback LLM Configuration
 
-The system includes automatic fallback functionality to improve reliability when the primary LLM becomes unavailable. The LLM Manager provides transparent failover with automatic recovery detection.
+The system includes automatic fallback functionality to improve reliability when the primary LLM becomes unavailable.
 
 Configure fallback LLM settings in your `.env` file:
 
