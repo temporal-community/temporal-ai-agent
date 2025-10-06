@@ -1,4 +1,32 @@
 # Setup Guide
+
+## Table of Contents
+
+- [Initial Configuration](#initial-configuration)
+  - [Quick Start with Makefile](#quick-start-with-makefile)
+  - [Manual Setup (Alternative to Makefile)](#manual-setup-alternative-to-makefile)
+  - [Agent Goal Configuration](#agent-goal-configuration)
+  - [LLM Configuration](#llm-configuration)
+    - [Fallback LLM Configuration](#fallback-llm-configuration)
+- [Configuring Temporal Connection](#configuring-temporal-connection)
+  - [Use Temporal Cloud](#use-temporal-cloud)
+  - [Use a local Temporal Dev Server](#use-a-local-temporal-dev-server)
+- [Running the Application](#running-the-application)
+  - [Docker](#docker)
+  - [Local Machine (no docker)](#local-machine-no-docker)
+- [MCP Tools Configuration](#mcp-tools-configuration)
+  - [Adding MCP Tools to Goals](#adding-mcp-tools-to-goals)
+  - [MCP Environment Variables](#mcp-environment-variables)
+- [Goal-Specific Tool Configuration](#goal-specific-tool-configuration)
+  - [Goal: Find an event in Australia / New Zealand, book flights to it and invoice the user for the cost](#goal-find-an-event-in-australia--new-zealand-book-flights-to-it-and-invoice-the-user-for-the-cost)
+  - [Goal: Find a Premier League match, book train tickets to it and invoice the user for the cost (Replay 2025 Keynote)](#goal-find-a-premier-league-match-book-train-tickets-to-it-and-invoice-the-user-for-the-cost-replay-2025-keynote)
+  - [Goals: FIN - Money Movement and Loan Application](#goals-fin---money-movement-and-loan-application)
+  - [Goals: HR/PTO](#goals-hrpto)
+  - [Goals: Ecommerce](#goals-ecommerce)
+  - [Goal: Food Ordering with MCP Integration (Stripe Payment Processing)](#goal-food-ordering-with-mcp-integration-stripe-payment-processing)
+- [Customizing the Agent Further](#customizing-the-agent-further)
+- [Setup Checklist](#setup-checklist)
+
 ## Initial Configuration
 
 This application uses `.env` files for configuration. Copy the [.env.example](.env.example) file to `.env` and update the values:
@@ -83,6 +111,7 @@ The agent uses LiteLLM to interact with various LLM providers. Configure the fol
 
 - `LLM_MODEL`: The model to use (e.g., "openai/gpt-4o", "anthropic/claude-3-sonnet", "google/gemini-pro", etc.)
 - `LLM_KEY`: Your API key for the selected provider
+- `LLM_TIMEOUT_SECONDS`: (Optional) Request timeout in seconds.
 - `LLM_BASE_URL`: (Optional) Custom base URL for the LLM provider. Useful for:
   - Using Ollama with a custom endpoint
   - Using a proxy or custom API gateway
@@ -110,6 +139,35 @@ LLM_BASE_URL=http://localhost:11434
 ```
 
 For a complete list of supported models and providers, visit the [LiteLLM documentation](https://docs.litellm.ai/docs/providers).
+
+#### Fallback LLM Configuration
+
+The system includes automatic fallback functionality to improve reliability when the primary LLM becomes unavailable.
+
+Configure fallback LLM settings in your `.env` file:
+
+```bash
+# Fallback LLM Configuration
+LLM_FALLBACK_MODEL=openai/gpt-4o-mini     # Fallback model (often a cheaper/faster option)
+LLM_FALLBACK_KEY=sk-proj-fallback-key...  # API key for fallback LLM
+LLM_FALLBACK_BASE_URL=...                 # Optional custom endpoint for fallback
+LLM_FALLBACK_TIMEOUT_SECONDS=10           # Timeout for fallback LLM calls (default: 10)
+```
+
+##### Debug enabled for development
+
+Enable debugging to monitor LLM behavior and troubleshoot issues:
+
+```bash
+# Debug Settings
+LLM_DEBUG_OUTPUT=true                     # Enable debug file output (default: false)
+LLM_DEBUG_OUTPUT_DIR=./debug_llm_calls    # Debug output directory (default: ./debug_llm_calls)
+```
+
+#### Troubleshooting
+
+1. **Both LLMs failing**: Check API keys and network connectivity
+2. **Timeout errors**: Increase timeout values or check network latency
 
 ## Configuring Temporal Connection
 

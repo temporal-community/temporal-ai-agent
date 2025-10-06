@@ -1,5 +1,25 @@
 # Testing the Temporal AI Agent
 
+## Table of Contents
+- [Quick Start](#quick-start)
+- [Test Categories](#test-categories)
+  - [Unit Tests](#unit-tests)
+  - [Integration Tests](#integration-tests)
+- [Running Specific Tests](#running-specific-tests)
+- [Test Environment Options](#test-environment-options)
+  - [Local Environment (Default)](#local-environment-default)
+  - [Time-Skipping Environment (Recommended for CI)](#time-skipping-environment-recommended-for-ci)
+  - [External Temporal Server](#external-temporal-server)
+- [Environment Variables](#environment-variables)
+- [Test Coverage](#test-coverage)
+- [Test Output](#test-output)
+- [Troubleshooting](#troubleshooting)
+  - [Common Issues](#common-issues)
+  - [Debugging Tests](#debugging-tests)
+- [Continuous Integration](#continuous-integration)
+- [Additional Resources](#additional-resources)
+- [Test Architecture](#test-architecture)
+
 This guide provides instructions for running the comprehensive test suite for the Temporal AI Agent project.
 
 ## Quick Start

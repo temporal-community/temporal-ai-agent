@@ -4,13 +4,14 @@ from typing import Any, Deque, Dict, List, Optional, TypedDict, Union
 
 from temporalio import workflow
 from temporalio.common import RetryPolicy
+from temporalio.exceptions import ActivityError
 
 from models.data_types import (
     ConversationHistory,
     EnvLookupInput,
     EnvLookupOutput,
     NextStep,
-    ValidationInput,
+    ValidationInput, ValidationResult,
 )
 from models.tool_definitions import AgentGoal
 from workflows import workflow_helpers as helpers
@@ -44,6 +45,7 @@ class AgentGoalWorkflow:
     """Workflow that manages tool execution with user confirmation and conversation history."""
 
     def __init__(self) -> None:
+        self.fallback_mode = False # Fallback mode indicates the fallback LLM should be used.
         self.conversation_history: ConversationHistory = {"messages": []}
         self.prompt_queue: Deque[str] = deque()
         self.conversation_summary: Optional[str] = None
@@ -118,23 +120,7 @@ class AgentGoalWorkflow:
 
                 # Validate user-provided prompts
                 if self.is_user_prompt(prompt):
-                    self.add_message("user", prompt)
-
-                    # Validate the prompt before proceeding
-                    validation_input = ValidationInput(
-                        prompt=prompt,
-                        conversation_history=self.conversation_history,
-                        agent_goal=self.goal,
-                    )
-                    validation_result = await workflow.execute_activity_method(
-                        ToolActivities.agent_validatePrompt,
-                        args=[validation_input],
-                        schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
-                        start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
-                        retry_policy=RetryPolicy(
-                            initial_interval=timedelta(seconds=5), backoff_coefficient=1
-                        ),
-                    )
+                    validation_result = await self._validate_prompt(prompt)
 
                     # If validation fails, provide that feedback to the user - i.e., "your words make no sense, puny human" end this iteration of processing
                     if not validation_result.validationResult:
@@ -160,15 +146,7 @@ class AgentGoalWorkflow:
                 )
 
                 # connect to LLM and execute to get next steps
-                tool_data = await workflow.execute_activity_method(
-                    ToolActivities.agent_toolPlanner,
-                    prompt_input,
-                    schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
-                    start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
-                    retry_policy=RetryPolicy(
-                        initial_interval=timedelta(seconds=5), backoff_coefficient=1
-                    ),
-                )
+                tool_data = await self._execute_prompt(prompt_input)
 
                 tool_data["force_confirm"] = self.show_tool_args_confirmation
                 self.tool_data = tool_data
@@ -221,6 +199,82 @@ class AgentGoalWorkflow:
                     MAX_TURNS_BEFORE_CONTINUE,
                     self.add_message,
                 )
+
+    async def _execute_prompt(self, prompt_input: ToolPromptInput) -> dict:
+        summary = "fallback" if self.fallback_mode else ""
+        try:
+            tool_data = await workflow.execute_activity_method(
+                ToolActivities.agent_tool_planner,
+                args=[prompt_input, self.fallback_mode],
+                schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
+                start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+                retry_policy=RetryPolicy(
+                    initial_interval=timedelta(seconds=5),
+                    backoff_coefficient=1,
+                    maximum_attempts=2
+                ),
+                summary=summary
+            )
+        except ActivityError as ae:
+            workflow.logger.info(
+                f"Tool planner failed 2 times, switching to fallback mode"
+            )
+            self.fallback_mode = True
+            tool_data = await workflow.execute_activity_method(
+                ToolActivities.agent_tool_planner,
+                args=[prompt_input, self.fallback_mode],
+                schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
+                start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+                retry_policy=RetryPolicy(
+                    initial_interval=timedelta(seconds=5),
+                    backoff_coefficient=1,
+                    maximum_attempts=2
+                ),
+                summary='fallback'
+            )
+        return tool_data
+
+    async def _validate_prompt(self, prompt: str) -> ValidationResult:
+        self.add_message("user", prompt)
+
+        # Validate the prompt before proceeding
+        validation_input = ValidationInput(
+            prompt=prompt,
+            conversation_history=self.conversation_history,
+            agent_goal=self.goal,
+        )
+        try:
+            summary = "fallback" if self.fallback_mode else ""
+            validation_result = await workflow.execute_activity_method(
+                ToolActivities.agent_validate_prompt,
+                args=[validation_input, self.fallback_mode],
+                schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
+                start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+                retry_policy=RetryPolicy(
+                    initial_interval=timedelta(seconds=5),
+                    backoff_coefficient=1,
+                    maximum_attempts=2
+                ),
+                summary=summary
+            )
+        except ActivityError as ae:
+            workflow.logger.info(
+                f"Validate prompt failed 2 times, switching to fallback mode"
+            )
+            self.fallback_mode = True
+            validation_result = await workflow.execute_activity_method(
+                ToolActivities.agent_validate_prompt,
+                args=[validation_input, self.fallback_mode],
+                schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
+                start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+                retry_policy=RetryPolicy(
+                    initial_interval=timedelta(seconds=5),
+                    backoff_coefficient=1,
+                    maximum_attempts=2
+                ),
+                summary="fallback"
+            )
+        return validation_result
 
     # Signal that comes from api/main.py via a post to /send-prompt
     @workflow.signal
