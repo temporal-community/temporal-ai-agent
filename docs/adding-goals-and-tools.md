@@ -1,5 +1,27 @@
 # Customizing the Agent
-The agent operates in single-agent mode by default, focusing on one specific goal. It also supports an experimental multi-agent mode where users can have multiple agents, each with their own goal, and supports switching back to choosing a new goal at the end of every successful goal (or even mid-goal). 
+
+## Table of Contents
+- [Adding a New Goal Category](#adding-a-new-goal-category)
+- [Adding a Goal](#adding-a-goal)
+- [Adding Native Tools](#adding-native-tools)
+  - [Note on Optional Tools](#note-on-optional-tools)
+  - [Add to Tool Registry](#add-to-tool-registry)
+  - [Create Each Native Tool Implementation](#create-each-native-tool-implementation)
+  - [Add to tools/__init__.py and the tool get_handler()](#add-to-tools__init__py-and-the-tool-get_handler)
+  - [Update workflow_helpers.py](#update-workflow_helperspy)
+- [Adding MCP Tools](#adding-mcp-tools)
+  - [Configure MCP Server Definition](#configure-mcp-server-definition)
+  - [Using Predefined Configurations](#using-predefined-configurations)
+  - [Custom MCP Server Definition](#custom-mcp-server-definition)
+  - [MCP Tool Configuration](#mcp-tool-configuration)
+  - [How MCP Tools Work](#how-mcp-tools-work)
+- [Tool Confirmation](#tool-confirmation)
+- [Add a Goal & Tools Checklist](#add-a-goal--tools-checklist)
+  - [All Goals](#all-goals)
+  - [Native Tools](#native-tools)
+  - [MCP Tools](#mcp-tools)
+
+The agent operates in single-agent mode by default, focusing on one specific goal. It also supports an experimental multi-agent mode where users can have multiple agents, each with their own goal, and supports switching back to choosing a new goal at the end of every successful goal (or even mid-goal).
 
 A goal can use two types of tools:
 - **Native Tools**: Custom tools implemented directly in the codebase (in `/tools/`)
@@ -155,19 +177,19 @@ I recommend exploring all three. For a demo, I would decide if you want the Argu
 
 ## Add a Goal & Tools Checklist
 
-### For All Goals:
+### All Goals
 - [ ] Create goal file in `/goals/` directory (e.g., `goals/my_category.py`)
 - [ ] Add goal to the category's goal list in the file
 - [ ] Import and extend the goal list in `goals/__init__.py`
 - [ ] If a new category, add Goal Category to [.env](./.env) and [.env.example](./.env.example)
 
-### For Native Tools:
+### Native Tools
 - [ ] Add native tools to [tool_registry.py](tools/tool_registry.py)
 - [ ] Implement tool functions in `/tools/` directory
 - [ ] Add tools to [tools/__init__.py](tools/__init__.py) in the `get_handler()` function
 - [ ] Add tool names to static tools list in [workflows/workflow_helpers.py](workflows/workflow_helpers.py)
 
-### For MCP Tools:
+### MCP Tools
 - [ ] Add `mcp_server_definition` to your goal configuration (use `shared/mcp_config.py` for common servers)
 - [ ] Ensure MCP server is available and properly configured
 - [ ] Set required environment variables (API keys, etc.)

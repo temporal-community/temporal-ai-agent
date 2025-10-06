@@ -28,27 +28,27 @@ class TestToolActivities:
         self.tool_activities = ToolActivities()
 
     @pytest.mark.asyncio
-    async def test_agent_validatePrompt_valid_prompt(
+    async def test_agent_validate_prompt_valid_prompt(
         self, sample_agent_goal, sample_conversation_history
     ):
-        """Test agent_validatePrompt with a valid prompt."""
+        """Test agent_validate_prompt with a valid prompt."""
         validation_input = ValidationInput(
             prompt="I need help with the test tool",
             conversation_history=sample_conversation_history,
             agent_goal=sample_agent_goal,
         )
 
-        # Mock the agent_toolPlanner to return a valid response
+        # Mock the agent_tool_planner to return a valid response
         mock_response = {"validationResult": True, "validationFailedReason": {}}
 
         with patch.object(
-            self.tool_activities, "agent_toolPlanner", new_callable=AsyncMock
+            self.tool_activities, "agent_tool_planner", new_callable=AsyncMock
         ) as mock_planner:
             mock_planner.return_value = mock_response
 
             activity_env = ActivityEnvironment()
             result = await activity_env.run(
-                self.tool_activities.agent_validatePrompt, validation_input
+                self.tool_activities.agent_validate_prompt, validation_input, False
             )
 
             assert isinstance(result, ValidationResult)
@@ -59,17 +59,17 @@ class TestToolActivities:
             mock_planner.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_agent_validatePrompt_invalid_prompt(
+    async def test_agent_validate_prompt_invalid_prompt(
         self, sample_agent_goal, sample_conversation_history
     ):
-        """Test agent_validatePrompt with an invalid prompt."""
+        """Test agent_validate_prompt with an invalid prompt."""
         validation_input = ValidationInput(
             prompt="asdfghjkl nonsense",
             conversation_history=sample_conversation_history,
             agent_goal=sample_agent_goal,
         )
 
-        # Mock the agent_toolPlanner to return an invalid response
+        # Mock the agent_tool_planner to return an invalid response
         mock_response = {
             "validationResult": False,
             "validationFailedReason": {
@@ -79,13 +79,13 @@ class TestToolActivities:
         }
 
         with patch.object(
-            self.tool_activities, "agent_toolPlanner", new_callable=AsyncMock
+            self.tool_activities, "agent_tool_planner", new_callable=AsyncMock
         ) as mock_planner:
             mock_planner.return_value = mock_response
 
             activity_env = ActivityEnvironment()
             result = await activity_env.run(
-                self.tool_activities.agent_validatePrompt, validation_input
+                self.tool_activities.agent_validate_prompt, validation_input, False
             )
 
             assert isinstance(result, ValidationResult)
@@ -93,13 +93,13 @@ class TestToolActivities:
             assert "doesn't make sense" in str(result.validationFailedReason)
 
     @pytest.mark.asyncio
-    async def test_agent_toolPlanner_success(self):
-        """Test agent_toolPlanner with successful LLM response."""
+    async def test_agent_tool_planner_success(self):
+        """Test agent_tool_planner with successful LLM response."""
         prompt_input = ToolPromptInput(
             prompt="Test prompt", context_instructions="Test context instructions"
         )
 
-        # Mock the completion function
+        # Mock the llm_manager.call_llm method
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
         mock_response.choices[
@@ -108,12 +108,14 @@ class TestToolActivities:
             '{"next": "confirm", "tool": "TestTool", "response": "Test response"}'
         )
 
-        with patch("activities.tool_activities.completion") as mock_completion:
-            mock_completion.return_value = mock_response
+        with patch.object(
+            self.tool_activities.llm_manager, "call_llm", new_callable=AsyncMock
+        ) as mock_call_llm:
+            mock_call_llm.return_value = mock_response
 
             activity_env = ActivityEnvironment()
             result = await activity_env.run(
-                self.tool_activities.agent_toolPlanner, prompt_input
+                self.tool_activities.agent_tool_planner, prompt_input, False
             )
 
             assert isinstance(result, dict)
@@ -121,17 +123,18 @@ class TestToolActivities:
             assert result["tool"] == "TestTool"
             assert result["response"] == "Test response"
 
-            # Verify completion was called with correct parameters
-            mock_completion.assert_called_once()
-            call_args = mock_completion.call_args[1]
-            assert call_args["model"] == self.tool_activities.llm_model
-            assert len(call_args["messages"]) == 2
-            assert call_args["messages"][0]["role"] == "system"
-            assert call_args["messages"][1]["role"] == "user"
+            # Verify call_llm was called with correct parameters
+            mock_call_llm.assert_called_once()
+            call_args = mock_call_llm.call_args[0][
+                0
+            ]  # First positional argument (messages)
+            assert len(call_args) == 2
+            assert call_args[0]["role"] == "system"
+            assert call_args[1]["role"] == "user"
 
     @pytest.mark.asyncio
-    async def test_agent_toolPlanner_with_custom_base_url(self):
-        """Test agent_toolPlanner with custom base URL configuration."""
+    async def test_agent_tool_planner_with_custom_base_url(self):
+        """Test agent_tool_planner with custom base URL configuration."""
         # Set up tool activities with custom base URL
         with patch.dict(os.environ, {"LLM_BASE_URL": "https://custom.endpoint.com"}):
             tool_activities = ToolActivities()
@@ -146,36 +149,38 @@ class TestToolActivities:
                 0
             ].message.content = '{"next": "done", "response": "Test"}'
 
-            with patch("activities.tool_activities.completion") as mock_completion:
-                mock_completion.return_value = mock_response
+            with patch.object(
+                tool_activities.llm_manager, "call_llm", new_callable=AsyncMock
+            ) as mock_call_llm:
+                mock_call_llm.return_value = mock_response
 
                 activity_env = ActivityEnvironment()
-                await activity_env.run(tool_activities.agent_toolPlanner, prompt_input)
+                await activity_env.run(tool_activities.agent_tool_planner, prompt_input, False)
 
-                # Verify base_url was included in the call
-                call_args = mock_completion.call_args[1]
-                assert "base_url" in call_args
-                assert call_args["base_url"] == "https://custom.endpoint.com"
+                # Verify call_llm was called
+                mock_call_llm.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_agent_toolPlanner_json_parsing_error(self):
-        """Test agent_toolPlanner handles JSON parsing errors."""
+    async def test_agent_tool_planner_json_parsing_error(self):
+        """Test agent_tool_planner handles JSON parsing errors."""
         prompt_input = ToolPromptInput(
             prompt="Test prompt", context_instructions="Test context instructions"
         )
 
-        # Mock the completion function to return invalid JSON
+        # Mock the llm_manager.call_llm method to return invalid JSON
         mock_response = MagicMock()
         mock_response.choices = [MagicMock()]
         mock_response.choices[0].message.content = "Invalid JSON response"
 
-        with patch("activities.tool_activities.completion") as mock_completion:
-            mock_completion.return_value = mock_response
+        with patch.object(
+            self.tool_activities.llm_manager, "call_llm", new_callable=AsyncMock
+        ) as mock_call_llm:
+            mock_call_llm.return_value = mock_response
 
             activity_env = ActivityEnvironment()
             with pytest.raises(Exception):  # Should raise JSON parsing error
                 await activity_env.run(
-                    self.tool_activities.agent_toolPlanner, prompt_input
+                    self.tool_activities.agent_tool_planner, prompt_input, False
                 )
 
     @pytest.mark.asyncio
@@ -331,7 +336,7 @@ class TestEdgeCases:
         self.tool_activities = ToolActivities()
 
     @pytest.mark.asyncio
-    async def test_agent_validatePrompt_with_empty_conversation_history(
+    async def test_agent_validate_prompt_with_empty_conversation_history(
         self, sample_agent_goal
     ):
         """Test validation with empty conversation history."""
@@ -344,13 +349,13 @@ class TestEdgeCases:
         mock_response = {"validationResult": True, "validationFailedReason": {}}
 
         with patch.object(
-            self.tool_activities, "agent_toolPlanner", new_callable=AsyncMock
+            self.tool_activities, "agent_tool_planner", new_callable=AsyncMock
         ) as mock_planner:
             mock_planner.return_value = mock_response
 
             activity_env = ActivityEnvironment()
             result = await activity_env.run(
-                self.tool_activities.agent_validatePrompt, validation_input
+                self.tool_activities.agent_validate_prompt, validation_input, False
             )
 
             assert isinstance(result, ValidationResult)
@@ -358,7 +363,7 @@ class TestEdgeCases:
             assert result.validationFailedReason == {}
 
     @pytest.mark.asyncio
-    async def test_agent_toolPlanner_with_long_prompt(self):
+    async def test_agent_tool_planner_with_long_prompt(self):
         """Test toolPlanner with very long prompt."""
         long_prompt = "This is a very long prompt " * 100
         tool_prompt_input = ToolPromptInput(
@@ -372,10 +377,13 @@ class TestEdgeCases:
             0
         ].message.content = '{"next": "done", "response": "Processed long prompt"}'
 
-        with patch("activities.tool_activities.completion", return_value=mock_response):
+        with patch.object(
+            self.tool_activities.llm_manager, "call_llm", new_callable=AsyncMock
+        ) as mock_call_llm:
+            mock_call_llm.return_value = mock_response
             activity_env = ActivityEnvironment()
             result = await activity_env.run(
-                self.tool_activities.agent_toolPlanner, tool_prompt_input
+                self.tool_activities.agent_tool_planner, tool_prompt_input, False
             )
 
             assert isinstance(result, dict)

@@ -1,5 +1,20 @@
 # Temporal AI Agent Contribution Guide
 
+## Table of Contents
+- [Repository Layout](#repository-layout)
+- [Running the Application](#running-the-application)
+  - [Quick Start with Docker](#quick-start-with-docker)
+  - [Local Development Setup](#local-development-setup)
+  - [Environment Configuration](#environment-configuration)
+- [Testing](#testing)
+- [Linting and Code Quality](#linting-and-code-quality)
+- [Agent Customization](#agent-customization)
+  - [Adding New Goals and Tools](#adding-new-goals-and-tools)
+  - [Configuring Goals](#configuring-goals)
+- [Architecture](#architecture)
+- [Commit Messages and Pull Requests](#commit-messages-and-pull-requests)
+- [Additional Resources](#additional-resources)
+
 ## Repository Layout
 - `workflows/` - Temporal workflows including the main AgentGoalWorkflow for multi-turn AI conversations
 - `activities/` - Temporal activities for tool execution and LLM interactions  

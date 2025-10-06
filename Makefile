@@ -8,6 +8,9 @@ setup:
 run-worker:
 	uv run scripts/run_worker.py
 
+run-worker-debug:
+	LOGLEVEL=DEBUG PYTHONUNBUFFERED=1 uv run scripts/run_worker.py
+
 run-api:
 	uv run uvicorn api.main:app --reload
 
@@ -41,6 +44,7 @@ help:
 	@echo "Available commands:"
 	@echo "  make setup              - Install all dependencies"
 	@echo "  make run-worker         - Start the Temporal worker"
+	@echo "  make run-worker-debug   - Start the Temporal worker with DEBUG logging"
 	@echo "  make run-api            - Start the API server"
 	@echo "  make run-frontend       - Start the frontend development server"
 	@echo "  make run-train-api      - Start the train API server"
