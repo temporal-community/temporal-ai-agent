@@ -28,6 +28,9 @@ setup-temporal-mac:
 	brew install temporal
 	temporal server start-dev
 
+make start-temporal-server:
+	temporal server start-dev
+
 # Run all development services
 run-dev:
 	@echo "Starting all development services..."

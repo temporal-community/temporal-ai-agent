@@ -40,10 +40,13 @@ class ToolActivities:
         self.llm_model = os.environ.get("LLM_MODEL", "openai/gpt-4")
         self.llm_key = os.environ.get("LLM_KEY")
         self.llm_base_url = os.environ.get("LLM_BASE_URL")
+        self.llm_provider = os.environ.get("LLM_PROVIDER")
         self.mcp_client_manager = mcp_client_manager
         print(f"Initializing ToolActivities with LLM model: {self.llm_model}")
         if self.llm_base_url:
             print(f"Using custom base URL: {self.llm_base_url}")
+        if self.llm_provider:
+            print(f"Using LLM provider: {self.llm_provider}")
         if self.mcp_client_manager:
             print("MCP client manager enabled for connection pooling")
 
@@ -134,6 +137,8 @@ class ToolActivities:
             if self.llm_base_url:
                 completion_kwargs["base_url"] = self.llm_base_url
 
+            if self.llm_provider:
+                completion_kwargs["provider"] = self.llm_provider
             response = completion(**completion_kwargs)
 
             response_content = response.choices[0].message.content
