@@ -1,5 +1,21 @@
 # Temporal AI Agent
 
+## Table of Contents
+- [Overview](#overview)
+- [Demo Videos](#demo-videos)
+- [Why Temporal?](#why-temporal)
+- [What is "Agentic AI"?](#what-is-agentic-ai)
+- [MCP Tool Calling Support](#-mcp-tool-calling-support)
+- [Setup and Configuration](#setup-and-configuration)
+- [Customizing Interaction & Tools](#customizing-interaction--tools)
+- [Architecture](#architecture)
+- [Testing](#testing)
+- [Development](#development)
+- [Productionalization & Adding Features](#productionalization--adding-features)
+- [Enablement Guide](#enablement-guide-internal-resource-for-temporal-employees)
+
+## Overview
+
 This demo shows a multi-turn conversation with an AI agent running inside a Temporal workflow. The purpose of the agent is to collect information towards a goal, running tools along the way. The agent supports both native tools and Model Context Protocol (MCP) tools, allowing it to interact with external services.
 
 The agent operates in single-agent mode by default, focusing on one specific goal. It also supports experimental multi-agent/multi-goal mode where users can choose between different agent types and switch between them during conversations.
@@ -13,6 +29,8 @@ The AI will respond with clarifications and ask for any missing information to t
 - Deepseek models
 - Ollama models (local)
 - And many more!
+
+## Demo Videos
 
 It's really helpful to [watch the demo (5 minute YouTube video)](https://www.youtube.com/watch?v=GEXllEH2XiQ) to understand how interaction works.
 

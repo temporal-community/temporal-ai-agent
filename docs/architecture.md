@@ -1,4 +1,16 @@
 # Elements
+
+## Table of Contents
+- [Workflow](#workflow)
+  - [Workflow Responsibilities](#workflow-responsibilities)
+- [Activities](#activities)
+- [Tools](#tools)
+- [Prompts](#prompts)
+- [LLM](#llm)
+- [Interaction](#interaction)
+- [Architecture Model](#architecture-model)
+- [Adding Features](#adding-features)
+
 These are the main elements of this system. See [architecture decisions](./architecture-decisions.md) for information beind these choices.
 In this document we will explain each element and their interactions, and then connect them all at the end.
 <img src="./assets/Architecture_elements.png" width="50%" alt="Architecture Elements">

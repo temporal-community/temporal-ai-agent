@@ -80,7 +80,7 @@ goal_event_flight_invoice = AgentGoal(
             "agent: Let's search for flights around these dates. Could you provide your departure city?",
             "user: San Francisco",
             "agent: Thanks, searching for flights from San Francisco to Sydney around 2023-02-25 to 2023-02-28.",
-            "user_confirmed_tool_run: <user clicks confirm on SearchFlights tool>"
+            "user_confirmed_tool_run: <user clicks confirm on SearchFlights tool>",
             'tool_result: results including {"flight_number": "CX101", "return_flight_number": "CX102", "price": 850.0}',
             "agent: Found some flights! The cheapest is CX101 for $850. Would you like to generate an invoice for this flight?",
             "user_confirmed_tool_run: <user clicks confirm on CreateInvoice tool>",

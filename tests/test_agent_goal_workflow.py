@@ -74,14 +74,15 @@ class TestAgentGoalWorkflow:
         async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
             return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
 
-        @activity.defn(name="agent_validatePrompt")
-        async def mock_agent_validatePrompt(
+        @activity.defn(name="agent_validate_prompt")
+        async def mock_agent_validate_prompt(
             validation_input: ValidationInput,
+            fallback_mode: bool,
         ) -> ValidationResult:
             return ValidationResult(validationResult=True, validationFailedReason={})
 
-        @activity.defn(name="agent_toolPlanner")
-        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+        @activity.defn(name="agent_tool_planner")
+        async def mock_agent_tool_planner(input: ToolPromptInput, fallback_mode: bool) -> dict:
             return {"next": "done", "response": "Test response from LLM"}
 
         async with Worker(
@@ -90,8 +91,8 @@ class TestAgentGoalWorkflow:
             workflows=[AgentGoalWorkflow],
             activities=[
                 mock_get_wf_env_vars,
-                mock_agent_validatePrompt,
-                mock_agent_toolPlanner,
+                mock_agent_validate_prompt,
+                mock_agent_tool_planner,
             ],
         ):
             handle = await client.start_workflow(
@@ -139,14 +140,15 @@ class TestAgentGoalWorkflow:
         async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
             return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
 
-        @activity.defn(name="agent_validatePrompt")
-        async def mock_agent_validatePrompt(
+        @activity.defn(name="agent_validate_prompt")
+        async def mock_agent_validate_prompt(
             validation_input: ValidationInput,
+            fallback_mode: bool,
         ) -> ValidationResult:
             return ValidationResult(validationResult=True, validationFailedReason={})
 
-        @activity.defn(name="agent_toolPlanner")
-        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+        @activity.defn(name="agent_tool_planner")
+        async def mock_agent_tool_planner(input: ToolPromptInput, fallback_mode: bool) -> dict:
             return {
                 "next": "confirm",
                 "tool": "TestTool",
@@ -164,8 +166,8 @@ class TestAgentGoalWorkflow:
             workflows=[AgentGoalWorkflow],
             activities=[
                 mock_get_wf_env_vars,
-                mock_agent_validatePrompt,
-                mock_agent_toolPlanner,
+                mock_agent_validate_prompt,
+                mock_agent_tool_planner,
                 mock_test_tool,
             ],
         ):
@@ -207,9 +209,10 @@ class TestAgentGoalWorkflow:
         async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
             return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
 
-        @activity.defn(name="agent_validatePrompt")
-        async def mock_agent_validatePrompt(
+        @activity.defn(name="agent_validate_prompt")
+        async def mock_agent_validate_prompt(
             validation_input: ValidationInput,
+            fallback_mode: bool,
         ) -> ValidationResult:
             return ValidationResult(
                 validationResult=False,
@@ -223,7 +226,7 @@ class TestAgentGoalWorkflow:
             client,
             task_queue=task_queue_name,
             workflows=[AgentGoalWorkflow],
-            activities=[mock_get_wf_env_vars, mock_agent_validatePrompt],
+            activities=[mock_get_wf_env_vars, mock_agent_validate_prompt],
         ):
             handle = await client.start_workflow(
                 AgentGoalWorkflow.run,
@@ -480,14 +483,15 @@ class TestAgentGoalWorkflow:
         async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
             return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
 
-        @activity.defn(name="agent_validatePrompt")
-        async def mock_agent_validatePrompt(
+        @activity.defn(name="agent_validate_prompt")
+        async def mock_agent_validate_prompt(
             validation_input: ValidationInput,
+            fallback_mode: bool,
         ) -> ValidationResult:
             return ValidationResult(validationResult=True, validationFailedReason={})
 
-        @activity.defn(name="agent_toolPlanner")
-        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+        @activity.defn(name="agent_tool_planner")
+        async def mock_agent_tool_planner(input: ToolPromptInput, fallback_mode: bool) -> dict:
             # Keep workflow running for multiple prompts
             return {"next": "question", "response": f"Processed: {input.prompt}"}
 
@@ -497,8 +501,8 @@ class TestAgentGoalWorkflow:
             workflows=[AgentGoalWorkflow],
             activities=[
                 mock_get_wf_env_vars,
-                mock_agent_validatePrompt,
-                mock_agent_toolPlanner,
+                mock_agent_validate_prompt,
+                mock_agent_tool_planner,
             ],
         ):
             handle = await client.start_workflow(
@@ -541,3 +545,13 @@ class TestAgentGoalWorkflow:
             # Verify at least the first message was processed
             message_texts = [str(msg["response"]) for msg in user_messages]
             assert any("First message" in text for text in message_texts)
+
+    
+
+    
+
+    
+
+    
+
+    

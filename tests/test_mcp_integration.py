@@ -240,12 +240,12 @@ async def test_mcp_tool_execution_flow(client: Client):
     async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
         return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
 
-    @activity.defn(name="agent_validatePrompt")
-    async def mock_validate(prompt: ValidationInput) -> ValidationResult:
+    @activity.defn(name="agent_validate_prompt")
+    async def mock_validate(prompt: ValidationInput, fallback_mode: bool) -> ValidationResult:
         return ValidationResult(validationResult=True, validationFailedReason={})
 
-    @activity.defn(name="agent_toolPlanner")
-    async def mock_planner(input: ToolPromptInput) -> dict:
+    @activity.defn(name="agent_tool_planner")
+    async def mock_planner(input: ToolPromptInput, fallback_mode: bool) -> dict:
         if "planner_called" not in captured:
             captured["planner_called"] = True
             return {
@@ -341,12 +341,12 @@ async def test_create_invoice_defaults_days_until_due(client: Client):
     async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
         return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
 
-    @activity.defn(name="agent_validatePrompt")
-    async def mock_validate(prompt: ValidationInput) -> ValidationResult:
+    @activity.defn(name="agent_validate_prompt")
+    async def mock_validate(prompt: ValidationInput, fallback_mode: bool) -> ValidationResult:
         return ValidationResult(validationResult=True, validationFailedReason={})
 
-    @activity.defn(name="agent_toolPlanner")
-    async def mock_planner(input: ToolPromptInput) -> dict:
+    @activity.defn(name="agent_tool_planner")
+    async def mock_planner(input: ToolPromptInput, fallback_mode: bool) -> dict:
         if "planner_called" not in captured:
             captured["planner_called"] = True
             return {
@@ -442,12 +442,12 @@ async def test_mcp_tool_failure_recorded(client: Client):
     async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
         return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
 
-    @activity.defn(name="agent_validatePrompt")
-    async def mock_validate(prompt: ValidationInput) -> ValidationResult:
+    @activity.defn(name="agent_validate_prompt")
+    async def mock_validate(prompt: ValidationInput, fallback_mode: bool) -> ValidationResult:
         return ValidationResult(validationResult=True, validationFailedReason={})
 
-    @activity.defn(name="agent_toolPlanner")
-    async def mock_planner(input: ToolPromptInput) -> dict:
+    @activity.defn(name="agent_tool_planner")
+    async def mock_planner(input: ToolPromptInput, fallback_mode: bool) -> dict:
         return {
             "next": "confirm",
             "tool": "list_products",

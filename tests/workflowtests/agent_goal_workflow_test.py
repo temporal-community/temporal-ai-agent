@@ -46,14 +46,15 @@ async def test_flight_booking(client: Client):
         async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
             return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
 
-        @activity.defn(name="agent_validatePrompt")
-        async def mock_agent_validatePrompt(
+        @activity.defn(name="agent_validate_prompt")
+        async def mock_agent_validate_prompt(
             validation_input: ValidationInput,
+            fallback_mode: bool,
         ) -> ValidationResult:
             return ValidationResult(validationResult=True, validationFailedReason={})
 
-        @activity.defn(name="agent_toolPlanner")
-        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+        @activity.defn(name="agent_tool_planner")
+        async def mock_agent_tool_planner(input: ToolPromptInput, fallback_mode: bool) -> dict:
             return {"next": "done", "response": "Test response from LLM"}
 
         @activity.defn(name="mcp_list_tools")
@@ -82,8 +83,8 @@ async def test_flight_booking(client: Client):
                 workflows=[AgentGoalWorkflow],
                 activities=[
                     mock_get_wf_env_vars,
-                    mock_agent_validatePrompt,
-                    mock_agent_toolPlanner,
+                    mock_agent_validate_prompt,
+                    mock_agent_tool_planner,
                     mock_mcp_list_tools,
                     mock_mcp_tool_activity,
                     mock_dynamic_tool_activity,
@@ -101,7 +102,7 @@ async def test_flight_booking(client: Client):
 
                 prompt = "Hello!"
 
-                # async with Worker(client, task_queue=task_queue_name, workflows=[AgentGoalWorkflow], activities=[ToolActivities.agent_validatePrompt, ToolActivities.agent_toolPlanner, dynamic_tool_activity]):
+                # async with Worker(client, task_queue=task_queue_name, workflows=[AgentGoalWorkflow], activities=[ToolActivities.agent_validate_prompt, ToolActivities.agent_tool_planner, dynamic_tool_activity]):
 
                 # todo set goal categories for scenarios
                 handle = await client.start_workflow(

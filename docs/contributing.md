@@ -1,5 +1,12 @@
 # Contributing to the Temporal AI Agent Project
 
+## Table of Contents
+- [Getting Started](#getting-started)
+  - [Code Style & Formatting](#code-style--formatting)
+  - [Linting & Type Checking](#linting--type-checking)
+- [Testing](#testing)
+- [Making Changes](#making-changes)
+
 This document provides guidelines for contributing to `temporal-ai-agent`. All setup and installation instructions can be found in [setup.md](./setup.md).
 
 ## Getting Started

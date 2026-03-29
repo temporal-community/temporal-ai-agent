@@ -1,4 +1,15 @@
 # Architecture Decisions
+
+## Table of Contents
+- [AI Models](#ai-models)
+- [Temporal](#temporal)
+  - [Reliability and State Management](#reliability-and-state-management)
+  - [Handling Complex, Dynamic Workflows](#handling-complex-dynamic-workflows)
+  - [Scalability and Speed](#scalability-and-speed)
+  - [Observability and Debugging](#observability-and-debugging)
+  - [Simplified Error Handling](#simplified-error-handling)
+  - [Flexibility for Experimentation](#flexibility-for-experimentation)
+
 This documents some of the "why" behind the [architecture](./architecture.md). 
 
 ## AI Models
