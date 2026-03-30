@@ -3,13 +3,14 @@ import NavBar from "../components/NavBar";
 import ChatWindow from "../components/ChatWindow";
 import { apiService } from "../services/api";
 
-const POLL_INTERVAL = 600; // 0.6 seconds
+const POLL_INTERVAL = 600; // 0.6 seconds (fallback only)
 const INITIAL_ERROR_STATE = { visible: false, message: '' };
 const DEBOUNCE_DELAY = 300; // 300ms debounce for user input
 const CONVERSATION_FETCH_ERROR_DELAY_MS = 10000; // wait 10s before showing fetch errors
 const CONVERSATION_FETCH_ERROR_THRESHOLD = Math.ceil(
     CONVERSATION_FETCH_ERROR_DELAY_MS / POLL_INTERVAL
 );
+const USE_SSE = true; // Feature flag: set to false to use polling fallback
 
 function useDebounce(value, delay) {
     const [debouncedValue, setDebouncedValue] = useState(value);
@@ -32,13 +33,15 @@ export default function App() {
     const inputRef = useRef(null);
     const pollingRef = useRef(null);
     const scrollTimeoutRef = useRef(null);
-    
+    const eventSourceRef = useRef(null);
+
     const [conversation, setConversation] = useState([]);
     const [lastMessage, setLastMessage] = useState(null);
     const [userInput, setUserInput] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(INITIAL_ERROR_STATE);
     const [done, setDone] = useState(true);
+    const [usingSSE, setUsingSSE] = useState(USE_SSE);
 
     const debouncedUserInput = useDebounce(userInput, DEBOUNCE_DELAY);
 
@@ -134,14 +137,105 @@ export default function App() {
             handleError(err, "fetching conversation");
         }
     }, [handleError, clearErrorOnSuccess]);
-    
-    // Setup polling with cleanup
+
+    // SSE connection setup
+    const setupSSE = useCallback(() => {
+        try {
+            const eventSource = apiService.createConversationStream();
+            eventSourceRef.current = eventSource;
+
+            // Handle new messages
+            eventSource.addEventListener('messages', (event) => {
+                const data = JSON.parse(event.data);
+                const newMessages = data.messages || [];
+
+                if (newMessages.length > 0) {
+                    setConversation(prev => [...prev, ...newMessages]);
+
+                    // Update UI state based on last message
+                    const lastMsg = newMessages[newMessages.length - 1];
+                    const isAgentMessage = lastMsg.actor === "agent";
+
+                    setLoading(!isAgentMessage);
+                    setDone(lastMsg.response?.next === "done");
+                    setLastMessage(lastMsg);
+                }
+
+                clearErrorOnSuccess();
+            });
+
+            // Handle workflow ended
+            eventSource.addEventListener('workflow_ended', () => {
+                setDone(true);
+                setLoading(false);
+            });
+
+            // Handle waiting state
+            eventSource.addEventListener('waiting', () => {
+                // Workflow not started yet, just wait
+            });
+
+            // Handle errors
+            eventSource.addEventListener('error', (event) => {
+                console.error("SSE error:", event);
+
+                // EventSource automatically reconnects, but we can handle specific errors
+                if (eventSource.readyState === EventSource.CLOSED) {
+                    console.log("SSE connection closed, falling back to polling");
+                    setUsingSSE(false);
+                    handleError(
+                        { status: 500, message: "SSE connection failed" },
+                        "SSE connection"
+                    );
+                }
+            });
+
+            // Handle connection open
+            eventSource.onopen = () => {
+                clearErrorOnSuccess();
+            };
+
+        } catch (err) {
+            console.error("Failed to setup SSE:", err);
+            setUsingSSE(false);
+            handleError(err, "setting up SSE");
+        }
+    }, [handleError, clearErrorOnSuccess]);
+
+    // Cleanup SSE on unmount
     useEffect(() => {
-        pollingRef.current = setInterval(fetchConversationHistory, POLL_INTERVAL);
-        
-        return () => clearInterval(pollingRef.current);
-    }, [fetchConversationHistory]);
-    
+        return () => {
+            if (eventSourceRef.current) {
+                eventSourceRef.current.close();
+            }
+        };
+    }, []);
+
+    // Setup polling or SSE based on mode
+    useEffect(() => {
+        if (usingSSE && USE_SSE) {
+            // Use SSE
+            setupSSE();
+
+            return () => {
+                if (eventSourceRef.current) {
+                    eventSourceRef.current.close();
+                }
+            };
+        } else {
+            // Fallback to polling
+            console.log("Using polling fallback");
+            pollingRef.current = setInterval(fetchConversationHistory, POLL_INTERVAL);
+
+            return () => {
+                if (pollingRef.current) {
+                    clearInterval(pollingRef.current);
+                }
+            };
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [usingSSE]);
+
 
     const scrollToBottom = useCallback(() => {
         if (containerRef.current) {

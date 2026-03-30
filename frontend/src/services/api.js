@@ -115,7 +115,7 @@ export const apiService = {
 
     async confirm() {
         try {
-            const res = await fetchWithTimeout(`${API_BASE_URL}/confirm`, { 
+            const res = await fetchWithTimeout(`${API_BASE_URL}/confirm`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -131,5 +131,13 @@ export const apiService = {
                 error.status || 500
             );
         }
+    },
+
+    /**
+     * Create an EventSource for SSE conversation stream
+     * @returns {EventSource} EventSource instance
+     */
+    createConversationStream() {
+        return new EventSource(`${API_BASE_URL}/conversation-stream`);
     }
-}; 
+};

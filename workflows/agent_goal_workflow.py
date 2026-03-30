@@ -281,6 +281,23 @@ class AgentGoalWorkflow:
         """Query handler to retrieve the latest tool data response if available."""
         return self.tool_data
 
+    @workflow.query
+    def get_messages_since(self, since_index: int) -> Dict[str, Any]:
+        """Query handler to retrieve messages since a specific index.
+
+        Args:
+            since_index: The index to start from (0-based)
+
+        Returns:
+            Dictionary containing new messages and total count
+        """
+        messages = self.conversation_history.get("messages", [])
+        return {
+            "messages": messages[since_index:],
+            "total_count": len(messages),
+            "has_new": len(messages) > since_index
+        }
+
     def add_message(self, actor: str, response: Union[str, Dict[str, Any]]) -> None:
         """Add a message to the conversation history.
 
