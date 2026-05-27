@@ -6,14 +6,13 @@ import os
 from dotenv import load_dotenv
 from temporalio.worker import Worker
 
-from activities.tool_activities import (
-    ToolActivities,
-    dynamic_tool_activity,
-    mcp_list_tools,
-)
+from activities import mcp_dispatcher_registry
+from activities.mcp_dispatcher import mcp_tool_dispatcher
+from activities.tool_activities import ToolActivities, mcp_list_tools
 from shared.config import TEMPORAL_TASK_QUEUE, get_temporal_client
 from shared.mcp_client_manager import MCPClientManager
 from workflows.agent_goal_workflow import AgentGoalWorkflow
+from workflows.mcp_agent_chain_workflow import MCPAgentChainWorkflow
 
 
 async def main():
@@ -24,8 +23,11 @@ async def main():
     llm_model = os.environ.get("LLM_MODEL", "openai/gpt-4")
     print(f"Worker will use LLM model: {llm_model}")
 
-    # Create shared MCP client manager
+    # Create shared MCP client manager and publish it to the dispatcher
+    # registry so the dynamic MCP-tool dispatcher activity can reuse pooled
+    # connections instead of opening one per call.
     mcp_client_manager = MCPClientManager()
+    mcp_dispatcher_registry.set_client_manager(mcp_client_manager)
 
     # Create the client
     client = await get_temporal_client()
@@ -66,13 +68,13 @@ async def main():
             worker = Worker(
                 client,
                 task_queue=TEMPORAL_TASK_QUEUE,
-                workflows=[AgentGoalWorkflow],
+                workflows=[AgentGoalWorkflow, MCPAgentChainWorkflow],
                 activities=[
                     activities.agent_validatePrompt,
                     activities.agent_toolPlanner,
                     activities.get_wf_env_vars,
                     activities.mcp_tool_activity,
-                    dynamic_tool_activity,
+                    mcp_tool_dispatcher,
                     mcp_list_tools,
                 ],
                 activity_executor=activity_executor,

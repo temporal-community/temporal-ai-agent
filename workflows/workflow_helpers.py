@@ -12,6 +12,11 @@ from prompts.agent_prompt_generators import (
     generate_tool_completion_prompt,
 )
 from shared.config import TEMPORAL_LEGACY_TASK_QUEUE
+from workflows.mcp_dispatcher_helpers import (
+    MCP_TOOL_SCHEDULE_TO_CLOSE_TIMEOUT,
+    MCP_TOOL_START_TO_CLOSE_TIMEOUT,
+    invoke_mcp_tool,
+)
 
 # Constants from original file
 TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=12)
@@ -61,15 +66,22 @@ async def handle_tool_execution(
             if current_tool == "create_invoice" and "days_until_due" not in mcp_args:
                 mcp_args["days_until_due"] = 7
 
+            # Preserve the legacy invocation path (dynamic activity registered
+            # under the tool name) so existing workers stay backwards
+            # compatible. New deployments that register the typed dispatcher
+            # under `mcp__<server>__<tool>` should call `invoke_mcp_tool`
+            # directly — see workflows/mcp_agent_chain_workflow.py.
             mcp_args["server_definition"] = goal.mcp_server_definition
 
             dynamic_result = await workflow.execute_activity(
                 current_tool,
                 mcp_args,
-                schedule_to_close_timeout=TOOL_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
-                start_to_close_timeout=TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+                schedule_to_close_timeout=MCP_TOOL_SCHEDULE_TO_CLOSE_TIMEOUT,
+                start_to_close_timeout=MCP_TOOL_START_TO_CLOSE_TIMEOUT,
                 retry_policy=RetryPolicy(
-                    initial_interval=timedelta(seconds=5), backoff_coefficient=1
+                    initial_interval=timedelta(seconds=5),
+                    backoff_coefficient=2.0,
+                    maximum_attempts=5,
                 ),
                 summary=f"{goal.mcp_server_definition.name} (MCP Tool)",
             )
