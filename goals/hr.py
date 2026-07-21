@@ -30,7 +30,7 @@ goal_hr_schedule_pto = AgentGoal(
             "tool_result: { 'num_hours': 400, 'num_days': 50 }",
             "agent: You have 400 hours, or 50 days, of PTO available. What dates would you like to take your time off? ",
             "user: Dec 1 through Dec 5",
-            "agent: Let's check if you'll have enough PTO accrued by Dec 1 of this year to accomodate that.",
+            "agent: Let's check if you'll have enough PTO accrued by Dec 1 of this year to accommodate that.",
             "user_confirmed_tool_run: <user clicks confirm on FuturePTO tool>"
             'tool_result: {"enough_pto": True, "pto_hrs_remaining_after": 410}',
             "agent: You do in fact have enough PTO to accommodate that, and will have 410 hours remaining after you come back. Do you want to book the PTO? ",
