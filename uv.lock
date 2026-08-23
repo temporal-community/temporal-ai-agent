@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10, <4.0"
 resolution-markers = [
     "python_full_version >= '3.12'",
@@ -2055,7 +2055,7 @@ requires-dist = [
     { name = "fastapi", specifier = ">=0.115.6,<0.116" },
     { name = "fastmcp", specifier = ">=2.7.0,<3" },
     { name = "gtfs-kit", specifier = ">=10.1.1,<11" },
-    { name = "litellm", specifier = ">=1.70.0,<2" },
+    { name = "litellm", specifier = ">=1.70.0,!=1.82.7,!=1.82.8,<2" },
     { name = "pandas", specifier = ">=2.2.3,<3" },
     { name = "python-dotenv", specifier = ">=1.0.1,<2" },
     { name = "pyyaml", specifier = ">=6.0.2,<7" },
