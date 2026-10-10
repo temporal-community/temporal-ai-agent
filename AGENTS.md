@@ -80,8 +80,9 @@ Copy `.env.example` to `.env` and configure:
 # Required: LLM Configuration
 LLM_MODEL=openai/gpt-4o
 LLM_KEY=your-api-key-here
-# LLM_MODEL=anthropic/claude-3-5-sonnet-20240620
+# LLM_MODEL=anthropic/claude-haiku-5-5
 # LLM_KEY=${ANTHROPIC_API_KEY}
+# LLM_EXTRA_PARAMS='{"output_config": {"effort": "medium"}}'
 # LLM_MODEL=gemini/gemini-2.5-flash-preview-04-17
 # LLM_KEY=${GOOGLE_API_KEY}
 

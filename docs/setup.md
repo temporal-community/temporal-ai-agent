@@ -77,20 +77,21 @@ See the section Goal-Specific Tool Configuration below for tool configuration fo
 
 ### LLM Configuration
 
-Note: We recommend using OpenAI's GPT-4o or Claude 3.5 Sonnet for the best results. There can be significant differences in performance and capabilities between models, especially for complex tasks.
+Note: We recommend using OpenAI's GPT-4o or Claude Haiku 5.5 for the best results. There can be significant differences in performance and capabilities between models, especially for complex tasks.
 
 The agent uses LiteLLM to interact with various LLM providers. Configure the following environment variables in your `.env` file:
 
-- `LLM_MODEL`: The model to use (e.g., "openai/gpt-4o", "anthropic/claude-3-sonnet", "google/gemini-pro", etc.)
+- `LLM_MODEL`: The model to use (e.g., "openai/gpt-4o", "anthropic/claude-haiku-5-5", "google/gemini-pro", etc.)
 - `LLM_KEY`: Your API key for the selected provider
 - `LLM_BASE_URL`: (Optional) Custom base URL for the LLM provider. Useful for:
   - Using Ollama with a custom endpoint
   - Using a proxy or custom API gateway
   - Testing with different API versions
+- `LLM_EXTRA_PARAMS`: (Optional) JSON object of extra parameters passed to the LiteLLM completion call, e.g. `'{"output_config": {"effort": "medium"}}'` to set reasoning effort on Claude models
 
 LiteLLM will automatically detect the provider based on the model name. For example:
 - For OpenAI models: `openai/gpt-4o` or `openai/gpt-3.5-turbo`
-- For Anthropic models: `anthropic/claude-3-sonnet`
+- For Anthropic models: `anthropic/claude-haiku-5-5`
 - For Google models: `google/gemini-pro`
 - For Ollama models: `ollama/mistral` (requires `LLM_BASE_URL` set to your Ollama server)
 
@@ -101,8 +102,9 @@ LLM_MODEL=openai/gpt-4o
 LLM_KEY=your-api-key-here
 
 # For Anthropic
-LLM_MODEL=anthropic/claude-3-sonnet
+LLM_MODEL=anthropic/claude-haiku-5-5
 LLM_KEY=your-api-key-here
+LLM_EXTRA_PARAMS='{"output_config": {"effort": "medium"}}'
 
 # For Ollama with custom URL
 LLM_MODEL=ollama/mistral
