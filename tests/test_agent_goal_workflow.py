@@ -1,7 +1,11 @@
+import ast
+import asyncio
 import uuid
 
+import pytest
 from temporalio import activity
-from temporalio.client import Client
+from temporalio.client import Client, WorkflowFailureError
+from temporalio.exceptions import ApplicationError, CancelledError
 from temporalio.worker import Worker
 
 from models.data_types import (
@@ -541,3 +545,229 @@ class TestAgentGoalWorkflow:
             # Verify at least the first message was processed
             message_texts = [str(msg["response"]) for msg in user_messages]
             assert any("First message" in text for text in message_texts)
+
+    async def test_planner_failure_is_bounded_and_reported(
+        self, client: Client, sample_combined_input: CombinedInput
+    ):
+        """A planner call that always fails is retried a bounded number of times,
+        then the user gets an agent message and the next prompt still works."""
+        task_queue_name = str(uuid.uuid4())
+        planner_prompts = []
+
+        @activity.defn(name="get_wf_env_vars")
+        async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
+            return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
+
+        @activity.defn(name="agent_validatePrompt")
+        async def mock_agent_validatePrompt(
+            validation_input: ValidationInput,
+        ) -> ValidationResult:
+            return ValidationResult(validationResult=True, validationFailedReason={})
+
+        @activity.defn(name="agent_toolPlanner")
+        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+            planner_prompts.append(input.prompt)
+            if input.prompt == "first prompt":
+                raise ApplicationError("model returned invalid JSON")
+            return {"next": "done", "response": "All done"}
+
+        async with Worker(
+            client,
+            task_queue=task_queue_name,
+            workflows=[AgentGoalWorkflow],
+            activities=[
+                mock_get_wf_env_vars,
+                mock_agent_validatePrompt,
+                mock_agent_toolPlanner,
+            ],
+        ):
+            handle = await client.start_workflow(
+                AgentGoalWorkflow.run,
+                sample_combined_input,
+                id=str(uuid.uuid4()),
+                task_queue=task_queue_name,
+            )
+            await handle.signal(AgentGoalWorkflow.user_prompt, "first prompt")
+            await handle.signal(AgentGoalWorkflow.user_prompt, "second prompt")
+
+            # Ends with "done" from the second prompt, not a workflow failure
+            result = await handle.result()
+
+        assert planner_prompts.count("first prompt") == 3
+        assert planner_prompts.count("second prompt") == 1
+        agent_responses = [
+            msg["response"]
+            for msg in ast.literal_eval(result)["messages"]
+            if msg["actor"] == "agent"
+        ]
+        assert agent_responses[0]["next"] == "question"
+        assert "could not process" in agent_responses[0]["response"]
+        assert agent_responses[-1]["next"] == "done"
+
+    async def test_validation_failure_is_bounded_and_reported(
+        self, client: Client, sample_combined_input: CombinedInput
+    ):
+        """A validation call that always fails is retried a bounded number of
+        times, then the user gets an agent message and the planner is skipped."""
+        task_queue_name = str(uuid.uuid4())
+        validated_prompts = []
+        planner_prompts = []
+
+        @activity.defn(name="get_wf_env_vars")
+        async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
+            return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
+
+        @activity.defn(name="agent_validatePrompt")
+        async def mock_agent_validatePrompt(
+            validation_input: ValidationInput,
+        ) -> ValidationResult:
+            validated_prompts.append(validation_input.prompt)
+            if validation_input.prompt == "first prompt":
+                raise ApplicationError("model request timed out")
+            return ValidationResult(validationResult=True, validationFailedReason={})
+
+        @activity.defn(name="agent_toolPlanner")
+        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+            planner_prompts.append(input.prompt)
+            return {"next": "done", "response": "All done"}
+
+        async with Worker(
+            client,
+            task_queue=task_queue_name,
+            workflows=[AgentGoalWorkflow],
+            activities=[
+                mock_get_wf_env_vars,
+                mock_agent_validatePrompt,
+                mock_agent_toolPlanner,
+            ],
+        ):
+            handle = await client.start_workflow(
+                AgentGoalWorkflow.run,
+                sample_combined_input,
+                id=str(uuid.uuid4()),
+                task_queue=task_queue_name,
+            )
+            await handle.signal(AgentGoalWorkflow.user_prompt, "first prompt")
+            await handle.signal(AgentGoalWorkflow.user_prompt, "second prompt")
+            result = await handle.result()
+
+        assert validated_prompts.count("first prompt") == 3
+        assert planner_prompts == ["second prompt"]
+        agent_responses = [
+            msg["response"]
+            for msg in ast.literal_eval(result)["messages"]
+            if msg["actor"] == "agent"
+        ]
+        assert "could not process" in agent_responses[0]["response"]
+        assert agent_responses[-1]["next"] == "done"
+
+    async def test_tool_failure_is_bounded(
+        self, client: Client, sample_combined_input: CombinedInput
+    ):
+        """A tool that always fails is attempted a bounded number of times and the
+        failure is recorded as a tool result."""
+        task_queue_name = str(uuid.uuid4())
+        tool_attempts = []
+
+        @activity.defn(name="get_wf_env_vars")
+        async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
+            return EnvLookupOutput(show_confirm=False, multi_goal_mode=True)
+
+        @activity.defn(name="agent_validatePrompt")
+        async def mock_agent_validatePrompt(
+            validation_input: ValidationInput,
+        ) -> ValidationResult:
+            return ValidationResult(validationResult=True, validationFailedReason={})
+
+        @activity.defn(name="agent_toolPlanner")
+        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+            if input.prompt.startswith("###"):  # tool completion prompt
+                return {"next": "done", "response": "The tool failed"}
+            return {
+                "next": "confirm",
+                "tool": "TestTool",
+                "args": {"test_arg": "test_value"},
+                "response": "Running the tool",
+            }
+
+        @activity.defn(name="TestTool")
+        async def mock_test_tool(args: dict) -> dict:
+            tool_attempts.append(activity.info().attempt)
+            raise ApplicationError("booking service unavailable")
+
+        async with Worker(
+            client,
+            task_queue=task_queue_name,
+            workflows=[AgentGoalWorkflow],
+            activities=[
+                mock_get_wf_env_vars,
+                mock_agent_validatePrompt,
+                mock_agent_toolPlanner,
+                mock_test_tool,
+            ],
+        ):
+            handle = await client.start_workflow(
+                AgentGoalWorkflow.run,
+                sample_combined_input,
+                id=str(uuid.uuid4()),
+                task_queue=task_queue_name,
+            )
+            await handle.signal(AgentGoalWorkflow.user_prompt, "run the tool")
+            result = await handle.result()
+
+        assert tool_attempts == [1, 2]
+        tool_results = [
+            msg["response"]
+            for msg in ast.literal_eval(result)["messages"]
+            if msg["actor"] == "tool_result"
+        ]
+        assert len(tool_results) == 1
+        assert "error" in tool_results[0]
+
+    async def test_cancel_during_llm_activity_cancels_workflow(
+        self, client: Client, sample_combined_input: CombinedInput
+    ):
+        """Cancelling the workflow during a model call is not treated as a
+        failed model call; the workflow ends as cancelled."""
+        task_queue_name = str(uuid.uuid4())
+        planner_started = asyncio.Event()
+
+        @activity.defn(name="get_wf_env_vars")
+        async def mock_get_wf_env_vars(input: EnvLookupInput) -> EnvLookupOutput:
+            return EnvLookupOutput(show_confirm=True, multi_goal_mode=True)
+
+        @activity.defn(name="agent_validatePrompt")
+        async def mock_agent_validatePrompt(
+            validation_input: ValidationInput,
+        ) -> ValidationResult:
+            return ValidationResult(validationResult=True, validationFailedReason={})
+
+        @activity.defn(name="agent_toolPlanner")
+        async def mock_agent_toolPlanner(input: ToolPromptInput) -> dict:
+            planner_started.set()
+            await asyncio.Event().wait()  # never returns; cancelled at shutdown
+            return {}
+
+        async with Worker(
+            client,
+            task_queue=task_queue_name,
+            workflows=[AgentGoalWorkflow],
+            activities=[
+                mock_get_wf_env_vars,
+                mock_agent_validatePrompt,
+                mock_agent_toolPlanner,
+            ],
+        ):
+            handle = await client.start_workflow(
+                AgentGoalWorkflow.run,
+                sample_combined_input,
+                id=str(uuid.uuid4()),
+                task_queue=task_queue_name,
+            )
+            await handle.signal(AgentGoalWorkflow.user_prompt, "first prompt")
+            await asyncio.wait_for(planner_started.wait(), timeout=10)
+            await handle.cancel()
+
+            with pytest.raises(WorkflowFailureError) as err:
+                await asyncio.wait_for(handle.result(), timeout=10)
+            assert isinstance(err.value.cause, CancelledError)

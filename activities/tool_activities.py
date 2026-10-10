@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Sequence
 
 from dotenv import load_dotenv
-from litellm import completion
+from litellm import acompletion
 from temporalio import activity
 from temporalio.common import RawValue
 from temporalio.exceptions import ApplicationError
@@ -32,6 +32,10 @@ except ImportError:
     stdio_client = None
 
 load_dotenv(override=True)
+
+# Keep below LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT (workflows/workflow_helpers.py)
+# so the request ends before Temporal times out the activity attempt.
+LLM_REQUEST_TIMEOUT_SECONDS = 110
 
 
 class ToolActivities:
@@ -128,13 +132,14 @@ class ToolActivities:
                 "model": self.llm_model,
                 "messages": messages,
                 "api_key": self.llm_key,
+                "timeout": LLM_REQUEST_TIMEOUT_SECONDS,
             }
 
             # Add base_url if configured
             if self.llm_base_url:
                 completion_kwargs["base_url"] = self.llm_base_url
 
-            response = completion(**completion_kwargs)
+            response = await acompletion(**completion_kwargs)
 
             response_content = response.choices[0].message.content
             activity.logger.info(f"Raw LLM response: {repr(response_content)}")

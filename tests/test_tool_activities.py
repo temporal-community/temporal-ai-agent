@@ -18,6 +18,7 @@ from models.data_types import (
     ValidationInput,
     ValidationResult,
 )
+from workflows.workflow_helpers import LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT
 
 
 class TestToolActivities:
@@ -108,7 +109,9 @@ class TestToolActivities:
             '{"next": "confirm", "tool": "TestTool", "response": "Test response"}'
         )
 
-        with patch("activities.tool_activities.completion") as mock_completion:
+        with patch(
+            "activities.tool_activities.acompletion", new_callable=AsyncMock
+        ) as mock_completion:
             mock_completion.return_value = mock_response
 
             activity_env = ActivityEnvironment()
@@ -128,6 +131,12 @@ class TestToolActivities:
             assert len(call_args["messages"]) == 2
             assert call_args["messages"][0]["role"] == "system"
             assert call_args["messages"][1]["role"] == "user"
+            # Request must end before Temporal's start-to-close limit
+            assert (
+                0
+                < call_args["timeout"]
+                < LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT.total_seconds()
+            )
 
     @pytest.mark.asyncio
     async def test_agent_toolPlanner_with_custom_base_url(self):
@@ -146,7 +155,9 @@ class TestToolActivities:
                 0
             ].message.content = '{"next": "done", "response": "Test"}'
 
-            with patch("activities.tool_activities.completion") as mock_completion:
+            with patch(
+                "activities.tool_activities.acompletion", new_callable=AsyncMock
+            ) as mock_completion:
                 mock_completion.return_value = mock_response
 
                 activity_env = ActivityEnvironment()
@@ -169,7 +180,9 @@ class TestToolActivities:
         mock_response.choices = [MagicMock()]
         mock_response.choices[0].message.content = "Invalid JSON response"
 
-        with patch("activities.tool_activities.completion") as mock_completion:
+        with patch(
+            "activities.tool_activities.acompletion", new_callable=AsyncMock
+        ) as mock_completion:
             mock_completion.return_value = mock_response
 
             activity_env = ActivityEnvironment()
@@ -372,7 +385,11 @@ class TestEdgeCases:
             0
         ].message.content = '{"next": "done", "response": "Processed long prompt"}'
 
-        with patch("activities.tool_activities.completion", return_value=mock_response):
+        with patch(
+            "activities.tool_activities.acompletion",
+            new_callable=AsyncMock,
+            return_value=mock_response,
+        ):
             activity_env = ActivityEnvironment()
             result = await activity_env.run(
                 self.tool_activities.agent_toolPlanner, tool_prompt_input

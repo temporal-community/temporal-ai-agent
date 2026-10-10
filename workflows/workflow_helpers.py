@@ -16,8 +16,26 @@ from shared.config import TEMPORAL_LEGACY_TASK_QUEUE
 # Constants from original file
 TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=12)
 TOOL_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT = timedelta(minutes=30)
-LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=20)
+# Model calls can be slow (reasoning models, long histories). The activity's
+# request timeout (activities/tool_activities.py) is kept below this.
+LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT = timedelta(seconds=120)
 LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT = timedelta(minutes=30)
+
+# Every attempt is a paid model call, so a call that keeps failing is not
+# re-sent for the whole schedule-to-close window.
+LLM_ACTIVITY_RETRY_POLICY = RetryPolicy(
+    initial_interval=timedelta(seconds=5), backoff_coefficient=2, maximum_attempts=3
+)
+LLM_FAILURE_RESPONSE = "Sorry, I could not process that request. Please try again."
+# Some tools change state (book, transfer, invoice), so allow one retry only.
+TOOL_ACTIVITY_RETRY_POLICY = RetryPolicy(
+    initial_interval=timedelta(seconds=5), maximum_attempts=2
+)
+# The legacy train tools fail on purpose and are retried until the enterprise
+# worker takes over (see docs/setup.md), so they keep unlimited retries.
+LEGACY_TOOL_ACTIVITY_RETRY_POLICY = RetryPolicy(
+    initial_interval=timedelta(seconds=5), backoff_coefficient=1
+)
 
 
 def is_mcp_tool(tool_name: str, goal: AgentGoal) -> bool:
@@ -68,9 +86,7 @@ async def handle_tool_execution(
                 mcp_args,
                 schedule_to_close_timeout=TOOL_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
                 start_to_close_timeout=TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT,
-                retry_policy=RetryPolicy(
-                    initial_interval=timedelta(seconds=5), backoff_coefficient=1
-                ),
+                retry_policy=TOOL_ACTIVITY_RETRY_POLICY,
                 summary=f"{goal.mcp_server_definition.name} (MCP Tool)",
             )
         else:
@@ -87,8 +103,10 @@ async def handle_tool_execution(
                 task_queue=task_queue,
                 schedule_to_close_timeout=TOOL_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
                 start_to_close_timeout=TOOL_ACTIVITY_START_TO_CLOSE_TIMEOUT,
-                retry_policy=RetryPolicy(
-                    initial_interval=timedelta(seconds=5), backoff_coefficient=1
+                retry_policy=(
+                    LEGACY_TOOL_ACTIVITY_RETRY_POLICY
+                    if task_queue
+                    else TOOL_ACTIVITY_RETRY_POLICY
                 ),
             )
 
