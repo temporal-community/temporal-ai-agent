@@ -151,7 +151,6 @@ class AgentGoalWorkflow:
                     agent_goal=self.goal,
                     conversation_history=self.conversation_history,
                     multi_goal_mode=self.multi_goal_mode,
-                    raw_json=self.tool_data,
                     mcp_tools_info=self.mcp_tools_info,
                 )
 

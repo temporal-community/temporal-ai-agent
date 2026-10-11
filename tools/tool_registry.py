@@ -81,12 +81,6 @@ search_flights_tool = ToolDefinition(
             type="ISO8601",
             description="End of date range in human readable format, when you want to return",
         ),
-        ToolArgument(
-            name="userConfirmation",
-            type="string",
-            description="Indication of the user's desire to search flights, and to confirm the details "
-            + "before moving on to the next step",
-        ),
     ],
 )
 
@@ -390,11 +384,6 @@ ecomm_track_package = ToolDefinition(
             name="tracking_id",
             type="string",
             description="ID of package to track",
-        ),
-        ToolArgument(
-            name="userConfirmation",
-            type="string",
-            description="Indication of user's desire to get package tracking information",
         ),
     ],
 )
