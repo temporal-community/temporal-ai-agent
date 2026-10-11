@@ -10,11 +10,10 @@ def generate_genai_prompt(
     agent_goal: AgentGoal,
     conversation_history: str,
     multi_goal_mode: bool,
-    raw_json: Optional[str] = None,
     mcp_tools_info: Optional[dict] = None,
 ) -> str:
     """
-    Generates a concise prompt for producing or validating JSON instructions
+    Generates a concise prompt for producing JSON instructions
     with the provided tools and conversation history.
     """
     prompt_lines = []
@@ -22,9 +21,7 @@ def generate_genai_prompt(
 
     # Intro / Role
     prompt_lines.append(
-        "You are an AI agent that helps fill required arguments for the tools described below. "
-        "CRITICAL: You must respond with ONLY valid JSON using the exact schema provided. "
-        "DO NOT include any text before or after the JSON. Your entire response must be parseable JSON."
+        "You are an AI agent that helps fill required arguments for the tools described below."
     )
 
     # Main Conversation History
@@ -98,11 +95,7 @@ def generate_genai_prompt(
     )
 
     # JSON Format Instructions
-    prompt_lines.append("=== CRITICAL: JSON-ONLY RESPONSE FORMAT ===")
     prompt_lines.append(
-        "MANDATORY: Your response must be ONLY valid JSON with NO additional text.\n"
-        "NO explanations, NO comments, NO text before or after the JSON.\n"
-        "Your entire response must start with '{' and end with '}'.\n\n"
         "Required JSON format:\n"
         "{\n"
         '  "response": "<plain text>",\n'
@@ -113,14 +106,11 @@ def generate_genai_prompt(
         '    "<arg2>": "<value2 or null>",\n'
         "    ...\n"
         "  }\n"
-        "}\n\n"
-        "INVALID EXAMPLE: 'Thank you for providing... {\"response\": ...}'\n"
-        'VALID EXAMPLE: \'{"response": "Thank you for providing...", "next": ...}\''
+        "}"
     )
     prompt_lines.append(
         "DECISION LOGIC (follow this exact order):\n"
         "1) Do I need to run a tool next?\n"
-        "   - If your response says 'let's get/proceed/check/add/create/finalize...' -> YES, you need a tool\n"
         "   - If you're announcing what you're about to do -> YES, you need a tool\n"
         "   - If no more steps needed for current goal -> NO, go to step 3\n\n"
         "2) If YES to step 1: Do I have all required arguments?\n"
@@ -131,52 +121,22 @@ def generate_genai_prompt(
         "   - If missing required args -> set next='question', ask for missing args, tool=null\n\n"
         "3) If NO to step 1: Is the entire goal complete?\n"
         "   - Check Goal description in system prompt - are ALL steps done?\n"
-        "   - Check recent conversation for completion indicators ('finalized', 'complete', etc.)\n"
         f"   - If complete -> {generate_toolchain_complete_guidance()}\n"
         "   - If not complete -> identify next needed tool, go to step 2\n\n"
         "CRITICAL RULES:\n"
-        "• RESPOND WITH JSON ONLY - NO TEXT BEFORE OR AFTER THE JSON OBJECT\n"
-        "• Your response must start with '{' and end with '}' - nothing else\n"
         "• NEVER set next='question' without asking an actual question in your response\n"
         "• NEVER set tool=null when you're announcing you'll run a specific tool\n"
-        "• If response contains 'let's proceed to get pricing' -> next='confirm', tool='list_prices'\n"
-        "• If response contains 'Now adding X' -> next='confirm', tool='create_invoice_item'\n"
         "• Use conversation history to infer arguments (customer IDs, product IDs, etc.)\n"
         "• Use sensible defaults rather than asking users for technical parameters\n"
         "• Carry forward arguments between tools (same customer, same invoice, etc.)\n"
-        "• If force_confirm='False' in history, be declarative, don't ask permission\n\n"
-        "EXAMPLES:\n"
-        "WRONG: response='let\\'s get pricing', next='question', tool=null\n"
-        "RIGHT: response='let\\'s get pricing', next='confirm', tool='list_prices'\n"
-        "WRONG: response='adding pizza', next='question', tool='create_invoice_item'\n"
-        "RIGHT: response='adding pizza', next='confirm', tool='create_invoice_item'\n"
+        "• If force_confirm='False' in history, be declarative, don't ask permission"
     )
-
-    # Validation Task (If raw_json is provided)
-    if raw_json is not None:
-        prompt_lines.append("")
-        prompt_lines.append("=== Validation Task ===")
-        prompt_lines.append("Validate and correct the following JSON if needed:")
-        prompt_lines.append(json.dumps(raw_json, indent=2))
-        prompt_lines.append("")
-        prompt_lines.append(
-            "Check syntax, 'tool' validity, 'args' completeness, "
-            "and set 'next' appropriately. Return ONLY corrected JSON."
-        )
 
     # Prompt Start
     prompt_lines.append("")
-    prompt_lines.append("=== FINAL REMINDER ===")
-    prompt_lines.append("RESPOND WITH VALID JSON ONLY. NO ADDITIONAL TEXT.")
-    prompt_lines.append("")
-    if raw_json is not None:
-        prompt_lines.append(
-            "Validate the provided JSON and return ONLY corrected JSON."
-        )
-    else:
-        prompt_lines.append(
-            "Return ONLY a valid JSON response. Start with '{' and end with '}'."
-        )
+    prompt_lines.append(
+        "Return ONLY a valid JSON response. Start with '{' and end with '}'."
+    )
 
     return "\n".join(prompt_lines)
 
@@ -198,7 +158,6 @@ def generate_tool_completion_prompt(current_tool: str, dynamic_result: dict) -> 
         "You will need to use the tool_results to auto-fill arguments for subsequent tools and also to figure out if all tools have been run. "
         '{"next": "<question|confirm|pick-new-goal|done>", "tool": "<tool_name or null>", "args": {"<arg1>": "<value1 or null>", "<arg2>": "<value2 or null>}, "response": "<plain text (can include \\n line breaks)>"}'
         "ONLY return those json keys (next, tool, args, response), nothing else. "
-        'Next should be "question" if the tool is not the last one in the sequence. '
         'Next should be "done" if the user is asking to be done with the chat. '
         f"{generate_pick_new_goal_guidance()}"
     )
