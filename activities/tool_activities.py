@@ -156,13 +156,34 @@ class ToolActivities:
     def parse_json_response(self, response_content: str) -> dict:
         """
         Parses the JSON response content and returns it as a dictionary.
+        If strict parsing fails, accepts one JSON object with text around it.
         """
         try:
             data = json.loads(response_content)
-            return data
         except json.JSONDecodeError as e:
-            print(f"Invalid JSON: {e}")
-            raise
+            data = self._find_single_json_object(response_content)
+            if data is None:
+                print(f"Invalid JSON: {e}")
+                raise
+        if not isinstance(data, dict):
+            raise json.JSONDecodeError("Expected a JSON object", response_content, 0)
+        return data
+
+    @staticmethod
+    def _find_single_json_object(text: str) -> Optional[dict]:
+        """Returns the JSON object at the first "{" if it is the only one, else None."""
+        start = text.find("{")
+        # A "[" first means the object may be inside a JSON array: don't guess.
+        if start == -1 or "[" in text[:start]:
+            return None
+        try:
+            data, end = json.JSONDecoder().raw_decode(text, start)
+        except json.JSONDecodeError:
+            return None
+        # Another "{" after the object: two objects are ambiguous.
+        if "{" in text[end:]:
+            return None
+        return data
 
     def sanitize_json_response(self, response_content: str) -> str:
         """

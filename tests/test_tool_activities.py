@@ -246,6 +246,85 @@ class TestToolActivities:
         with pytest.raises(Exception):  # Should raise JSON parsing error
             self.tool_activities.parse_json_response(invalid_json)
 
+    @pytest.mark.parametrize(
+        "raw",
+        [
+            '{"validationResult": true, "validationFailedReason": {}}',
+            '{"validationResult": true, "validationFailedReason": {}}\n'
+            "The prompt fits the goal.",
+            "Here is my answer:\n"
+            '{"validationResult": true, "validationFailedReason": {}}',
+            '```json\n{"validationResult": true, "validationFailedReason": {}}\n```',
+            'Sure:\n```json\n{"validationResult": true, "validationFailedReason": {}}'
+            "\n```\nThe prompt fits the goal.",
+        ],
+        ids=[
+            "plain",
+            "json-then-sentence",
+            "sentence-then-json",
+            "fenced",
+            "fenced-with-text",
+        ],
+    )
+    def test_parse_json_response_one_object_with_text(self, raw):
+        """One JSON object with text around it is accepted."""
+        content = self.tool_activities.sanitize_json_response(raw)
+        result = self.tool_activities.parse_json_response(content)
+        assert result == {"validationResult": True, "validationFailedReason": {}}
+
+    def test_parse_json_response_nested_object_then_sentence(self):
+        """Nested braces inside the one object are not a second object."""
+        raw = (
+            '{"validationResult": false, "validationFailedReason": '
+            '{"next": "question", "response": "Which order {id}?"}}\n'
+            "The prompt is off topic."
+        )
+        result = self.tool_activities.parse_json_response(raw)
+        assert result["validationResult"] is False
+        assert result["validationFailedReason"]["response"] == "Which order {id}?"
+
+    @pytest.mark.parametrize(
+        "raw",
+        [
+            '{"next": "confirm", "tool": "A"}\n{"next": "confirm", "tool": "B"}',
+            'Either {"tool": "A"} or {"tool": "B"}',
+            '[{"next": "done"}]',
+            '[{"next": "done"}] that is all',
+            "I cannot help with that.",
+        ],
+        ids=["two-objects", "two-objects-in-text", "list", "list-then-text", "no-json"],
+    )
+    def test_parse_json_response_rejects_ambiguous_or_non_object(self, raw):
+        """Two objects, a list or no JSON still raise."""
+        content = self.tool_activities.sanitize_json_response(raw)
+        with pytest.raises(json.JSONDecodeError):
+            self.tool_activities.parse_json_response(content)
+
+    @pytest.mark.asyncio
+    async def test_agent_validatePrompt_reply_with_trailing_sentence(
+        self, sample_agent_goal, sample_conversation_history
+    ):
+        """A validation reply with a sentence after the JSON still validates."""
+        validation_input = ValidationInput(
+            prompt="I need help with the test tool",
+            conversation_history=sample_conversation_history,
+            agent_goal=sample_agent_goal,
+        )
+        mock_response = MagicMock()
+        mock_response.choices = [MagicMock()]
+        mock_response.choices[0].message.content = (
+            '{"validationResult": true, "validationFailedReason": {}}\n'
+            "The prompt is relevant to the goal."
+        )
+
+        with patch("activities.tool_activities.completion", return_value=mock_response):
+            result = await ActivityEnvironment().run(
+                self.tool_activities.agent_validatePrompt, validation_input
+            )
+
+        assert result.validationResult is True
+        assert result.validationFailedReason == {}
+
 
 class TestDynamicToolActivity:
     """Test cases for dynamic_tool_activity."""
