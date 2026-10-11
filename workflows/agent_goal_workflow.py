@@ -4,6 +4,7 @@ from typing import Any, Deque, Dict, List, Optional, TypedDict, Union
 
 from temporalio import workflow
 from temporalio.common import RetryPolicy
+from temporalio.exceptions import ActivityError, is_cancelled_exception
 
 from models.data_types import (
     ConversationHistory,
@@ -15,6 +16,7 @@ from models.data_types import (
 from models.tool_definitions import AgentGoal
 from workflows import workflow_helpers as helpers
 from workflows.workflow_helpers import (
+    LLM_ACTIVITY_RETRY_POLICY,
     LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
     LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
 )
@@ -126,15 +128,19 @@ class AgentGoalWorkflow:
                         conversation_history=self.conversation_history,
                         agent_goal=self.goal,
                     )
-                    validation_result = await workflow.execute_activity_method(
-                        ToolActivities.agent_validatePrompt,
-                        args=[validation_input],
-                        schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
-                        start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
-                        retry_policy=RetryPolicy(
-                            initial_interval=timedelta(seconds=5), backoff_coefficient=1
-                        ),
-                    )
+                    try:
+                        validation_result = await workflow.execute_activity_method(
+                            ToolActivities.agent_validatePrompt,
+                            args=[validation_input],
+                            schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
+                            start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+                            retry_policy=LLM_ACTIVITY_RETRY_POLICY,
+                        )
+                    except ActivityError as e:
+                        if is_cancelled_exception(e):
+                            raise  # workflow cancel, not a failed model call
+                        self.add_llm_failure_message(e)
+                        continue
 
                     # If validation fails, provide that feedback to the user - i.e., "your words make no sense, puny human" end this iteration of processing
                     if not validation_result.validationResult:
@@ -160,15 +166,19 @@ class AgentGoalWorkflow:
                 )
 
                 # connect to LLM and execute to get next steps
-                tool_data = await workflow.execute_activity_method(
-                    ToolActivities.agent_toolPlanner,
-                    prompt_input,
-                    schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
-                    start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
-                    retry_policy=RetryPolicy(
-                        initial_interval=timedelta(seconds=5), backoff_coefficient=1
-                    ),
-                )
+                try:
+                    tool_data = await workflow.execute_activity_method(
+                        ToolActivities.agent_toolPlanner,
+                        prompt_input,
+                        schedule_to_close_timeout=LLM_ACTIVITY_SCHEDULE_TO_CLOSE_TIMEOUT,
+                        start_to_close_timeout=LLM_ACTIVITY_START_TO_CLOSE_TIMEOUT,
+                        retry_policy=LLM_ACTIVITY_RETRY_POLICY,
+                    )
+                except ActivityError as e:
+                    if is_cancelled_exception(e):
+                        raise  # workflow cancel, not a failed model call
+                    self.add_llm_failure_message(e)
+                    continue
 
                 tool_data["force_confirm"] = self.show_tool_args_confirmation
                 self.tool_data = tool_data
@@ -296,6 +306,13 @@ class AgentGoalWorkflow:
 
         self.conversation_history["messages"].append(
             {"actor": actor, "response": response}
+        )
+
+    def add_llm_failure_message(self, error: ActivityError) -> None:
+        """Tell the user a model call failed after all retries; keep the chat open."""
+        workflow.logger.error(f"LLM activity failed after retries: {error.cause}")
+        self.add_message(
+            "agent", {"next": "question", "response": helpers.LLM_FAILURE_RESPONSE}
         )
 
     def change_goal(self, goal: str) -> None:

@@ -219,7 +219,7 @@ async def test_my_workflow(self, client, sample_agent_goal, sample_conversation_
 Always mock external services:
 
 ```python
-@patch('activities.tool_activities.completion')
+@patch('activities.tool_activities.acompletion', new_callable=AsyncMock)
 async def test_llm_integration(self, mock_completion):
     mock_completion.return_value.choices[0].message.content = '{"test": "response"}'
     # Test implementation
