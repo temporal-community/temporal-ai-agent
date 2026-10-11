@@ -315,7 +315,7 @@ financial_move_money = ToolDefinition(
         ToolArgument(
             name="email_address_or_account_ID",
             type="string",
-            description="email address or account ID of user (you will need both to find the account)",
+            description="email address or account ID of user (exactly one of the two, not both)",
         ),
         ToolArgument(
             name="accounttype",
@@ -325,7 +325,7 @@ financial_move_money = ToolDefinition(
         ToolArgument(
             name="amount",
             type="string",
-            description="amount to move in the order (e.g. checking or savings)",
+            description="dollar amount to move (e.g. 100.00)",
         ),
         ToolArgument(
             name="destinationaccount",
