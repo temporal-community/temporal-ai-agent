@@ -158,6 +158,36 @@ class TestToolActivities:
                 assert call_args["base_url"] == "https://custom.endpoint.com"
 
     @pytest.mark.asyncio
+    async def test_agent_toolPlanner_with_extra_params(self):
+        """Test agent_toolPlanner passes LLM_EXTRA_PARAMS through to completion."""
+        with patch.dict(
+            os.environ,
+            {"LLM_EXTRA_PARAMS": '{"output_config": {"effort": "medium"}}'},
+        ):
+            tool_activities = ToolActivities()
+
+            prompt_input = ToolPromptInput(
+                prompt="Test prompt", context_instructions="Test context instructions"
+            )
+
+            mock_response = MagicMock()
+            mock_response.choices = [MagicMock()]
+            mock_response.choices[
+                0
+            ].message.content = '{"next": "done", "response": "Test"}'
+
+            with patch("activities.tool_activities.completion") as mock_completion:
+                mock_completion.return_value = mock_response
+
+                activity_env = ActivityEnvironment()
+                await activity_env.run(tool_activities.agent_toolPlanner, prompt_input)
+
+                # Verify extra params were included in the call
+                call_args = mock_completion.call_args[1]
+                assert call_args["output_config"] == {"effort": "medium"}
+                assert call_args["model"] == tool_activities.llm_model
+
+    @pytest.mark.asyncio
     async def test_agent_toolPlanner_json_parsing_error(self):
         """Test agent_toolPlanner handles JSON parsing errors."""
         prompt_input = ToolPromptInput(

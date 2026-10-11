@@ -40,10 +40,14 @@ class ToolActivities:
         self.llm_model = os.environ.get("LLM_MODEL", "openai/gpt-4")
         self.llm_key = os.environ.get("LLM_KEY")
         self.llm_base_url = os.environ.get("LLM_BASE_URL")
+        # Optional JSON object of extra LiteLLM completion params
+        self.llm_extra_params = json.loads(os.environ.get("LLM_EXTRA_PARAMS") or "{}")
         self.mcp_client_manager = mcp_client_manager
         print(f"Initializing ToolActivities with LLM model: {self.llm_model}")
         if self.llm_base_url:
             print(f"Using custom base URL: {self.llm_base_url}")
+        if self.llm_extra_params:
+            print(f"Using extra LLM params: {', '.join(self.llm_extra_params)}")
         if self.mcp_client_manager:
             print("MCP client manager enabled for connection pooling")
 
@@ -133,6 +137,9 @@ class ToolActivities:
             # Add base_url if configured
             if self.llm_base_url:
                 completion_kwargs["base_url"] = self.llm_base_url
+
+            # Add extra params if configured (e.g. reasoning effort)
+            completion_kwargs.update(self.llm_extra_params)
 
             response = completion(**completion_kwargs)
 
